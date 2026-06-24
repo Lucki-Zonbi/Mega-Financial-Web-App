@@ -13,17 +13,24 @@
 
   <header id="site-header" class="site-header">
     <nav class="navbar">
-      <div class="logo">Mega Financial</div>
+      <a href="#home" class="logo">Mega Financial</a>
 
-      <ul class="nav-links">
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
         <li><a href="#specials">Specials</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
-        <li><a href="#portal">Client Portal</a></li>
+        <li><a href="#portal">Portal</a></li>
+        <li><a href="#portal" class="mobile-login-link">Client Login</a></li>
       </ul>
 
-      <a href="#portal" class="nav-btn">Client Login</a>
+      <a href="#portal" class="nav-btn desktop-login-btn">Client Login</a>
     </nav>
   </header>
 
@@ -31,18 +38,18 @@
 
     <section id="home" class="hero">
       <div class="hero-content">
-        <p class="eyebrow">Virtual Tax Support • Appointment Scheduling • Secure Client Portal</p>
+        <p class="eyebrow">Virtual Tax Support • Secure Scheduling • Online Payments</p>
 
-        <h1>Tax services built for a smoother, smarter filing season.</h1>
+        <h1>Professional tax support built for a smoother filing season.</h1>
 
         <p>
-          Mega Financial helps clients prepare for tax season with professional service,
-          convenient scheduling, and a future-ready online experience.
+          Mega Financial helps clients prepare, schedule, and stay organized through a
+          modern tax-services website designed for convenient virtual support.
         </p>
 
         <div class="hero-actions">
           <a href="#portal" class="btn primary-btn">Schedule Appointment</a>
-          <a href="#services" class="btn secondary-btn">View Services</a>
+          <a href="#services" class="btn secondary-btn">Explore Services</a>
         </div>
       </div>
 
@@ -52,21 +59,33 @@
         </div>
 
         <h3>Meet the Owner</h3>
-        <p>Professional tax guidance with a client-first approach.</p>
+        <p>Client-focused tax guidance with a professional virtual experience.</p>
       </div>
     </section>
 
     <section id="specials" class="specials-section">
       <div class="section-heading">
-        <h2>Special Services & Updates</h2>
+        <span class="section-tag">Seasonal Updates</span>
+        <h2>Special Services & Announcements</h2>
         <p>
-          Seasonal offers, tax updates, refund advance announcements, and service flyers will appear here.
+          Tax-season flyers, refund advance updates, deadlines, and special services
+          will appear in this section.
         </p>
       </div>
 
-      <div class="flyer-placeholder">
-        <h3>No current flyer uploaded</h3>
-        <p>Check back soon for special tax-season announcements.</p>
+      <div class="specials-card">
+        <div class="flyer-placeholder">
+          <span>Flyer Upload Area</span>
+        </div>
+
+        <div class="specials-content">
+          <h3>No current promotion posted</h3>
+          <p>
+            When Mega Financial has a special service, seasonal offer, or tax update,
+            the flyer or image will appear here without changing the homepage layout.
+          </p>
+          <a href="#portal" class="text-link">Check availability →</a>
+        </div>
       </div>
     </section>
 
@@ -76,13 +95,27 @@
       </div>
 
       <div class="about-content">
-        <h2>About Mega Financial</h2>
+        <span class="section-tag">About Mega Financial</span>
+        <h2>Tax preparation with convenience, clarity, and care.</h2>
 
         <p>
-          Mega Financial provides tax preparation and financial services with a focus on
-          convenience, accuracy, and client care. This web app will allow clients to schedule,
-          communicate, and prepare for tax filing in a more organized virtual environment.
+          Mega Financial provides tax preparation and financial services with a focus
+          on accuracy, organization, and client support. This web app will help clients
+          schedule appointments, prepare documents, complete intake steps, and pay for
+          services in one virtual-friendly experience.
         </p>
+
+        <div class="about-highlights">
+          <div>
+            <strong>Virtual Ready</strong>
+            <span>Built for online service delivery.</span>
+          </div>
+
+          <div>
+            <strong>Client Focused</strong>
+            <span>Simple tools for scheduling and preparation.</span>
+          </div>
+        </div>
 
         <a href="#portal" class="btn primary-btn">Start With Mega Financial</a>
       </div>
@@ -90,27 +123,35 @@
 
     <section id="services" class="services-section">
       <div class="section-heading">
-        <h2>Services</h2>
-        <p>Designed for individuals, families, and small-business clients.</p>
+        <span class="section-tag">Services</span>
+        <h2>Support for individuals and small businesses.</h2>
+        <p>
+          Service details can be expanded later into full pages, pricing, intake forms,
+          and Stripe checkout options.
+        </p>
       </div>
 
       <div class="services-grid">
         <article class="service-card">
+          <span class="service-number">01</span>
           <h3>Individual Tax Filing</h3>
-          <p>Support for annual tax preparation and filing appointments.</p>
+          <p>Annual tax preparation support for personal filing needs.</p>
         </article>
 
         <article class="service-card">
+          <span class="service-number">02</span>
           <h3>Business Tax Services</h3>
-          <p>Tax support for entrepreneurs and small-business owners.</p>
+          <p>Tax support for entrepreneurs, contractors, and small businesses.</p>
         </article>
 
         <article class="service-card">
+          <span class="service-number">03</span>
           <h3>Bookkeeping</h3>
-          <p>Organized financial records for business planning and tax readiness.</p>
+          <p>Organized records to help clients stay ready throughout the year.</p>
         </article>
 
         <article class="service-card">
+          <span class="service-number">04</span>
           <h3>Payroll Support</h3>
           <p>Payroll-related support for business clients and service providers.</p>
         </article>
@@ -118,14 +159,22 @@
     </section>
 
     <section id="portal" class="portal-section">
-      <h2>Client Portal Coming Soon</h2>
+      <span class="section-tag light-tag">Client Portal</span>
+      <h2>Client portal coming soon.</h2>
 
       <p>
-        Clients will be able to create an account, schedule appointments,
-        complete intake forms, upload documents, and pay for services online.
+        Clients will be able to register, schedule appointments, complete intake forms,
+        upload documents, and pay for services online.
       </p>
 
-      <a href="#" class="btn primary-btn">Portal Preview</a>
+      <div class="portal-features">
+        <span>Login</span>
+        <span>Scheduling</span>
+        <span>Payments</span>
+        <span>Uploads</span>
+      </div>
+
+      <a href="#home" class="btn secondary-btn">Portal Preview</a>
     </section>
 
   </main>
