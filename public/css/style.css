@@ -477,3 +477,203 @@ section {
     gap: 1rem;
   }
 }
+
+/* =========================
+   About Page - Sprint 003
+========================= */
+
+.about-hero {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green), var(--money-blue));
+  padding: 5rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 28px;
+}
+
+.about-hero h1 {
+  color: var(--white);
+  font-size: 3.2rem;
+  line-height: 1.05;
+  margin: 1rem 0;
+}
+
+.about-hero p {
+  color: var(--gray-text);
+  max-width: 680px;
+}
+
+.about-owner-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.about-owner-card h3 {
+  color: var(--deep-blue);
+  margin-bottom: 0.6rem;
+}
+
+.story-section,
+.why-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.story-card {
+  background: var(--white);
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.mission-values-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: var(--white);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.mission-card {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 2rem;
+}
+
+.mission-card h2 {
+  color: var(--deep-blue);
+  font-size: 2.2rem;
+  line-height: 1.15;
+  margin: 0.6rem 0;
+}
+
+.values-grid,
+.why-grid,
+.future-proof-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.value-card,
+.why-card,
+.future-card {
+  background: var(--soft-green);
+  padding: 1.5rem;
+  border-radius: 22px;
+  transition: 0.3s ease;
+}
+
+.value-card h3,
+.why-card h3,
+.future-card h3 {
+  color: var(--deep-blue);
+  margin-bottom: 0.7rem;
+}
+
+.value-card:hover,
+.why-card:hover,
+.future-card:hover {
+  background: linear-gradient(135deg, var(--mint-green), var(--money-blue));
+  transform: translateY(-6px);
+}
+
+.value-card:hover h3,
+.value-card:hover p,
+.why-card:hover h3,
+.why-card:hover p,
+.future-card:hover h3,
+.future-card:hover p {
+  color: var(--white);
+}
+
+.virtual-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 3rem 1.5rem;
+  background: linear-gradient(135deg, var(--money-blue), var(--mint-green));
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.virtual-section h2,
+.virtual-section p {
+  color: var(--white);
+}
+
+.virtual-section h2 {
+  font-size: 2.2rem;
+  line-height: 1.15;
+  margin: 0.7rem auto;
+  max-width: 760px;
+}
+
+.virtual-section p {
+  max-width: 760px;
+  margin: auto;
+}
+
+.future-proof-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.about-cta-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 3rem 1.5rem;
+  background: linear-gradient(135deg, var(--mint-green), var(--money-blue));
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.about-cta-section h2,
+.about-cta-section p {
+  color: var(--white);
+}
+
+.about-cta-section h2 {
+  font-size: 2.2rem;
+  line-height: 1.15;
+}
+
+.about-cta-section p {
+  max-width: 720px;
+  margin: 1rem auto;
+}
+
+@media (max-width: 900px) {
+  .about-hero,
+  .values-grid,
+  .why-grid,
+  .future-proof-section {
+    grid-template-columns: 1fr;
+  }
+
+  .about-hero h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .about-hero {
+    margin: 1rem;
+    padding: 3rem 1.2rem;
+  }
+
+  .mission-values-section {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
