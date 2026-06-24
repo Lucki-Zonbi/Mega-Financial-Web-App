@@ -22,7 +22,7 @@ html {
 body {
   font-family: Arial, sans-serif;
   color: var(--gray-text);
-  background: var(--light-gray);
+  background: lightblue;
   line-height: 1.6;
 }
 
@@ -47,11 +47,11 @@ a {
 .site-header.scrolling .logo,
 .site-header.scrolling .nav-links a,
 .site-header.scrolling .hamburger span {
-  opacity: 0.45;
+  opacity: 0.30;
 }
 
 .site-header.scrolling .nav-btn {
-  opacity: 0.55;
+  opacity: 0.50;
 }
 
 .navbar {
@@ -171,7 +171,7 @@ a {
 }
 
 .hero h1 {
-  color: var(--white);
+  color: var(--money-blue);
   font-size: 3.3rem;
   line-height: 1.05;
   margin: 1rem 0;
