@@ -263,7 +263,7 @@ section {
   grid-template-columns: 1fr 1.4fr;
   gap: 2rem;
   align-items: center;
-  background: var(--white);
+  background: var(--mint-green);
   border-radius: 28px;
   padding: 2rem;
   box-shadow: var(--shadow);
@@ -298,7 +298,7 @@ section {
 }
 
 .service-card {
-  background: var(--white);
+  background: var(--soft-green);
   border-radius: 22px;
   padding: 1.5rem;
   box-shadow: var(--shadow);
