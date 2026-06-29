@@ -752,3 +752,142 @@ section {
     padding: 3rem 1.2rem;
   }
 }
+
+/* =========================
+   Client Portal Pages - Sprint 005
+========================= */
+
+.portal-hero-page,
+.auth-page-section {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green), var(--money-blue));
+  padding: 5rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 28px;
+}
+
+.portal-hero-page h1,
+.auth-info-card h1 {
+  color: var(--white);
+  font-size: 3.2rem;
+  line-height: 1.05;
+  margin: 1rem 0;
+}
+
+.portal-hero-page p,
+.auth-info-card p {
+  color: var(--gray-text);
+  max-width: 680px;
+}
+
+.portal-preview-card,
+.auth-form-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.portal-preview-card h3,
+.auth-form-card h2 {
+  color: var(--deep-blue);
+  margin-bottom: 0.8rem;
+}
+
+.portal-tools-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.portal-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.center-actions {
+  justify-content: center;
+}
+
+.auth-form-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-form-card label {
+  color: var(--deep-blue);
+  font-weight: 800;
+  margin: 0.8rem 0 0.35rem;
+}
+
+.auth-form-card input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 16px;
+  color: var(--gray-text);
+  background: var(--light-gray);
+  font-size: 1rem;
+  outline: none;
+}
+
+.auth-form-card input:focus {
+  border-color: var(--money-blue);
+  box-shadow: var(--shadow);
+}
+
+.auth-btn {
+  border: none;
+  cursor: not-allowed;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+
+.auth-note {
+  margin-top: 1rem;
+  background: var(--soft-green);
+  color: var(--gray-text);
+  padding: 1rem;
+  border-radius: 18px;
+  font-weight: 700;
+}
+
+.auth-switch {
+  margin-top: 1rem;
+  color: var(--gray-text);
+}
+
+.auth-switch a {
+  color: var(--money-blue);
+  font-weight: 800;
+}
+
+.auth-feature-list {
+  justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+  .portal-hero-page,
+  .auth-page-section,
+  .portal-tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-hero-page h1,
+  .auth-info-card h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .portal-hero-page,
+  .auth-page-section {
+    margin: 1rem;
+    padding: 3rem 1.2rem;
+  }
+}
