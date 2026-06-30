@@ -1149,3 +1149,226 @@ section {
     padding: 3rem 1.2rem;
   }
 }
+
+/* =========================
+   Tax Intake Forms - Sprint 008
+========================= */
+
+.intake-hero {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green), var(--money-blue));
+  padding: 5rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 28px;
+}
+
+.intake-hero h1 {
+  color: var(--white);
+  font-size: 3.2rem;
+  line-height: 1.05;
+  margin: 1rem 0;
+}
+
+.intake-hero p {
+  color: var(--gray-text);
+  max-width: 680px;
+}
+
+.intake-progress-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.intake-progress-card h3 {
+  color: var(--deep-blue);
+  margin: 0.7rem 0 1rem;
+}
+
+.intake-progress-list {
+  list-style: none;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.intake-progress-list li {
+  background: var(--soft-green);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.intake-progress-list span {
+  color: var(--gray-text);
+  font-weight: 700;
+}
+
+.intake-progress-list strong {
+  color: var(--money-blue);
+}
+
+.intake-form-section,
+.future-document-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.intake-form-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.intake-group {
+  padding: 1.5rem 0;
+  border-bottom: 2px solid var(--soft-green);
+}
+
+.intake-group:first-child {
+  padding-top: 0;
+}
+
+.intake-group:last-of-type {
+  border-bottom: none;
+}
+
+.intake-group h3 {
+  color: var(--deep-blue);
+  margin-bottom: 1rem;
+}
+
+.intake-form-card label {
+  color: var(--deep-blue);
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.intake-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+}
+
+.intake-field-grid div,
+.intake-group {
+  display: grid;
+}
+
+.intake-full-field {
+  grid-column: span 2;
+}
+
+.intake-form-card input,
+.intake-form-card select,
+.intake-form-card textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 16px;
+  color: var(--gray-text);
+  background: var(--light-gray);
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.intake-form-card input:focus,
+.intake-form-card select:focus,
+.intake-form-card textarea:focus {
+  border-color: var(--money-blue);
+  box-shadow: var(--shadow);
+}
+
+.intake-form-card textarea {
+  resize: vertical;
+}
+
+.intake-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.intake-check-card {
+  background: var(--soft-green);
+  border: 2px solid var(--mint-green);
+  border-radius: 18px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: 0.3s ease;
+}
+
+.intake-check-card:hover {
+  background: linear-gradient(135deg, var(--mint-green), var(--money-blue));
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+
+.intake-check-card input {
+  width: auto;
+  accent-color: var(--money-blue);
+}
+
+.intake-check-card span {
+  color: var(--deep-blue);
+  font-weight: 800;
+}
+
+.intake-check-card:hover span {
+  color: var(--white);
+}
+
+.intake-submit-area {
+  margin-top: 1.5rem;
+}
+
+.intake-submit-btn {
+  border: none;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.document-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .intake-hero,
+  .intake-field-grid,
+  .intake-checkbox-grid,
+  .document-checklist-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intake-full-field {
+    grid-column: span 1;
+  }
+
+  .intake-hero h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .intake-hero {
+    margin: 1rem;
+    padding: 3rem 1.2rem;
+  }
+
+  .intake-form-card {
+    padding: 1.3rem;
+  }
+}
