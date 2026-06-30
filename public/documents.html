@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Document Upload Preview | Mega Financial</title>
+
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <header id="site-header" class="site-header">
+    <nav class="navbar">
+      <a href="./index.html" class="logo">Mega Financial</a>
+
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./index.html#specials">Specials</a></li>
+        <li><a href="./about.html">About</a></li>
+        <li><a href="./services.html">Services</a></li>
+        <li><a href="./portal.html">Portal</a></li>
+        <li><a href="./dashboard.html">Dashboard</a></li>
+        <li><a href="./schedule.html">Schedule</a></li>
+        <li><a href="./intake.html">Intake</a></li>
+        <li><a href="./login.html" class="mobile-login-link">Client Login</a></li>
+      </ul>
+
+      <a href="./login.html" class="nav-btn desktop-login-btn">Client Login</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="documents-hero">
+      <div class="documents-hero-content">
+        <span class="section-tag">Document Upload Preview</span>
+        <h1>Prepare your tax documents for secure upload.</h1>
+        <p>
+          This static preview prepares the future document upload workflow for
+          tax forms, business records, payroll records, dependent information,
+          and supporting files.
+        </p>
+
+        <div class="portal-features dashboard-status-tags">
+          <span>Static Preview</span>
+          <span>No Upload Active</span>
+          <span>Future Secure Storage</span>
+        </div>
+      </div>
+
+      <div class="documents-status-card">
+        <span class="section-tag">Upload Status</span>
+        <h3>Documents Pending</h3>
+        <p>Uploaded: 0</p>
+        <p>Required: Waiting for intake completion</p>
+        <p>Review Status: Not started</p>
+      </div>
+    </section>
+
+    <section class="documents-section">
+      <div class="section-heading">
+        <span class="section-tag">Required Documents</span>
+        <h2>Your checklist will be created from your tax intake answers.</h2>
+        <p>
+          These placeholder items prepare the system for future intake-driven
+          document requirements and admin review.
+        </p>
+      </div>
+
+      <div class="document-checklist-grid">
+        <article class="future-card">
+          <h3>Government-issued ID</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>W-2 Forms</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>1099 Forms</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Prior-year Tax Return</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Business Income Records</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Business Expense Records</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Payroll Records</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Dependent Information</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+
+        <article class="future-card">
+          <h3>Additional Supporting Documents</h3>
+          <p>Waiting for questionnaire completion.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="documents-upload-section">
+      <div class="section-heading">
+        <span class="section-tag">Upload Form</span>
+        <h2>Upload functionality will be activated later.</h2>
+        <p>
+          This form is a placeholder only. It does not send, store, validate, or
+          upload files yet.
+        </p>
+      </div>
+
+      <div class="documents-layout">
+        <form class="documents-form-card">
+          <h3>Document Upload Preview</h3>
+
+          <label for="documentType">Document Type</label>
+          <select id="documentType" name="documentType">
+            <option>Government-issued ID</option>
+            <option>W-2 Forms</option>
+            <option>1099 Forms</option>
+            <option>Prior-year Tax Return</option>
+            <option>Business Income Records</option>
+            <option>Business Expense Records</option>
+            <option>Payroll Records</option>
+            <option>Dependent Information</option>
+            <option>Additional Supporting Documents</option>
+          </select>
+
+          <label for="documentFile">File Upload</label>
+          <input type="file" id="documentFile" name="documentFile" />
+
+          <label for="documentNotes">Notes</label>
+          <textarea id="documentNotes" name="documentNotes" rows="5" placeholder="Add any notes about this document."></textarea>
+
+          <button type="button" class="btn primary-btn documents-btn" disabled>
+            Upload Placeholder
+          </button>
+
+          <p class="auth-note">
+            Real upload handling will be added in a future sprint.
+          </p>
+        </form>
+
+        <aside class="documents-side-panel">
+          <article class="future-card">
+            <h3>Uploaded Documents Status</h3>
+            <p>No documents uploaded yet.</p>
+            <span class="dashboard-note">Future MongoDB document records</span>
+          </article>
+
+          <article class="future-card">
+            <h3>Document Review Status</h3>
+            <p>Admin review has not started.</p>
+            <span class="dashboard-note">Future admin review queue</span>
+          </article>
+
+          <article class="future-card">
+            <h3>Confirmation Message</h3>
+            <p>
+              A future confirmation will appear after each successful upload and
+              may also be sent by email.
+            </p>
+            <span class="dashboard-note">Future upload confirmation email</span>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section class="virtual-section">
+      <div>
+        <span class="section-tag light-tag">Secure Storage Notice</span>
+        <h2>Future uploads will require protected client access.</h2>
+        <p>
+          Later sprints will connect secure file upload routes, MongoDB document
+          records, cloud storage, client document status, admin review, protected
+          route middleware, and dashboard tracking.
+        </p>
+
+        <div class="portal-features">
+          <span>Secure Upload Route</span>
+          <span>MongoDB Records</span>
+          <span>Cloud Storage</span>
+          <span>Admin Review</span>
+          <span>Dashboard Tracking</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-top-link">
+      <a href="#top" id="backToTop">↑ Return To Top</a>
+    </div>
+
+    <p>&copy; 2026 Mega Financial. All rights reserved.</p>
+  </footer>
+
+  <script src="./js/main.js"></script>
+</body>
+</html>

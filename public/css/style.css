@@ -1372,3 +1372,143 @@ section {
     padding: 1.3rem;
   }
 }
+
+/* =========================
+   Document Upload Preview - Sprint 009
+========================= */
+
+.documents-hero {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green), var(--money-blue));
+  padding: 5rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 28px;
+}
+
+.documents-hero h1 {
+  color: var(--white);
+  font-size: 3.2rem;
+  line-height: 1.05;
+  margin: 1rem 0;
+}
+
+.documents-hero p {
+  color: var(--gray-text);
+  max-width: 680px;
+}
+
+.documents-status-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.documents-status-card h3 {
+  color: var(--deep-blue);
+  margin: 0.7rem 0;
+}
+
+.documents-section,
+.documents-upload-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.documents-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.documents-form-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.documents-form-card h3 {
+  color: var(--deep-blue);
+  margin-bottom: 1rem;
+}
+
+.documents-form-card label {
+  color: var(--deep-blue);
+  font-weight: 800;
+  margin: 0.8rem 0 0.35rem;
+}
+
+.documents-form-card input,
+.documents-form-card select,
+.documents-form-card textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 16px;
+  color: var(--gray-text);
+  background: var(--light-gray);
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.documents-form-card input:focus,
+.documents-form-card select:focus,
+.documents-form-card textarea:focus {
+  border-color: var(--money-blue);
+  box-shadow: var(--shadow);
+}
+
+.documents-form-card textarea {
+  resize: vertical;
+}
+
+.documents-btn {
+  border: none;
+  cursor: not-allowed;
+  margin-top: 1.2rem;
+  text-align: center;
+  opacity: 0.85;
+}
+
+.documents-side-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.preview-link {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .documents-hero,
+  .documents-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .documents-hero h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .documents-hero {
+    margin: 1rem;
+    padding: 3rem 1.2rem;
+  }
+
+  .documents-form-card {
+    padding: 1.3rem;
+  }
+}
