@@ -1007,3 +1007,145 @@ section {
     padding: 3rem 1.2rem;
   }
 }
+
+/* =========================
+   Appointment Scheduling Preview - Sprint 007
+========================= */
+
+.schedule-hero {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green), var(--money-blue));
+  padding: 5rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 2rem auto;
+  border-radius: 28px;
+}
+
+.schedule-hero h1 {
+  color: var(--white);
+  font-size: 3.2rem;
+  line-height: 1.05;
+  margin: 1rem 0;
+}
+
+.schedule-hero p {
+  color: var(--gray-text);
+  max-width: 680px;
+}
+
+.schedule-summary-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.schedule-summary-card h3 {
+  color: var(--deep-blue);
+  margin: 0.7rem 0;
+}
+
+.schedule-form-section {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
+}
+
+.schedule-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.schedule-form-card {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-form-card h3 {
+  color: var(--deep-blue);
+  margin-bottom: 1rem;
+}
+
+.schedule-form-card label {
+  color: var(--deep-blue);
+  font-weight: 800;
+  margin: 0.8rem 0 0.35rem;
+}
+
+.schedule-form-card input,
+.schedule-form-card select,
+.schedule-form-card textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 16px;
+  color: var(--gray-text);
+  background: var(--light-gray);
+  font-size: 1rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.schedule-form-card input:focus,
+.schedule-form-card select:focus,
+.schedule-form-card textarea:focus {
+  border-color: var(--money-blue);
+  box-shadow: var(--shadow);
+}
+
+.schedule-form-card textarea {
+  resize: vertical;
+}
+
+.schedule-btn {
+  border: none;
+  cursor: not-allowed;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+
+.schedule-side-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.schedule-options-grid {
+  margin-bottom: 1.2rem;
+}
+
+.platform-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.quick-action-card {
+  text-decoration: none;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .schedule-hero,
+  .schedule-layout,
+  .platform-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .schedule-hero h1 {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .schedule-hero {
+    margin: 1rem;
+    padding: 3rem 1.2rem;
+  }
+}
