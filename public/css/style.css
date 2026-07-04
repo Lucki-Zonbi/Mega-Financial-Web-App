@@ -1512,3 +1512,31 @@ section {
     padding: 1.3rem;
   }
 }
+
+/* =========================
+   Auth Foundation - Sprint 010
+========================= */
+
+.auth-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: var(--soft-green);
+  color: var(--gray-text);
+  font-weight: 800;
+}
+
+.auth-message.success {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green));
+  color: var(--deep-blue);
+}
+
+.auth-message.error {
+  background: var(--light-gray);
+  color: var(--money-blue);
+  border: 2px solid var(--money-blue);
+}
+
+.auth-btn {
+  border: none;
+}

@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <form class="auth-form-card">
+      <form class="auth-form-card" id="loginForm">
         <h2>Login Preview</h2>
 
         <label for="email">Email Address</label>
@@ -62,12 +62,12 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" placeholder="Enter password" />
 
-        <a href="./dashboard.html" class="btn primary-btn auth-btn">
+        <button type="submit" class="btn primary-btn auth-btn">
           Login Preview
-        </a>
+        </button>
 
-        <p class="auth-note">
-          Authentication will be added in a future sprint.
+        <p id="authMessage" class="auth-message">
+          Login form hook is ready for a future backend connection.
         </p>
 
         <p class="auth-switch">
@@ -87,6 +87,7 @@
     <p>&copy; 2026 Mega Financial. All rights reserved.</p>
   </footer>
 
+  <script src="./js/auth.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>

@@ -3,21 +3,24 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-"scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "start": "node server/server.js",
-  "sync-pages": "node scripts/sync-pages.js",
-  "deploy-pages": "npm run sync-pages && gh-pages -d .pages-dist",
-  "clean-pages": "node scripts/clean-pages.js"
-},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js",
+    "sync-pages": "node scripts/sync-pages.js",
+    "deploy-pages": "npm run sync-pages && gh-pages -d .pages-dist",
+    "clean-pages": "node scripts/clean-pages.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.3"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0"
