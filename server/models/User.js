@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
     fullName: {
       type: String,
       trim: true,
-      required: false
+      required: true
     },
 
     email: {
@@ -13,24 +13,46 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       unique: true,
-      required: false
+      required: true
     },
 
     phone: {
       type: String,
       trim: true,
-      required: false
+      required: true
     },
 
     passwordHash: {
       type: String,
-      required: false
+      required: true,
+      select: false
     },
 
     role: {
       type: String,
-      enum: ["client", "admin"],
+      enum: ["client", "general_admin", "executive_admin"],
       default: "client"
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false
+    },
+
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false
+    },
+
+    preferredTwoFactorMethod: {
+      type: String,
+      enum: ["email", "sms", null],
+      default: null
+    },
+
+    lastAdminVerificationAt: {
+      type: Date,
+      default: null
     }
   },
   {
