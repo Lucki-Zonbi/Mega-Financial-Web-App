@@ -1540,3 +1540,18 @@ section {
 .auth-btn {
   border: none;
 }
+
+/* =========================
+   Client Session Guard - Sprint 013
+========================= */
+
+.dashboard-logout-btn {
+  margin-top: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+#dashboardClientName,
+#dashboardClientEmail {
+  color: inherit;
+}

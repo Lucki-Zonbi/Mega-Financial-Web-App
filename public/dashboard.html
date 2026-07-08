@@ -39,7 +39,7 @@
     <section class="dashboard-hero">
       <div class="dashboard-hero-content">
         <span class="section-tag">Client Dashboard Preview</span>
-        <h1>Welcome back, future Mega Financial client.</h1>
+        <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
         <p>
           This static dashboard preview shows the layout clients will eventually
           see after secure login. Real client data, authentication, scheduling,
@@ -47,16 +47,20 @@
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Static Preview</span>
-          <span>No Login Active</span>
-          <span>Future Protected Route</span>
+          <span>Client Session Preview</span>
+          <span>JWT Login Active</span>
+          <span>Protected API Route Ready</span>
         </div>
+
+        <button type="button" id="logoutBtn" class="btn secondary-btn dashboard-logout-btn">
+          Logout
+        </button>
       </div>
 
       <div class="dashboard-profile-card">
         <span class="section-tag">Client Profile</span>
         <h3>Client Name Placeholder</h3>
-        <p>Email: client@example.com</p>
+        <p>Email: <span id="dashboardClientEmail">client@example.com</span></p>
         <p>Phone: (555) 555-5555</p>
         <p>Status: Account preview only</p>
       </div>
@@ -158,6 +162,7 @@
   </footer>
 
   <script src="./js/auth.js"></script>
+  <script src="./js/clientGuard.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>
