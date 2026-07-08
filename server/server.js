@@ -8,11 +8,13 @@ connectDB();
 
 const app = express();
 const authRoutes = require("./routes/authRoutes");
+const clientRoutes = require("./routes/clientRoutes");
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
+app.use("/api/client", clientRoutes);
 
 app.use(express.static(path.join(__dirname, "../public")));
 
