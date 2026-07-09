@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const path = require("path");
 require("dotenv").config();
 const connectDB = require("./config/db");
+const { apiLimiter, authLimiter } = require("./middleware/rateLimitMiddleware");
 
 connectDB();
 
@@ -10,10 +12,19 @@ const app = express();
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 
+app.use(
+  helmet({
+    contentSecurityPolicy: false
+  })
+);
+
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use("/api/auth", authRoutes);
+
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+
+app.use("/api", apiLimiter);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
 
 app.use(express.static(path.join(__dirname, "../public")));
