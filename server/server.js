@@ -11,6 +11,7 @@ connectDB();
 const app = express();
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
+const intakeRoutes = require("./routes/intakeRoutes");
 
 app.use(
   helmet({
@@ -26,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use("/api", apiLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
-
+app.use("/api/intake", intakeRoutes);
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.get("/api/health", (req, res) => {

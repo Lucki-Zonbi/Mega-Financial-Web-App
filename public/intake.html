@@ -42,15 +42,14 @@
         <span class="section-tag">Tax Intake Forms</span>
         <h1>Prepare your tax information before document upload.</h1>
         <p>
-          This static intake preview prepares the future questionnaire clients
-          will complete before uploading documents, making payments, or meeting
-          with Mega Financial.
+            Complete your protected tax intake questionnaire before uploading
+            documents, making payments, or meeting with Mega Financial.
         </p>
 
         <div class="portal-features dashboard-status-tags">
           <span>Step 1 of 5</span>
-          <span>Static Preview</span>
-          <span>No Submission Active</span>
+          <span>Protected Intake</span>
+          <span>MongoDB Submission</span>
         </div>
       </div>
 
@@ -72,45 +71,46 @@
         <span class="section-tag">Client Questionnaire</span>
         <h2>Tax preparation starts with the right information.</h2>
         <p>
-          These placeholder fields prepare the frontend for future MongoDB
-          intake records, dashboard tracking, required document generation,
-          and admin review.
+          Complete the information below to create your protected tax intake
+          record for the 2026 tax year.
         </p>
       </div>
 
-      <form class="intake-form-card">
+      <form class="intake-form-card" id="taxIntakeForm">
+        <input type="hidden" id="taxYear" name="taxYear" value="2026" />
         <div class="intake-group">
           <h3>Client Information</h3>
 
           <div class="intake-field-grid">
             <div>
               <label for="firstName">First Name</label>
-              <input type="text" id="firstName" name="firstName" placeholder="First name" />
+              <input type="text" id="firstName" name="firstName" placeholder="First name" required />
             </div>
 
             <div>
               <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" name="lastName" placeholder="Last name" />
+              <input type="text" id="lastName" name="lastName" placeholder="Last name" required />
             </div>
 
             <div>
               <label for="email">Email Address</label>
-              <input type="email" id="email" name="email" placeholder="client@example.com" />
+              <input type="email" id="email" name="email" placeholder="client@example.com" required />
             </div>
 
             <div>
               <label for="phone">Phone Number</label>
-              <input type="tel" id="phone" name="phone" placeholder="(555) 555-5555" />
+              <input type="tel" id="phone" name="phone" placeholder="(555) 555-5555" required />
             </div>
 
             <div class="intake-full-field">
               <label for="filingStatus">Filing Status</label>
-              <select id="filingStatus" name="filingStatus">
-                <option>Single</option>
-                <option>Married Filing Jointly</option>
-                <option>Married Filing Separately</option>
-                <option>Head of Household</option>
-                <option>Qualifying Surviving Spouse</option>
+              <select id="filingStatus" name="filingStatus" required>
+                <option value="">Select filing status</option>
+                <option value="Single">Single</option>
+                <option value="Married Filing Jointly">Married Filing Jointly</option>
+                <option value="Married Filing Separately">Married Filing Separately</option>
+                <option value="Head of Household">Head of Household</option>
+                <option value="Qualifying Surviving Spouse">Qualifying Surviving Spouse</option>
               </select>
             </div>
           </div>
@@ -121,22 +121,22 @@
 
           <div class="intake-checkbox-grid">
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="employmentTypes" value="W-2 Employee" />
               <span>W-2 Employee</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="employmentTypes" value="Self-Employed" />
               <span>Self-Employed</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="employmentTypes" value="Independent Contractor" />
               <span>Independent Contractor</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="employmentTypes" value="Retired" />
               <span>Retired</span>
             </label>
           </div>
@@ -146,46 +146,47 @@
           <h3>Income Sources</h3>
 
           <div class="intake-checkbox-grid">
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>W-2 Income</span>
-            </label>
+            <div class="intake-checkbox-grid">
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="W-2 Income" />
+                <span>W-2 Income</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>1099 Income</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="1099 Income" />
+                <span>1099 Income</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Business Income</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Business Income" />
+                <span>Business Income</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Rental Income</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Rental Income" />
+                <span>Rental Income</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Investment Income</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Investment Income" />
+                <span>Investment Income</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Social Security</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Social Security" />
+                <span>Social Security</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Pension</span>
-            </label>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Pension" />
+                <span>Pension</span>
+              </label>
 
-            <label class="intake-check-card">
-              <input type="checkbox" />
-              <span>Cryptocurrency</span>
-            </label>
-          </div>
+              <label class="intake-check-card">
+                <input type="checkbox" name="incomeSources" value="Cryptocurrency" />
+                <span>Cryptocurrency</span>
+              </label>
+            </div>
         </div>
 
         <div class="intake-group">
@@ -193,17 +194,17 @@
 
           <div class="intake-checkbox-grid">
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="familyInformation" value="Dependents" />
               <span>Dependents</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="familyInformation" value="Childcare Expenses" />
               <span>Childcare Expenses</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="familyInformation" value="Education Expenses" />
               <span>Education Expenses</span>
             </label>
           </div>
@@ -214,27 +215,27 @@
 
           <div class="intake-checkbox-grid">
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="businessInformation" value="Own a Business" />
               <span>Own a Business</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="businessInformation" value="LLC" />
               <span>LLC</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="businessInformation" value="Sole Proprietor" />
               <span>Sole Proprietor</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="businessInformation" value="Partnership" />
               <span>Partnership</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="businessInformation" value="Corporation" />
               <span>Corporation</span>
             </label>
           </div>
@@ -245,27 +246,27 @@
 
           <div class="intake-checkbox-grid">
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="taxServices" value="Individual Tax Filing" />
               <span>Individual Tax Filing</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="taxServices" value="Business Tax Filing" />
               <span>Business Tax Filing</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="taxServices" value="Bookkeeping" />
               <span>Bookkeeping</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="taxServices" value="Payroll Support" />
               <span>Payroll Support</span>
             </label>
 
             <label class="intake-check-card">
-              <input type="checkbox" />
+              <input type="checkbox" name="taxServices" value="Tax Planning" />
               <span>Tax Planning</span>
             </label>
           </div>
@@ -279,11 +280,13 @@
         </div>
 
         <div class="intake-submit-area">
-          <a href="./documents.html" class="btn primary-btn intake-submit-btn preview-link">Continue to Document Upload</a>
+          <div class="intake-submit-area">
+            <button type="submit" id="intakeSubmitButton" class="btn primary-btn intake-submit-btn">
+              Save Tax Intake
+            </button>
 
-          <p class="auth-note">
-            Questionnaire submission will be activated in a future sprint.
-          </p>
+            <p id="intakeMessage" class="auth-message" role="status" aria-live="polite"></p>
+          </div>
         </div>
       </form>
     </section>
@@ -373,6 +376,7 @@
   </footer>
 
   <script src="./js/clientGuard.js"></script>
+  <script src="./js/intake.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>
