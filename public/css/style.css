@@ -956,6 +956,10 @@ section {
   font-weight: 800;
 }
 
+.dashboard-intake-action {
+  margin-top: 1.5rem;
+}
+
 .dashboard-status-tags {
   justify-content: flex-start;
   margin-top: 1.5rem;
@@ -983,6 +987,10 @@ section {
   background: linear-gradient(135deg, var(--mint-green), var(--money-blue));
   color: var(--white);
   transform: translateY(-6px);
+}
+
+.active-action-card {
+  cursor: pointer;
 }
 
 @media (max-width: 900px) {
@@ -1335,8 +1343,13 @@ section {
 
 .intake-submit-btn {
   border: none;
-  cursor: not-allowed;
-  opacity: 0.85;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.intake-submit-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .document-checklist-grid {

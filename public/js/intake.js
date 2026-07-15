@@ -35,6 +35,24 @@ function getStoredClient() {
   }
 }
 
+function handleExpiredIntakeSession(message) {
+  if (window.megaFinancialClientGuard) {
+    window.megaFinancialClientGuard.clearClientSession();
+  } else {
+    localStorage.removeItem("megaFinancialToken");
+    localStorage.removeItem("megaFinancialUser");
+  }
+
+  showIntakeMessage(
+    message || "Your session expired. Please log in again.",
+    "error"
+  );
+
+  setTimeout(() => {
+    window.location.href = "./login.html";
+  }, 1200);
+}
+
 function prefillClientContactInformation() {
   if (!taxIntakeForm) return;
 
@@ -75,6 +93,110 @@ function getCheckedValues(formData, fieldName) {
     .getAll(fieldName)
     .map((value) => String(value).trim())
     .filter(Boolean);
+}
+
+function setInputValue(id, value) {
+  const input = document.getElementById(id);
+
+  if (input) {
+    input.value = value || "";
+  }
+}
+
+function restoreCheckedValues(fieldName, savedValues) {
+  const allowedValues = Array.isArray(savedValues) ? savedValues : [];
+
+  document
+    .querySelectorAll(`input[name="${fieldName}"]`)
+    .forEach((checkbox) => {
+      checkbox.checked = allowedValues.includes(checkbox.value);
+    });
+}
+
+function populateSavedIntake(intake) {
+  if (!intake) return;
+
+  const clientInformation = intake.clientInformation || {};
+
+  setInputValue("taxYear", intake.taxYear);
+  setInputValue("firstName", clientInformation.firstName);
+  setInputValue("lastName", clientInformation.lastName);
+  setInputValue("email", clientInformation.email);
+  setInputValue("phone", clientInformation.phone);
+  setInputValue("filingStatus", clientInformation.filingStatus);
+  setInputValue("taxNotes", intake.additionalNotes);
+
+  restoreCheckedValues("employmentTypes", intake.employmentTypes);
+  restoreCheckedValues("incomeSources", intake.incomeSources);
+  restoreCheckedValues("familyInformation", intake.familyInformation);
+  restoreCheckedValues("businessInformation", intake.businessInformation);
+  restoreCheckedValues("servicesNeeded", intake.servicesNeeded);
+
+  intakeSubmitButton.textContent = "Update Tax Intake";
+
+  showIntakeMessage(
+    "Your saved tax intake has been loaded. You may review and update it.",
+    "success"
+  );
+}
+
+async function loadSavedIntake() {
+  const token = getIntakeToken();
+
+  if (!token) {
+    return;
+  }
+
+  const taxYearInput = document.getElementById("taxYear");
+  const taxYear = taxYearInput ? taxYearInput.value : "2026";
+
+  try {
+    showIntakeMessage("Checking for a saved tax intake...", "info");
+
+    const response = await fetch(
+      `/api/intake/me?taxYear=${encodeURIComponent(taxYear)}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      handleExpiredIntakeSession(data.message);
+      return;
+    }
+
+    if (response.status === 404) {
+      prefillClientContactInformation();
+
+      showIntakeMessage(
+        "No saved intake was found. Complete the form to create your 2026 intake.",
+        "info"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      showIntakeMessage(
+        data.message || "Unable to load your saved tax intake.",
+        "error"
+      );
+
+      return;
+    }
+
+    populateSavedIntake(data.intake);
+  } catch (error) {
+    showIntakeMessage(
+      "Unable to load your saved intake. Make sure the server is running.",
+      "error"
+    );
+  }
 }
 
 function buildIntakePayload() {
@@ -138,19 +260,7 @@ async function submitTaxIntake(event) {
     const data = await response.json();
 
     if (response.status === 401) {
-      if (window.megaFinancialClientGuard) {
-        window.megaFinancialClientGuard.clearClientSession();
-      }
-
-      showIntakeMessage(
-        data.message || "Your session expired. Please log in again.",
-        "error"
-      );
-
-      setTimeout(() => {
-        window.location.href = "./login.html";
-      }, 1200);
-
+      handleExpiredIntakeSession(data.message);
       return;
     }
 
@@ -167,6 +277,9 @@ async function submitTaxIntake(event) {
       data.message || "Tax intake saved successfully.",
       "success"
     );
+
+  intakeSubmitButton.textContent = "Update Tax Intake";
+
   } catch (error) {
     showIntakeMessage(
       "Unable to connect to the intake server. Make sure npm start is running.",
@@ -174,11 +287,14 @@ async function submitTaxIntake(event) {
     );
   } finally {
     intakeSubmitButton.disabled = false;
-    intakeSubmitButton.textContent = "Save Tax Intake";
+
+    if (intakeSubmitButton.textContent === "Saving Intake...") {
+      intakeSubmitButton.textContent = "Save Tax Intake";
+    }
   }
 }
 
 if (taxIntakeForm) {
-  prefillClientContactInformation();
   taxIntakeForm.addEventListener("submit", submitTaxIntake);
+  loadSavedIntake();
 }

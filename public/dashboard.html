@@ -41,15 +41,13 @@
         <span class="section-tag">Client Dashboard Preview</span>
         <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
         <p>
-          This static dashboard preview shows the layout clients will eventually
-          see after secure login. Real client data, authentication, scheduling,
-          uploads, payments, and messages will be connected in future sprints.
+          Review your protected account information and current tax intake status.Additional scheduling, upload, payment, and messaging features will beconnected in future sprints.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Client Session Preview</span>
+          <span>Protected Client Session</span>
           <span>JWT Login Active</span>
-          <span>Protected API Route Ready</span>
+          <span>MongoDB Intake Tracking</span>
         </div>
 
         <button type="button" id="logoutBtn" class="btn secondary-btn dashboard-logout-btn">
@@ -103,11 +101,24 @@
 
         <article class="future-card dashboard-card dashboard-wide-card">
           <h3>Tax Intake Status</h3>
-          <p>
-            Intake form not started. Future clients will complete required tax
-            preparation questions before or after scheduling.
+
+          <p id="dashboardIntakeStatus">
+            Checking your protected tax intake status...
           </p>
-          <span class="dashboard-note">Future intake completion status</span>
+
+          <span id="dashboardIntakeNote" class="dashboard-note">
+            Connecting to your intake record
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a
+              href="./intake.html"
+              id="dashboardIntakeLink"
+              class="btn primary-btn"
+            >
+              Start Tax Intake
+            </a>
+          </div>
         </article>
       </div>
     </section>
@@ -115,17 +126,17 @@
     <section class="quick-actions-section">
       <div class="section-heading">
         <span class="section-tag">Quick Actions</span>
-        <h2>Future client actions.</h2>
-        <p>
-          These buttons are visual placeholders only. They do not submit,
-          upload, schedule, pay, or send messages yet.
-        </p>
+        <h2>Client actions.</h2>
+          <p>
+            Continue your protected intake or preview upcoming scheduling,
+            document, payment, and messaging tools.
+          </p>
       </div>
 
       <div class="quick-actions-grid">
         <a href="./schedule.html" class="quick-action-card">Schedule Appointment</a>
         <a href="./documents.html" class="quick-action-card">Upload Documents</a>
-        <a href="./intake.html" class="quick-action-card">Complete Tax Intake</a>
+        <a href="./intake.html" id="dashboardQuickIntakeLink" class="quick-action-card">Complete Tax Intake</a>
         <button type="button" class="quick-action-card">View Payment Status</button>
         <button type="button" class="quick-action-card">Send Message</button>
       </div>
@@ -163,6 +174,7 @@
 
   <script src="./js/auth.js"></script>
   <script src="./js/clientGuard.js"></script>
+  <script src="./js/dashboard.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>
