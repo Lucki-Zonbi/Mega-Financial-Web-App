@@ -14,6 +14,14 @@ const dashboardQuickIntakeLink = document.getElementById(
   "dashboardQuickIntakeLink"
 );
 
+const dashboardChecklistStatus = document.getElementById(
+  "dashboardChecklistStatus"
+);
+
+const dashboardChecklistNote = document.getElementById(
+  "dashboardChecklistNote"
+);
+
 function getDashboardToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
@@ -78,6 +86,91 @@ function getIntakeStatusDisplay(status) {
   };
 
   return statusDisplays[status] || statusDisplays.submitted;
+}
+
+function updateDashboardChecklistDisplay(message, note) {
+  if (dashboardChecklistStatus) {
+    dashboardChecklistStatus.textContent = message;
+  }
+
+  if (dashboardChecklistNote) {
+    dashboardChecklistNote.textContent = note;
+  }
+}
+
+async function loadDashboardChecklistStatus() {
+  if (!dashboardChecklistStatus) {
+    return;
+  }
+
+  const token = getDashboardToken();
+
+  if (!token) {
+    updateDashboardChecklistDisplay(
+      "Please log in to view your required document checklist.",
+      "Client session required"
+    );
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/intake/checklist?taxYear=2026",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      clearDashboardSession();
+
+      updateDashboardChecklistDisplay(
+        data.message || "Your session expired. Please log in again.",
+        "Session expired"
+      );
+
+      return;
+    }
+
+    if (response.status === 404) {
+      updateDashboardChecklistDisplay(
+        "Complete your 2026 tax intake to generate a personalized checklist.",
+        "No checklist available"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      updateDashboardChecklistDisplay(
+        data.message || "Unable to retrieve your document checklist.",
+        "Checklist unavailable"
+      );
+
+      return;
+    }
+
+    const categoryLabel =
+      data.checklistCount === 1
+        ? "required category"
+        : "required categories";
+
+    updateDashboardChecklistDisplay(
+      `${data.checklistCount} ${categoryLabel} currently match your 2026 intake.`,
+      "Protected checklist ready"
+    );
+  } catch (error) {
+    updateDashboardChecklistDisplay(
+      "Unable to connect to the checklist server. Make sure the server is running.",
+      "Connection unavailable"
+    );
+  }
 }
 
 async function loadDashboardIntakeStatus() {
@@ -167,3 +260,4 @@ async function loadDashboardIntakeStatus() {
 }
 
 loadDashboardIntakeStatus();
+loadDashboardChecklistStatus();

@@ -1568,3 +1568,22 @@ section {
 #dashboardClientEmail {
   color: inherit;
 }
+
+/* =========================
+   Dynamic Document Checklist - Sprint 017
+========================= */
+
+.document-checklist-state {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.document-checklist-item h3,
+.document-checklist-state h3 {
+  color: var(--deep-blue);
+  margin-bottom: 0.6rem;
+}
+
+.document-checklist-link {
+  margin-top: 1.2rem;
+}

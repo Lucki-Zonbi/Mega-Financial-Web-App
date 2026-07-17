@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Document Upload Preview | Mega Financial</title>
+  <title>Required Document Checklist | Mega Financial</title>
 
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
@@ -41,27 +41,31 @@
 
     <section class="documents-hero">
       <div class="documents-hero-content">
-        <span class="section-tag">Document Upload Preview</span>
-        <h1>Prepare your tax documents for secure upload.</h1>
+        <span class="section-tag">Required Document Checklist</span>
+        <h1>Prepare the documents that match your tax intake.</h1>
         <p>
-          This static preview prepares the future document upload workflow for
-          tax forms, business records, payroll records, dependent information,
-          and supporting files.
+          Your protected checklist is generated from your saved 2026 tax intake.
+          File upload processing remains inactive in this sprint.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Static Preview</span>
+          <span>Protected Checklist</span>
+          <span>Intake-Driven Requirements</span>
           <span>No Upload Active</span>
-          <span>Future Secure Storage</span>
         </div>
       </div>
 
       <div class="documents-status-card">
-        <span class="section-tag">Upload Status</span>
-        <h3>Documents Pending</h3>
-        <p>Uploaded: 0</p>
-        <p>Required: Waiting for intake completion</p>
-        <p>Review Status: Not started</p>
+        <span class="section-tag">Checklist Status</span>
+        <h3 id="documentsChecklistStatus">Loading Checklist</h3>
+        <p>Uploaded: 0 — upload processing is not active</p>
+        <p>
+          Required categories:
+          <span id="documentsChecklistCount">Checking...</span>
+        </p>
+        <p id="documentsChecklistNote">
+          Connecting to your protected intake data.
+        </p>
       </div>
     </section>
 
@@ -69,56 +73,19 @@
       <div class="section-heading">
         <span class="section-tag">Required Documents</span>
         <h2>Your checklist will be created from your tax intake answers.</h2>
-        <p>
-          These placeholder items prepare the system for future intake-driven
-          document requirements and admin review.
+        <p id="documentChecklistMessage">
+          Your checklist will show only the categories supported by your saved
+          intake answers.
         </p>
       </div>
 
-      <div class="document-checklist-grid">
-        <article class="future-card">
-          <h3>Government-issued ID</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+      <div id="documentChecklistGrid"
+      class="document-checklist-grid"
+      aria-live="polite">
 
-        <article class="future-card">
-          <h3>W-2 Forms</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>1099 Forms</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Prior-year Tax Return</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Business Income Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Business Expense Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Payroll Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Dependent Information</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
-
-        <article class="future-card">
-          <h3>Additional Supporting Documents</h3>
-          <p>Waiting for questionnaire completion.</p>
+        <article class="future-card document-checklist-state">
+          <h3>Loading your checklist</h3>
+          <p>Connecting to your protected 2026 tax intake.</p>
         </article>
       </div>
     </section>
@@ -221,6 +188,7 @@
   </footer>
 
   <script src="./js/clientGuard.js"></script>
+  <script src="./js/documents.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>
