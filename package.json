@@ -8,7 +8,8 @@
     "start": "node server/server.js",
     "sync-pages": "node scripts/sync-pages.js",
     "deploy-pages": "npm run sync-pages && gh-pages -d .pages-dist",
-    "clean-pages": "node scripts/clean-pages.js"
+    "clean-pages": "node scripts/clean-pages.js",
+    "validate-document-metadata": "node scripts/validate-document-metadata.js"
   },
   "keywords": [],
   "author": "",

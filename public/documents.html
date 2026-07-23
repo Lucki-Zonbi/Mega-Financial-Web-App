@@ -95,8 +95,8 @@
         <span class="section-tag">Upload Form</span>
         <h2>Upload functionality will be activated later.</h2>
         <p>
-          This form is a placeholder only. It does not send, store, validate, or
-          upload files yet.
+          This disabled preview reflects the metadata fields planned for future
+          uploads. It does not send, parse, store, or upload files.
         </p>
       </div>
 
@@ -105,7 +105,7 @@
           <h3>Document Upload Preview</h3>
 
           <label for="documentType">Document Type</label>
-          <select id="documentType" name="documentType">
+          <select id="documentType" name="documentType" disabled>
             <option>Government-issued ID</option>
             <option>W-2 Forms</option>
             <option>1099 Forms</option>
@@ -118,17 +118,18 @@
           </select>
 
           <label for="documentFile">File Upload</label>
-          <input type="file" id="documentFile" name="documentFile" />
+          <input type="file" id="documentFile" name="documentFile" disabled />
 
           <label for="documentNotes">Notes</label>
-          <textarea id="documentNotes" name="documentNotes" rows="5" placeholder="Add any notes about this document."></textarea>
+          <textarea id="documentNotes" name="documentNotes" rows="5" placeholder="Document notes remain inactive until a future upload sprint." disabled>
+          </textarea>
 
           <button type="button" class="btn primary-btn documents-btn" disabled>
             Upload Placeholder
           </button>
 
           <p class="auth-note">
-            Real upload handling will be added in a future sprint.
+            Metadata validation is planned on the backend, but real upload handling remains disabled.
           </p>
         </form>
 
