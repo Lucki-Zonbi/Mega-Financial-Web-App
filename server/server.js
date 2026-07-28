@@ -13,6 +13,10 @@ const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 
+const documentMetadataRoutes = require(
+  "./routes/documentMetadataRoutes"
+);
+
 app.use(
   helmet({
     contentSecurityPolicy: false
@@ -28,6 +32,7 @@ app.use("/api", apiLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/intake", intakeRoutes);
+app.use("/api/document-metadata", documentMetadataRoutes);
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.get("/api/health", (req, res) => {

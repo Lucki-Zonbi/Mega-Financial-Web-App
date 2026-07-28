@@ -18,6 +18,14 @@ const documentsChecklistNote = document.getElementById(
   "documentsChecklistNote"
 );
 
+const documentMetadataGrid = document.getElementById(
+  "documentMetadataGrid"
+);
+
+const documentMetadataMessage = document.getElementById(
+  "documentMetadataMessage"
+);
+
 function getDocumentsToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
@@ -104,6 +112,189 @@ function renderChecklistItems(checklist) {
     card.append(heading, paragraph, label);
     documentChecklistGrid.append(card);
   });
+}
+
+function setMetadataMessage(message) {
+  if (documentMetadataMessage) {
+    documentMetadataMessage.textContent = message;
+  }
+}
+
+function renderMetadataState(
+  title,
+  description
+) {
+  if (!documentMetadataGrid) {
+    return;
+  }
+
+  documentMetadataGrid.replaceChildren();
+
+  const card = document.createElement("article");
+  card.className =
+    "future-card document-checklist-state";
+
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+
+  const paragraph =
+    document.createElement("p");
+
+  paragraph.textContent = description;
+
+  card.append(heading, paragraph);
+  documentMetadataGrid.append(card);
+}
+
+function renderMetadataDrafts(
+  metadataDrafts
+) {
+  if (!documentMetadataGrid) {
+    return;
+  }
+
+  documentMetadataGrid.replaceChildren();
+
+  metadataDrafts.forEach(
+    (metadataDraft) => {
+      const card =
+        document.createElement("article");
+
+      card.className =
+        "future-card document-checklist-item";
+
+      const heading =
+        document.createElement("h3");
+
+      heading.textContent =
+        metadataDraft.originalFileName;
+
+      const details =
+        document.createElement("p");
+
+      details.textContent =
+        `${metadataDraft.checklistKey} • ${metadataDraft.mimeType} • ${metadataDraft.sizeBytes} bytes`;
+
+      const status =
+        document.createElement("span");
+
+      status.className = "dashboard-note";
+      status.textContent =
+        "Pending metadata only — no file uploaded";
+
+      card.append(
+        heading,
+        details,
+        status
+      );
+
+      documentMetadataGrid.append(card);
+    }
+  );
+}
+
+async function loadDocumentMetadataDrafts() {
+  if (!documentMetadataGrid) {
+    return;
+  }
+
+  const token = getDocumentsToken();
+
+  if (!token) {
+    setMetadataMessage(
+      "Please log in to view protected document metadata drafts."
+    );
+
+    renderMetadataState(
+      "Client session required",
+      "No document metadata was retrieved."
+    );
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/document-metadata?taxYear=2026",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      clearDocumentsSession();
+
+      setMetadataMessage(
+        data.message ||
+          "Your session expired. Please log in again."
+      );
+
+      renderMetadataState(
+        "Session expired",
+        "Pending metadata could not be retrieved."
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      setMetadataMessage(
+        data.message ||
+          "Pending metadata could not be retrieved."
+      );
+
+      renderMetadataState(
+        "Metadata unavailable",
+        "No file-upload status is being reported."
+      );
+
+      return;
+    }
+
+    if (
+      !Array.isArray(
+        data.metadataDrafts
+      ) ||
+      data.metadataDrafts.length === 0
+    ) {
+      setMetadataMessage(
+        "No pending metadata drafts exist for your 2026 intake."
+      );
+
+      renderMetadataState(
+        "No metadata drafts",
+        "No files have been uploaded through this page."
+      );
+
+      return;
+    }
+
+    setMetadataMessage(
+      `${data.count} pending metadata ${
+        data.count === 1
+          ? "draft was"
+          : "drafts were"
+      } found. These records are not uploaded files.`
+    );
+
+    renderMetadataDrafts(
+      data.metadataDrafts
+    );
+  } catch (error) {
+    setMetadataMessage(
+      "Unable to connect to the metadata server."
+    );
+
+    renderMetadataState(
+      "Metadata unavailable",
+      "Make sure the Mega Financial server is running. No upload was attempted."
+    );
+  }
 }
 
 async function loadDocumentChecklist() {
@@ -219,3 +410,4 @@ async function loadDocumentChecklist() {
 }
 
 loadDocumentChecklist();
+loadDocumentMetadataDrafts();
