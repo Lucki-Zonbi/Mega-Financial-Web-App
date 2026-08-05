@@ -1,5 +1,10 @@
 const express = require("express");
 const protect = require("../middleware/authMiddleware");
+
+const {
+  requireClient
+} = require("../middleware/roleAuthorizationMiddleware");
+
 const TaxIntake = require("../models/TaxIntake");
 
 const buildRequiredDocumentChecklist = require(
@@ -70,19 +75,7 @@ function filterAllowedSelections(value, allowedValues) {
   ];
 }
 
-function clientRoleRequired(req, res, next) {
-  if (req.user.role !== "client") {
-    return res.status(403).json({
-      success: false,
-      message: "This intake route is available only to client accounts."
-    });
-  }
-
-  next();
-}
-
-router.get("/me", protect, clientRoleRequired, async (req, res) => {
-  try {
+router.get("/me", protect, requireClient, async (req, res) => {  try {
     const taxYear = Number(req.query.taxYear);
 
     const query = {
@@ -120,8 +113,8 @@ router.get("/me", protect, clientRoleRequired, async (req, res) => {
   }
 });
 
-router.get("/checklist", protect, clientRoleRequired, async (req, res) => {
-  try {
+router.get("/checklist", protect, requireClient, async (req, res) => {
+    try {
     const taxYear = Number(req.query.taxYear);
 
     const query = {
@@ -168,7 +161,8 @@ router.get("/checklist", protect, clientRoleRequired, async (req, res) => {
   }
 });
 
-router.post("/", protect, clientRoleRequired, async (req, res) => {  try {
+router.post("/", protect, requireClient, async (req, res) => {
+  try {
     const {
       taxYear,
       clientInformation,

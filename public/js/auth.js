@@ -123,12 +123,28 @@ if (loginForm) {
         return;
       }
 
-      saveAuthSession(data.token, data.user);
+            saveAuthSession(data.token, data.user);
 
-      showAuthMessage("Login successful. Redirecting to dashboard...", "success");
+      const adminRoles = [
+        "general_admin",
+        "executive_admin"
+      ];
+
+      const destination = adminRoles.includes(data.user.role)
+        ? "./admin-dashboard.html"
+        : "./dashboard.html";
+
+      const destinationLabel = adminRoles.includes(data.user.role)
+        ? "admin dashboard"
+        : "client dashboard";
+
+      showAuthMessage(
+        `Login successful. Redirecting to ${destinationLabel}...`,
+        "success"
+      );
 
       setTimeout(() => {
-        window.location.href = "./dashboard.html";
+        window.location.href = destination;
       }, 900);
     } catch (error) {
       showAuthMessage(

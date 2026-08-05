@@ -2,16 +2,21 @@ const express = require("express");
 const protect = require("../middleware/authMiddleware");
 
 const {
-  requireClient
+  requireAdmin
 } = require("../middleware/roleAuthorizationMiddleware");
 
 const router = express.Router();
 
-router.get("/me", protect, requireClient, (req, res) => {
+router.get("/me", protect, requireAdmin, (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Protected client profile route accessed successfully.",
-    user: req.user
+    message: "Protected administrator session confirmed.",
+    admin: {
+      id: req.user.id,
+      fullName: req.user.fullName,
+      email: req.user.email,
+      role: req.user.role
+    }
   });
 });
 

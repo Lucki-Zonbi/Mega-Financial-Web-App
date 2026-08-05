@@ -26,6 +26,40 @@ const documentMetadataMessage = document.getElementById(
   "documentMetadataMessage"
 );
 
+const documentMetadataForm = document.getElementById(
+  "documentMetadataForm"
+);
+
+const metadataTaxYear = document.getElementById(
+  "metadataTaxYear"
+);
+
+const metadataChecklistKey = document.getElementById(
+  "metadataChecklistKey"
+);
+
+const metadataOriginalFileName = document.getElementById(
+  "metadataOriginalFileName"
+);
+
+const metadataMimeType = document.getElementById(
+  "metadataMimeType"
+);
+
+const metadataSizeBytes = document.getElementById(
+  "metadataSizeBytes"
+);
+
+const documentMetadataSubmitButton = document.getElementById(
+  "documentMetadataSubmitButton"
+);
+
+const documentMetadataFormMessage = document.getElementById(
+  "documentMetadataFormMessage"
+);
+
+let protectedDocumentChecklist = [];
+
 function getDocumentsToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
@@ -93,9 +127,16 @@ function renderChecklistState(title, description, link) {
 function renderChecklistItems(checklist) {
   if (!documentChecklistGrid) return;
 
+  protectedDocumentChecklist =
+    Array.isArray(checklist) ? checklist : [];
+
+  populateMetadataCategoryOptions(
+    protectedDocumentChecklist
+  );
+
   documentChecklistGrid.replaceChildren();
 
-  checklist.forEach((item) => {
+  protectedDocumentChecklist.forEach((item) => {
     const card = document.createElement("article");
     card.className = "future-card document-checklist-item";
 
@@ -117,6 +158,71 @@ function renderChecklistItems(checklist) {
 function setMetadataMessage(message) {
   if (documentMetadataMessage) {
     documentMetadataMessage.textContent = message;
+  }
+}
+
+function setMetadataFormMessage(message, type = "info") {
+  if (!documentMetadataFormMessage) {
+    return;
+  }
+
+  documentMetadataFormMessage.textContent = message;
+  documentMetadataFormMessage.className =
+    `auth-message metadata-form-message ${type}`;
+}
+
+function setMetadataFormAvailability({
+  enabled,
+  optionText
+}) {
+  if (metadataChecklistKey) {
+    metadataChecklistKey.disabled = !enabled;
+
+    if (!enabled && optionText) {
+      metadataChecklistKey.replaceChildren();
+
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = optionText;
+
+      metadataChecklistKey.append(option);
+    }
+  }
+
+  if (documentMetadataSubmitButton) {
+    documentMetadataSubmitButton.disabled = !enabled;
+  }
+}
+
+function populateMetadataCategoryOptions(checklist) {
+  if (!metadataChecklistKey) {
+    return;
+  }
+
+  metadataChecklistKey.replaceChildren();
+
+  const placeholderOption = document.createElement("option");
+  placeholderOption.value = "";
+  placeholderOption.textContent =
+    "Select a required document category";
+
+  metadataChecklistKey.append(placeholderOption);
+
+  checklist.forEach((item) => {
+    const option = document.createElement("option");
+
+    option.value = item.key;
+    option.textContent = item.title;
+
+    metadataChecklistKey.append(option);
+  });
+
+  const hasChecklistItems = checklist.length > 0;
+
+  metadataChecklistKey.disabled = !hasChecklistItems;
+
+  if (documentMetadataSubmitButton) {
+    documentMetadataSubmitButton.disabled = !hasChecklistItems;
   }
 }
 
@@ -297,12 +403,207 @@ async function loadDocumentMetadataDrafts() {
   }
 }
 
+function buildMetadataPayload() {
+  return {
+    taxYear: Number(metadataTaxYear.value),
+    checklistKey: metadataChecklistKey.value,
+    originalFileName:
+      metadataOriginalFileName.value.trim(),
+    mimeType: metadataMimeType.value,
+    sizeBytes: Number(metadataSizeBytes.value)
+  };
+}
+
+function validateMetadataPayload(payload) {
+  if (
+    !Number.isInteger(payload.taxYear) ||
+    payload.taxYear < 2000 ||
+    payload.taxYear > 2100
+  ) {
+    return "Enter a valid tax year between 2000 and 2100.";
+  }
+
+  const categoryIsProtected =
+    protectedDocumentChecklist.some(
+      (item) => item.key === payload.checklistKey
+    );
+
+  if (!categoryIsProtected) {
+    return "Select a category from your protected document checklist.";
+  }
+
+  if (
+    !payload.originalFileName ||
+    payload.originalFileName.length > 255
+  ) {
+    return "Enter an original filename between 1 and 255 characters.";
+  }
+
+  const allowedMimeTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png"
+  ];
+
+  if (!allowedMimeTypes.includes(payload.mimeType)) {
+    return "Select PDF, JPEG, or PNG metadata.";
+  }
+
+  if (
+    !Number.isInteger(payload.sizeBytes) ||
+    payload.sizeBytes < 1 ||
+    payload.sizeBytes > 10485760
+  ) {
+    return "Enter a size between 1 byte and 10 MB.";
+  }
+
+  return null;
+}
+
+async function submitDocumentMetadata(event) {
+  event.preventDefault();
+
+  const token = getDocumentsToken();
+
+  if (!token) {
+    setMetadataFormMessage(
+      "Your client session is missing. Please log in again.",
+      "error"
+    );
+
+    setMetadataFormAvailability({
+      enabled: false,
+      optionText: "Client session required"
+    });
+
+    return;
+  }
+
+  const metadataPayload = buildMetadataPayload();
+
+  const validationMessage =
+    validateMetadataPayload(metadataPayload);
+
+  if (validationMessage) {
+    setMetadataFormMessage(
+      validationMessage,
+      "error"
+    );
+
+    return;
+  }
+
+  const originalButtonText =
+    documentMetadataSubmitButton.textContent;
+
+  try {
+    documentMetadataSubmitButton.disabled = true;
+    documentMetadataSubmitButton.textContent =
+      "Preparing Metadata...";
+
+    setMetadataFormMessage(
+      "Preparing protected metadata. No file is being transferred.",
+      "info"
+    );
+
+    const response = await fetch(
+      "/api/document-metadata",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(metadataPayload)
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      clearDocumentsSession();
+
+      setMetadataFormAvailability({
+        enabled: false,
+        optionText: "Session expired"
+      });
+
+      setMetadataFormMessage(
+        data.message ||
+          "Your session expired. Please log in again.",
+        "error"
+      );
+
+      setTimeout(() => {
+        window.location.href = "./login.html";
+      }, 1200);
+
+      return;
+    }
+
+    if (response.status === 403) {
+      setMetadataFormMessage(
+        data.message ||
+          "Only client accounts may prepare document metadata.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      setMetadataFormMessage(
+        data.message ||
+          "Unable to prepare the document metadata.",
+        "error"
+      );
+
+      return;
+    }
+
+    setMetadataFormMessage(
+      data.message ||
+        "Document metadata was prepared. No file was uploaded or stored.",
+      "success"
+    );
+
+    metadataOriginalFileName.value = "";
+    metadataMimeType.value = "";
+    metadataSizeBytes.value = "";
+
+    await loadDocumentMetadataDrafts();
+  } catch (error) {
+    setMetadataFormMessage(
+      "Unable to connect to the metadata server. No file was transferred.",
+      "error"
+    );
+  } finally {
+    if (documentMetadataSubmitButton) {
+      documentMetadataSubmitButton.textContent =
+        originalButtonText;
+
+      documentMetadataSubmitButton.disabled =
+        protectedDocumentChecklist.length === 0;
+    }
+  }
+}
+
 async function loadDocumentChecklist() {
   if (!documentChecklistGrid) return;
 
   const token = getDocumentsToken();
 
-  if (!token) {
+    if (!token) {
+    setMetadataFormAvailability({
+      enabled: false,
+      optionText: "Log in to load required categories"
+    });
+
+    setMetadataFormMessage(
+      "Please log in before preparing document metadata.",
+      "error"
+    );
+
     renderChecklistState(
       "Client session required",
       "Please log in to view your protected document checklist.",
@@ -328,8 +629,19 @@ async function loadDocumentChecklist() {
 
     const data = await response.json();
 
-    if (response.status === 401) {
+        if (response.status === 401) {
       clearDocumentsSession();
+
+      setMetadataFormAvailability({
+        enabled: false,
+        optionText: "Session expired"
+      });
+
+      setMetadataFormMessage(
+        data.message ||
+          "Your session expired. Please log in again.",
+        "error"
+      );
 
       setChecklistStatus({
         title: "Session Expired",
@@ -355,7 +667,20 @@ async function loadDocumentChecklist() {
       return;
     }
 
-    if (response.status === 404) {
+        if (response.status === 404) {
+      protectedDocumentChecklist = [];
+
+      setMetadataFormAvailability({
+        enabled: false,
+        optionText: "Complete your intake first"
+      });
+
+      setMetadataFormMessage(
+        data.message ||
+          "Complete your 2026 tax intake before preparing document metadata.",
+        "error"
+      );
+
       setChecklistStatus({
         title: "Intake Required",
         count: "0",
@@ -407,6 +732,13 @@ async function loadDocumentChecklist() {
         "A connection error prevented checklist retrieval."
     );
   }
+}
+
+if (documentMetadataForm) {
+  documentMetadataForm.addEventListener(
+    "submit",
+    submitDocumentMetadata
+  );
 }
 
 loadDocumentChecklist();

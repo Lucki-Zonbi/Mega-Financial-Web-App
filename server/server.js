@@ -11,6 +11,7 @@ connectDB();
 const app = express();
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 
 const documentMetadataRoutes = require(
@@ -31,6 +32,7 @@ app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use("/api", apiLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/intake", intakeRoutes);
 app.use("/api/document-metadata", documentMetadataRoutes);
 app.use(express.static(path.join(__dirname, "../public")));

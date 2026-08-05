@@ -4,6 +4,12 @@ const protect = require(
   "../middleware/authMiddleware"
 );
 
+const {
+  requireClient
+} = require(
+  "../middleware/roleAuthorizationMiddleware"
+);
+
 const DocumentMetadata = require(
   "../models/DocumentMetadata"
 );
@@ -49,18 +55,6 @@ const FORBIDDEN_REQUEST_FIELDS = [
   "documentData",
   "content"
 ];
-
-function clientRoleRequired(req, res, next) {
-  if (req.user.role !== "client") {
-    return res.status(403).json({
-      success: false,
-      message:
-        "Document metadata routes are available only to client accounts."
-    });
-  }
-
-  next();
-}
 
 function hasOwnProperty(object, property) {
   return Object.prototype.hasOwnProperty.call(
@@ -108,7 +102,7 @@ function getFriendlyValidationMessage(error) {
 router.post(
   "/",
   protect,
-  clientRoleRequired,
+  requireClient,
   async (req, res) => {
     try {
       if (
@@ -316,7 +310,7 @@ router.post(
 router.get(
   "/",
   protect,
-  clientRoleRequired,
+  requireClient,
   async (req, res) => {
     try {
       const query = {

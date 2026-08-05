@@ -37,6 +37,10 @@ function redirectToLogin() {
   window.location.href = "./login.html";
 }
 
+function redirectToAdminDashboard() {
+  window.location.href = "./admin-dashboard.html";
+}
+
 function displayDashboardUser() {
   const user = getStoredUser();
 
@@ -66,11 +70,26 @@ function setupLogoutButton() {
 }
 
 function guardClientPreviewPage() {
-  const token = getStoredToken();
+  if (!isProtectedPreviewPage()) {
+    return;
+  }
 
-  if (isProtectedPreviewPage() && !token) {
-    alert("Please log in to preview this client page.");
+  const token = getStoredToken();
+  const user = getStoredUser();
+
+  if (!token) {
+    alert("Please log in to access this client page.");
     redirectToLogin();
+    return;
+  }
+
+  const adminRoles = [
+    "general_admin",
+    "executive_admin"
+  ];
+
+  if (user && adminRoles.includes(user.role)) {
+    redirectToAdminDashboard();
   }
 }
 

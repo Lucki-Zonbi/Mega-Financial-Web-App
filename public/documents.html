@@ -88,6 +88,160 @@
           <p>Connecting to your protected 2026 tax intake.</p>
         </article>
       </div>
+        </section>
+
+    <section class="documents-upload-section">
+      <div class="section-heading">
+        <span class="section-tag">Metadata Preparation</span>
+
+        <h2>Prepare test metadata without selecting or uploading a file.</h2>
+
+        <p>
+          This controlled foundation form sends only manually entered document
+          metadata as JSON. No file is selected, transferred, uploaded, parsed,
+          or stored.
+        </p>
+      </div>
+
+      <div class="documents-layout">
+        <form
+          id="documentMetadataForm"
+          class="documents-form-card"
+          novalidate
+        >
+          <h3>Prepare a Pending Metadata Draft</h3>
+
+          <p class="auth-note metadata-foundation-notice">
+            Enter the original filename, MIME type, and approximate size only
+            for foundation testing. This information does not represent a real
+            uploaded document.
+          </p>
+
+          <label for="metadataTaxYear">Tax Year</label>
+
+          <input
+            type="number"
+            id="metadataTaxYear"
+            name="taxYear"
+            value="2026"
+            min="2000"
+            max="2100"
+            required
+          />
+
+          <label for="metadataChecklistKey">Required Document Category</label>
+
+          <select
+            id="metadataChecklistKey"
+            name="checklistKey"
+            required
+            disabled
+          >
+            <option value="">
+              Loading your protected checklist...
+            </option>
+          </select>
+
+          <label for="metadataOriginalFileName">
+            Original Filename
+          </label>
+
+          <input
+            type="text"
+            id="metadataOriginalFileName"
+            name="originalFileName"
+            maxlength="255"
+            placeholder="Example: 2026-W2.pdf"
+            autocomplete="off"
+            required
+          />
+
+          <label for="metadataMimeType">MIME Type</label>
+
+          <select
+            id="metadataMimeType"
+            name="mimeType"
+            required
+          >
+            <option value="">Select a MIME type</option>
+            <option value="application/pdf">PDF — application/pdf</option>
+            <option value="image/jpeg">JPEG — image/jpeg</option>
+            <option value="image/png">PNG — image/png</option>
+          </select>
+
+          <label for="metadataSizeBytes">
+            Approximate Size in Bytes
+          </label>
+
+          <input
+            type="number"
+            id="metadataSizeBytes"
+            name="sizeBytes"
+            min="1"
+            max="10485760"
+            step="1"
+            placeholder="Example: 250000"
+            required
+          />
+
+          <button
+            type="submit"
+            id="documentMetadataSubmitButton"
+            class="btn primary-btn metadata-submit-btn"
+            disabled
+          >
+            Prepare Metadata Draft
+          </button>
+
+          <p
+            id="documentMetadataFormMessage"
+            class="auth-message metadata-form-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </form>
+
+        <aside class="documents-side-panel">
+          <article class="future-card">
+            <h3>No Real File Selection</h3>
+
+            <p>
+              This form intentionally contains no file input and cannot read a
+              document from your device.
+            </p>
+
+            <span class="dashboard-note">
+              JSON metadata only
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>No File Transfer</h3>
+
+            <p>
+              The browser sends only tax year, checklist category, original
+              filename, MIME type, and size metadata.
+            </p>
+
+            <span class="dashboard-note">
+              No FormData or multipart request
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>No File Storage</h3>
+
+            <p>
+              A successful submission creates a pending metadata record. It
+              does not create an uploaded or stored document.
+            </p>
+
+            <span class="dashboard-note">
+              storedFileName remains null
+            </span>
+          </article>
+        </aside>
+      </div>
     </section>
 
     <section class="documents-checklist-section">

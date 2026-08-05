@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Admin Dashboard | Mega Financial</title>
+
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <header id="site-header" class="site-header">
+    <nav class="navbar">
+      <a href="./index.html" class="logo">
+        Mega Financial
+      </a>
+
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Open navigation menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li>
+          <a href="./index.html">Home</a>
+        </li>
+
+        <li>
+          <a href="./about.html">About</a>
+        </li>
+
+        <li>
+          <a href="./services.html">Services</a>
+        </li>
+
+        <li>
+          <a href="./portal.html">Portal</a>
+        </li>
+
+        <li>
+          <a href="./admin-dashboard.html">
+            Admin Dashboard
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="./login.html"
+            class="mobile-login-link"
+          >
+            Account Login
+          </a>
+        </li>
+      </ul>
+
+      <a
+        href="./login.html"
+        class="nav-btn desktop-login-btn"
+      >
+        Account Login
+      </a>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="dashboard-hero">
+      <div class="dashboard-hero-content">
+        <span class="section-tag">
+          Protected Admin Portal
+        </span>
+
+        <h1>
+          Welcome,
+          <span id="adminDashboardName">
+            Mega Financial administrator
+          </span>.
+        </h1>
+
+        <p>
+          This protected administration foundation confirms
+          server-authorized admin access without displaying
+          client tax records, document records, appointments,
+          payments, or private account information.
+        </p>
+
+        <div class="portal-features dashboard-status-tags">
+          <span>JWT Authentication</span>
+          <span>Server Role Authorization</span>
+          <span>Least-Privilege Foundation</span>
+        </div>
+
+        <button
+          type="button"
+          id="adminLogoutBtn"
+          class="btn secondary-btn dashboard-logout-btn"
+        >
+          Logout
+        </button>
+      </div>
+
+      <div class="dashboard-profile-card">
+        <span class="section-tag">
+          Administrator Profile
+        </span>
+
+        <h3 id="adminProfileName">
+          Administrator
+        </h3>
+
+        <p>
+          Email:
+          <span id="adminProfileEmail">
+            Confirming...
+          </span>
+        </p>
+
+        <p>
+          Role:
+          <span id="adminProfileRole">
+            Confirming...
+          </span>
+        </p>
+
+        <p>
+          Status: Protected admin session
+        </p>
+      </div>
+    </section>
+
+    <section class="dashboard-summary-section">
+      <div class="section-heading">
+        <span class="section-tag">
+          Administration Foundation
+        </span>
+
+        <h2>
+          Authorized administration tools will be added
+          incrementally.
+        </h2>
+
+        <p id="adminAccessMessage">
+          Confirming your protected administrator session...
+        </p>
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="future-card dashboard-card">
+          <h3>Client Directory</h3>
+
+          <p>
+            No client list is exposed in Sprint 021.
+          </p>
+
+          <span class="dashboard-note">
+            Planned for Sprint 022
+          </span>
+        </article>
+
+        <article class="future-card dashboard-card">
+          <h3>Client Records</h3>
+
+          <p>
+            Tax intake and account records remain private.
+          </p>
+
+          <span class="dashboard-note">
+            Future authorized read-only access
+          </span>
+        </article>
+
+        <article class="future-card dashboard-card">
+          <h3>Document Review</h3>
+
+          <p>
+            No document files or metadata are available here.
+          </p>
+
+          <span class="dashboard-note">
+            Planned for a later admin sprint
+          </span>
+        </article>
+
+        <article class="future-card dashboard-card">
+          <h3>Appointments</h3>
+
+          <p>
+            No appointment-management records are active.
+          </p>
+
+          <span class="dashboard-note">
+            Future scheduling administration
+          </span>
+        </article>
+
+        <article
+          class="future-card dashboard-card dashboard-wide-card"
+        >
+          <h3>Authorization Boundary</h3>
+
+          <p>
+            This dashboard currently confirms only the
+            authenticated administrator's identity and role.
+            It does not retrieve or expose client-owned data.
+          </p>
+
+          <span class="dashboard-note">
+            Server authorization required for every future
+            admin resource
+          </span>
+        </article>
+      </div>
+    </section>
+
+    <section class="quick-actions-section">
+      <div class="section-heading">
+        <span class="section-tag">
+          Future Admin Actions
+        </span>
+
+        <h2>
+          Administrative actions remain inactive.
+        </h2>
+
+        <p>
+          Later sprints will add narrowly authorized tools
+          without allowing unrestricted database access.
+        </p>
+      </div>
+
+      <div class="quick-actions-grid">
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          View Client Directory
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Review Client Records
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Review Documents
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Manage Appointments
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          View Audit Activity
+        </button>
+      </div>
+    </section>
+
+    <section class="virtual-section">
+      <div>
+        <span class="section-tag light-tag">
+          Security Boundary
+        </span>
+
+        <h2>
+          Authentication does not automatically grant
+          access to client information.
+        </h2>
+
+        <p>
+          Every future administrator endpoint must use
+          explicit server-side role authorization, limited
+          response fields, validated input, and auditable
+          access boundaries.
+        </p>
+
+        <div class="portal-features">
+          <span>Explicit Roles</span>
+          <span>Limited Responses</span>
+          <span>No Client Data Yet</span>
+          <span>No Browser-Only Authorization</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-top-link">
+      <a href="#top" id="backToTop">
+        ↑ Return To Top
+      </a>
+    </div>
+
+    <p>
+      &copy; 2026 Mega Financial. All rights reserved.
+    </p>
+  </footer>
+
+  <script src="./js/adminGuard.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

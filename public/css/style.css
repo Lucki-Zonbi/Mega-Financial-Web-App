@@ -1493,6 +1493,38 @@ section {
   opacity: 0.85;
 }
 
+.metadata-foundation-notice {
+  margin-bottom: 0.8rem;
+}
+
+.metadata-submit-btn {
+  border: none;
+  cursor: pointer;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+
+.metadata-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.metadata-form-message:empty {
+  display: none;
+}
+
+.metadata-form-message.info {
+  border-left: 4px solid var(--money-blue);
+}
+
+.metadata-form-message.success {
+  border-left: 4px solid var(--mint-green);
+}
+
+.metadata-form-message.error {
+  border-left: 4px solid var(--deep-blue);
+}
+
 .documents-side-panel {
   display: grid;
   gap: 1.5rem;
