@@ -58,6 +58,30 @@ const documentMetadataFormMessage = document.getElementById(
   "documentMetadataFormMessage"
 );
 
+const secureDocumentUploadForm = document.getElementById(
+  "secureDocumentUploadForm"
+);
+
+const uploadTaxYear = document.getElementById(
+  "uploadTaxYear"
+);
+
+const documentType = document.getElementById(
+  "documentType"
+);
+
+const documentFile = document.getElementById(
+  "documentFile"
+);
+
+const secureDocumentUploadButton = document.getElementById(
+  "secureDocumentUploadButton"
+);
+
+const secureDocumentUploadMessage = document.getElementById(
+  "secureDocumentUploadMessage"
+);
+
 let protectedDocumentChecklist = [];
 
 function getDocumentsToken() {
@@ -130,7 +154,11 @@ function renderChecklistItems(checklist) {
   protectedDocumentChecklist =
     Array.isArray(checklist) ? checklist : [];
 
-  populateMetadataCategoryOptions(
+    populateMetadataCategoryOptions(
+    protectedDocumentChecklist
+  );
+
+  populateSecureUploadCategories(
     protectedDocumentChecklist
   );
 
@@ -191,6 +219,60 @@ function setMetadataFormAvailability({
 
   if (documentMetadataSubmitButton) {
     documentMetadataSubmitButton.disabled = !enabled;
+  }
+}
+
+function setSecureUploadMessage(
+  message,
+  type = "info"
+) {
+  if (!secureDocumentUploadMessage) {
+    return;
+  }
+
+  secureDocumentUploadMessage.textContent =
+    message;
+
+  secureDocumentUploadMessage.className =
+    `auth-message metadata-form-message ${type}`;
+}
+
+function populateSecureUploadCategories(
+  checklist
+) {
+  if (!documentType) {
+    return;
+  }
+
+  documentType.replaceChildren();
+
+  const placeholder =
+    document.createElement("option");
+
+  placeholder.value = "";
+  placeholder.textContent =
+    "Select a required document category";
+
+  documentType.append(placeholder);
+
+  checklist.forEach((item) => {
+    const option =
+      document.createElement("option");
+
+    option.value = item.key;
+    option.textContent = item.title;
+
+    documentType.append(option);
+  });
+
+  const enabled =
+    checklist.length > 0;
+
+  documentType.disabled = !enabled;
+
+  if (secureDocumentUploadButton) {
+    secureDocumentUploadButton.disabled =
+      !enabled;
   }
 }
 
@@ -284,9 +366,19 @@ function renderMetadataDrafts(
       const status =
         document.createElement("span");
 
-      status.className = "dashboard-note";
-      status.textContent =
-        "Pending metadata only — no file uploaded";
+        status.className = "dashboard-note";
+
+      if (
+        metadataDraft.uploadStatus === "stored"
+      ) {
+        status.textContent =
+          `Uploaded securely • Review: ${
+            metadataDraft.reviewStatus
+          }`;
+      } else {
+        status.textContent =
+          "Pending metadata only — no file uploaded";
+      }
 
       card.append(
         heading,
@@ -381,11 +473,11 @@ async function loadDocumentMetadataDrafts() {
     }
 
     setMetadataMessage(
-      `${data.count} pending metadata ${
+      `${data.count} protected document metadata ${
         data.count === 1
-          ? "draft was"
-          : "drafts were"
-      } found. These records are not uploaded files.`
+          ? "record was"
+          : "records were"
+      } found. Stored uploads and pending metadata drafts are identified separately below.`
     );
 
     renderMetadataDrafts(
@@ -588,6 +680,187 @@ async function submitDocumentMetadata(event) {
   }
 }
 
+async function submitSecureDocumentUpload(
+  event
+) {
+  event.preventDefault();
+
+  const token = getDocumentsToken();
+
+  if (!token) {
+    setSecureUploadMessage(
+      "Your client session is missing. Please log in again.",
+      "error"
+    );
+
+    return;
+  }
+
+  const taxYear =
+    Number(uploadTaxYear?.value);
+
+  const checklistKey =
+    documentType?.value || "";
+
+  const selectedFile =
+    documentFile?.files?.[0];
+
+  if (
+    !Number.isInteger(taxYear) ||
+    taxYear < 2000 ||
+    taxYear > 2100
+  ) {
+    setSecureUploadMessage(
+      "Enter a valid tax year between 2000 and 2100.",
+      "error"
+    );
+
+    return;
+  }
+
+  const categoryIsProtected =
+    protectedDocumentChecklist.some(
+      (item) => {
+        return item.key === checklistKey;
+      }
+    );
+
+  if (!categoryIsProtected) {
+    setSecureUploadMessage(
+      "Select a category from your protected document checklist.",
+      "error"
+    );
+
+    return;
+  }
+
+  if (!selectedFile) {
+    setSecureUploadMessage(
+      "Select one PDF, JPEG, or PNG document.",
+      "error"
+    );
+
+    return;
+  }
+
+  if (
+    selectedFile.size < 1 ||
+    selectedFile.size > 10485760
+  ) {
+    setSecureUploadMessage(
+      "The selected document must be no larger than 10 MB.",
+      "error"
+    );
+
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append(
+    "taxYear",
+    String(taxYear)
+  );
+
+  formData.append(
+    "checklistKey",
+    checklistKey
+  );
+
+  formData.append(
+    "document",
+    selectedFile
+  );
+
+  const originalButtonText =
+    secureDocumentUploadButton.textContent;
+
+  try {
+    secureDocumentUploadButton.disabled =
+      true;
+
+    secureDocumentUploadButton.textContent =
+      "Uploading Securely...";
+
+    setSecureUploadMessage(
+      "Securely transferring your document...",
+      "info"
+    );
+
+    const response = await fetch(
+      "/api/document-metadata/upload",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      clearDocumentsSession();
+
+      setSecureUploadMessage(
+        data.message ||
+          "Your session expired. Please log in again.",
+        "error"
+      );
+
+      setTimeout(() => {
+        window.location.href =
+          "./login.html";
+      }, 1200);
+
+      return;
+    }
+
+    if (response.status === 403) {
+      setSecureUploadMessage(
+        data.message ||
+          "Only authorized client accounts may upload documents.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      setSecureUploadMessage(
+        data.message ||
+          "The document could not be securely uploaded.",
+        "error"
+      );
+
+      return;
+    }
+
+    setSecureUploadMessage(
+      data.message ||
+        "Your document was securely uploaded and is awaiting review.",
+      "success"
+    );
+
+    documentFile.value = "";
+    documentType.value = "";
+
+    await loadDocumentMetadataDrafts();
+  } catch (error) {
+    setSecureUploadMessage(
+      "Unable to connect to the secure document server.",
+      "error"
+    );
+  } finally {
+    secureDocumentUploadButton.textContent =
+      originalButtonText;
+
+    secureDocumentUploadButton.disabled =
+      protectedDocumentChecklist.length === 0;
+  }
+}
+
 async function loadDocumentChecklist() {
   if (!documentChecklistGrid) return;
 
@@ -738,6 +1011,13 @@ if (documentMetadataForm) {
   documentMetadataForm.addEventListener(
     "submit",
     submitDocumentMetadata
+  );
+}
+
+if (secureDocumentUploadForm) {
+  secureDocumentUploadForm.addEventListener(
+    "submit",
+    submitSecureDocumentUpload
   );
 }
 

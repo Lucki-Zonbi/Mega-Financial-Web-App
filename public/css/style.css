@@ -1264,6 +1264,36 @@ section {
   margin-bottom: 0.35rem;
 }
 
+.admin-document-review-card {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-document-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+.admin-document-review-actions select {
+  flex: 1 1 220px;
+  padding: 0.75rem 0.9rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--gray-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.admin-document-review-actions select:focus {
+  border-color: var(--money-blue);
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
 @media (max-width: 900px) {
   .admin-directory-layout {
     grid-template-columns: 1fr;

@@ -270,67 +270,114 @@
 
     <section class="documents-upload-section">
       <div class="section-heading">
-        <span class="section-tag">Upload Form</span>
-        <h2>Upload functionality will be activated later.</h2>
+        <span class="section-tag">Secure Upload</span>
+        <h2>Upload a required tax document securely.</h2>
         <p>
-          This disabled preview reflects the metadata fields planned for future
-          uploads. It does not send, parse, store, or upload files.
+          Select a category from your protected checklist and upload one PDF,
+          JPEG, or PNG document up to 10 MB.
         </p>
       </div>
 
       <div class="documents-layout">
-        <form class="documents-form-card">
-          <h3>Document Upload Preview</h3>
+        <form
+          id="secureDocumentUploadForm"
+          class="documents-form-card"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <h3>Secure Document Upload</h3>
 
-          <label for="documentType">Document Type</label>
-          <select id="documentType" name="documentType" disabled>
-            <option>Government-issued ID</option>
-            <option>W-2 Forms</option>
-            <option>1099 Forms</option>
-            <option>Prior-year Tax Return</option>
-            <option>Business Income Records</option>
-            <option>Business Expense Records</option>
-            <option>Payroll Records</option>
-            <option>Dependent Information</option>
-            <option>Additional Supporting Documents</option>
+          <p class="auth-note metadata-foundation-notice">
+            Your account identity is verified by the server. Client ownership
+            and private storage information cannot be supplied through this form.
+          </p>
+
+          <label for="uploadTaxYear">Tax Year</label>
+
+          <input
+            type="number"
+            id="uploadTaxYear"
+            name="taxYear"
+            value="2026"
+            min="2000"
+            max="2100"
+            required
+          />
+
+          <label for="documentType">
+            Required Document Category
+          </label>
+
+          <select
+            id="documentType"
+            name="checklistKey"
+            required
+            disabled
+          >
+            <option value="">
+              Loading your protected checklist...
+            </option>
           </select>
 
           <label for="documentFile">File Upload</label>
-          <input type="file" id="documentFile" name="documentFile" disabled />
 
-          <label for="documentNotes">Notes</label>
-          <textarea id="documentNotes" name="documentNotes" rows="5" placeholder="Document notes remain inactive until a future upload sprint." disabled>
-          </textarea>
+          <input
+            type="file"
+            id="documentFile"
+            name="document"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            required
+          />
 
-          <button type="button" class="btn primary-btn documents-btn" disabled>
-            Upload Placeholder
+          <button
+            type="submit"
+            id="secureDocumentUploadButton"
+            class="btn primary-btn metadata-submit-btn"
+            disabled
+          >
+            Upload Document Securely
           </button>
 
-          <p class="auth-note">
-            Metadata validation is planned on the backend, but real upload handling remains disabled.
-          </p>
+          <p
+            id="secureDocumentUploadMessage"
+            class="auth-message metadata-form-message"
+            role="status"
+            aria-live="polite"
+          ></p>
         </form>
 
         <aside class="documents-side-panel">
           <article class="future-card">
-            <h3>Uploaded Documents Status</h3>
-            <p>No documents uploaded yet.</p>
-            <span class="dashboard-note">Future MongoDB document records</span>
-          </article>
-
-          <article class="future-card">
-            <h3>Document Review Status</h3>
-            <p>Admin review has not started.</p>
-            <span class="dashboard-note">Future admin review queue</span>
-          </article>
-
-          <article class="future-card">
-            <h3>Confirmation Message</h3>
+            <h3>Private Storage</h3>
             <p>
-              A future confirmation will appear after each successful upload and
-              may also be sent by email.
+              Uploaded tax documents are stored outside the publicly served
+              website directory.
             </p>
-            <span class="dashboard-note">Future upload confirmation email</span>
+            <span class="dashboard-note">
+              No public document URLs
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>Strict Validation</h3>
+            <p>
+              File size, extension, MIME metadata, actual file signature,
+              tax year, and checklist category are validated by the server.
+            </p>
+            <span class="dashboard-note">
+              PDF, JPEG, or PNG • 10 MB maximum
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>Authorized Review</h3>
+            <p>
+              Successfully stored documents begin with a not-reviewed status
+              and are available only through protected administrator review.
+            </p>
+            <span class="dashboard-note">
+              Server-authorized review only
+            </span>
           </article>
         </aside>
       </div>
@@ -339,19 +386,19 @@
     <section class="virtual-section">
       <div>
         <span class="section-tag light-tag">Secure Storage Notice</span>
-        <h2>Future uploads will require protected client access.</h2>
+        <h2>Tax documents remain behind protected access.</h2>
         <p>
-          Later sprints will connect secure file upload routes, MongoDB document
-          records, cloud storage, client document status, admin review, protected
-          route middleware, and dashboard tracking.
+          Uploaded documents are stored outside the public website directory,
+          linked to the authenticated client, and available for review only
+          through protected administrator routes.
         </p>
 
         <div class="portal-features">
           <span>Secure Upload Route</span>
-          <span>MongoDB Records</span>
-          <span>Cloud Storage</span>
+          <span>Private Storage</span>
+          <span>Verified Ownership</span>
           <span>Admin Review</span>
-          <span>Dashboard Tracking</span>
+          <span>No Public File URLs</span>
         </div>
       </div>
     </section>

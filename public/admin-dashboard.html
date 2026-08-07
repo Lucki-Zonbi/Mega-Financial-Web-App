@@ -88,17 +88,17 @@
         </h1>
 
         <p>
-          This protected administration portal provides a
-          narrowly scoped client directory and read-only
-          workflow summaries without exposing detailed tax
-          answers, document filenames, storage information,
-          payments, or private security credentials.
+          This protected administration portal provides a narrowly scoped
+          client directory, limited workflow summaries, and authorized
+          document review without exposing detailed tax answers, private
+          storage paths, payments, or private security credentials.
         </p>
 
         <div class="portal-features dashboard-status-tags">
           <span>JWT Authentication</span>
           <span>Server Role Authorization</span>
           <span>Read-Only Client Summaries</span>
+          <span>Authorized Document Review</span>
         </div>
 
         <button
@@ -320,19 +320,44 @@
 
               <div
                 id="adminIntakeSummary"
-                class="admin-summary-list"
-              ></div>
+                class="admin-summary-list">
+              </div>
             </section>
 
             <section class="admin-summary-group">
               <h4>Document Metadata Status</h4>
 
               <p class="admin-summary-privacy-note">
-                Only aggregated metadata counts are shown.
-                Filenames and document contents remain hidden.
+                This summary preserves the Sprint 022 aggregated
+                metadata view.
               </p>
 
-                <div id="adminDocumentSummary"                                       class="admin-summary-list">
+              <div
+                id="adminDocumentSummary"
+                class="admin-summary-list">
+              </div>
+            </section>
+
+            <section class="admin-summary-group">
+              <h4>Authorized Document Review</h4>
+
+              <p class="admin-summary-privacy-note">
+                Stored document details are shown only after an
+                administrator selects this client. Files remain private
+                and have no public URLs.
+              </p>
+
+              <p
+                id="adminDocumentReviewMessage"
+                class="admin-directory-message"
+                role="status"
+                aria-live="polite">
+                Select a client to load authorized document review.
+              </p>
+
+              <div
+                id="adminDocumentReviewList"
+                class="admin-summary-list">
               </div>
             </section>
           </div>
@@ -351,10 +376,10 @@
         </h2>
 
         <p>
-          Sprint 022 permits read-only summaries only.
-          Document review, appointments, payments, audit
-          activity, and client-record changes remain outside
-          this sprint.
+          Sprint 023 activates narrowly scoped document review for the
+          currently selected client. Client-record editing, appointments,
+          payments, audit activity, impersonation, deletion, and role
+          changes remain unavailable.
         </p>
       </div>
 

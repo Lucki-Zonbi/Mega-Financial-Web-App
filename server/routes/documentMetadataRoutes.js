@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 
 const protect = require(
   "../middleware/authMiddleware"
@@ -26,6 +27,21 @@ const {
 
 const buildRequiredDocumentChecklist = require(
   "../utils/buildRequiredDocumentChecklist"
+);
+
+const {
+  uploadDocument
+} = require(
+  "../middleware/documentUploadMiddleware"
+);
+
+const {
+  getVerifiedFileType,
+  generateStoredFileName,
+  storePrivateDocument,
+  removePrivateDocument
+} = require(
+  "../utils/documentStorageUtils"
 );
 
 const router = express.Router();
@@ -97,6 +113,57 @@ function getFriendlyValidationMessage(error) {
   }
 
   return null;
+}
+
+function buildSafeDocumentStatus(documentRecord) {
+  return {
+    id: documentRecord._id,
+    taxYear: documentRecord.taxYear,
+    checklistKey: documentRecord.checklistKey,
+    originalFileName:
+      documentRecord.originalFileName,
+    mimeType: documentRecord.mimeType,
+    sizeBytes: documentRecord.sizeBytes,
+    uploadStatus:
+      documentRecord.uploadStatus,
+    reviewStatus:
+      documentRecord.reviewStatus,
+    uploadedAt:
+      documentRecord.uploadedAt,
+    createdAt:
+      documentRecord.createdAt,
+    updatedAt:
+      documentRecord.updatedAt
+  };
+}
+
+function handleDocumentUploadMiddleware(
+  req,
+  res,
+  next
+) {
+  uploadDocument(req, res, (error) => {
+    if (!error) {
+      next();
+      return;
+    }
+
+    if (error.code === "LIMIT_FILE_SIZE") {
+      res.status(400).json({
+        success: false,
+        message:
+          "The selected document exceeds the 10 MB upload limit."
+      });
+
+      return;
+    }
+
+    res.status(400).json({
+      success: false,
+      message:
+        "Only one PDF, JPEG, or PNG document may be uploaded."
+    });
+  });
 }
 
 router.post(
@@ -302,6 +369,320 @@ router.post(
         success: false,
         message:
           "Something went wrong while preparing the document metadata. No file was uploaded."
+      });
+    }
+  }
+);
+
+router.post(
+  "/upload",
+  protect,
+  requireClient,
+  handleDocumentUploadMiddleware,
+  async (req, res) => {
+    let storedFileName = null;
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please select one PDF, JPEG, or PNG document."
+        });
+      }
+
+      const parsedTaxYear =
+        parseAndValidateTaxYear(
+          req.body.taxYear
+        );
+
+      if (parsedTaxYear === null) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please provide a valid tax year between 2000 and 2100."
+        });
+      }
+
+      const normalizedChecklistKey =
+        typeof req.body.checklistKey === "string"
+          ? req.body.checklistKey.trim()
+          : "";
+
+      if (
+        !normalizedChecklistKey ||
+        !ALLOWED_DOCUMENT_CATEGORY_KEYS.includes(
+          normalizedChecklistKey
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please select a valid document category."
+        });
+      }
+
+      const forbiddenOwnershipFields = [
+        "user",
+        "userId",
+        "clientId",
+        "owner",
+        "ownerId",
+        "storedFileName",
+        "storagePath",
+        "filePath"
+      ].filter((field) => {
+        return hasOwnProperty(req.body, field);
+      });
+
+      if (
+        forbiddenOwnershipFields.length > 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Ownership and private storage information cannot be supplied by the client."
+        });
+      }
+
+      const intake = await TaxIntake.findOne({
+        user: req.user.id,
+        taxYear: parsedTaxYear
+      });
+
+      if (!intake) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "Complete the requested tax-year intake before uploading documents."
+        });
+      }
+
+      const applicableChecklist =
+        buildRequiredDocumentChecklist(intake);
+
+      const categoryIsRequired =
+        applicableChecklist.some(
+          (category) => {
+            return (
+              category.key ===
+              normalizedChecklistKey
+            );
+          }
+        );
+
+      if (!categoryIsRequired) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The selected document category is not required by your saved tax intake."
+        });
+      }
+
+      const sanitizedOriginalFileName =
+        sanitizeOriginalFileName(
+          req.file.originalname
+        );
+
+      if (
+        !sanitizedOriginalFileName ||
+        sanitizedOriginalFileName.length > 255
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The selected document filename is invalid."
+        });
+      }
+
+      const originalExtension =
+        path
+          .extname(sanitizedOriginalFileName)
+          .toLowerCase();
+
+      const verifiedFileType =
+        getVerifiedFileType(
+          req.file.buffer
+        );
+
+      if (!verifiedFileType) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The document contents do not match a supported PDF, JPEG, or PNG file."
+        });
+      }
+
+      if (
+        !verifiedFileType.allowedExtensions.includes(
+          originalExtension
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The document extension does not match the detected file type."
+        });
+      }
+
+      const reportedMimeType =
+        String(
+          req.file.mimetype || ""
+        ).toLowerCase();
+
+      if (
+        reportedMimeType !==
+        verifiedFileType.mimeType
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The reported document type does not match the detected file contents."
+        });
+      }
+
+      storedFileName =
+        generateStoredFileName(
+          verifiedFileType.storedExtension
+        );
+
+      await storePrivateDocument({
+        storedFileName,
+        buffer: req.file.buffer
+      });
+
+      let documentRecord;
+
+      try {
+        documentRecord =
+          await DocumentMetadata.create({
+            user: req.user.id,
+            taxYear: parsedTaxYear,
+            checklistKey:
+              normalizedChecklistKey,
+            originalFileName:
+              sanitizedOriginalFileName,
+            storedFileName,
+            mimeType:
+              verifiedFileType.mimeType,
+            sizeBytes:
+              req.file.size,
+            uploadStatus: "stored",
+            reviewStatus: "not_reviewed",
+            uploadedAt: new Date()
+          });
+      } catch (databaseError) {
+        await removePrivateDocument(
+          storedFileName
+        );
+
+        storedFileName = null;
+
+        throw databaseError;
+      }
+
+      return res.status(201).json({
+        success: true,
+        message:
+          "Your document was securely uploaded and is awaiting review.",
+        document:
+          buildSafeDocumentStatus(
+            documentRecord
+          )
+      });
+    } catch (error) {
+      console.error(
+        "Secure document upload error:",
+        error.message
+      );
+
+      if (storedFileName) {
+        try {
+          await removePrivateDocument(
+            storedFileName
+          );
+        } catch (cleanupError) {
+          console.error(
+            "Private document cleanup error:",
+            cleanupError.message
+          );
+        }
+      }
+
+      const validationMessage =
+        getFriendlyValidationMessage(error);
+
+      if (validationMessage) {
+        return res.status(400).json({
+          success: false,
+          message: validationMessage
+        });
+      }
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "The document could not be securely stored."
+      });
+    }
+  }
+);
+
+router.get(
+  "/status",
+  protect,
+  requireClient,
+  async (req, res) => {
+    try {
+      const query = {
+        user: req.user.id
+      };
+
+      if (
+        req.query.taxYear !== undefined
+      ) {
+        const parsedTaxYear =
+          parseAndValidateTaxYear(
+            req.query.taxYear
+          );
+
+        if (parsedTaxYear === null) {
+          return res.status(400).json({
+            success: false,
+            message:
+              "Please provide a valid tax year between 2000 and 2100."
+          });
+        }
+
+        query.taxYear = parsedTaxYear;
+      }
+
+      const documents =
+        await DocumentMetadata.find(query)
+          .select(
+            "_id taxYear checklistKey " +
+            "originalFileName mimeType sizeBytes " +
+            "uploadStatus reviewStatus uploadedAt " +
+            "createdAt updatedAt"
+          )
+          .sort({
+            createdAt: -1,
+            _id: -1
+          })
+          .lean();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Protected document statuses retrieved.",
+        count: documents.length,
+        documents
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Document statuses could not be retrieved."
       });
     }
   }

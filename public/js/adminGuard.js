@@ -117,6 +117,65 @@ function handleAdminAuthorizationFailure(status) {
   redirectAdminToLogin();
 }
 
+async function sendProtectedAdminJson(
+  url,
+  method,
+  body
+) {
+  const token = getStoredAdminToken();
+
+  if (!token) {
+    handleAdminAuthorizationFailure(401);
+
+    throw new Error(
+      "Administrator authentication is required."
+    );
+  }
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch (error) {
+    data = {
+      success: false,
+      message:
+        "The server returned an unreadable response."
+    };
+  }
+
+  if (
+    response.status === 401 ||
+    response.status === 403
+  ) {
+    handleAdminAuthorizationFailure(
+      response.status
+    );
+
+    throw new Error(
+      "Administrator authorization could not be confirmed."
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        "The protected request failed."
+    );
+  }
+
+  return data;
+}
+
 async function fetchProtectedAdminJson(url) {
   const token = getStoredAdminToken();
 
@@ -562,6 +621,391 @@ function renderAdminDocumentSummary(documentSummary) {
   });
 }
 
+function showAdminDocumentReviewMessage(
+  message,
+  state = ""
+) {
+  const target = getAdminElement(
+    "adminDocumentReviewMessage"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  target.textContent = message;
+  target.classList.remove(
+    "success",
+    "error"
+  );
+
+  if (state) {
+    target.classList.add(state);
+  }
+}
+
+function getAllowedReviewStatuses(
+  currentStatus
+) {
+  const transitions = {
+    not_reviewed: [
+      "under_review"
+    ],
+
+    under_review: [
+      "accepted",
+      "rejected"
+    ],
+
+    rejected: [
+      "under_review"
+    ],
+
+    accepted: [
+      "under_review"
+    ]
+  };
+
+  return transitions[currentStatus] || [];
+}
+
+async function downloadAdminDocument(
+  clientId,
+  documentRecord
+) {
+  const token = getStoredAdminToken();
+
+  if (!token) {
+    handleAdminAuthorizationFailure(401);
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `/api/admin/clients/${
+        encodeURIComponent(clientId)
+      }/documents/${
+        encodeURIComponent(documentRecord.id)
+      }/download`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      handleAdminAuthorizationFailure(
+        response.status
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        "The document could not be retrieved."
+      );
+    }
+
+    const blob = await response.blob();
+    const objectUrl =
+      URL.createObjectURL(blob);
+
+    const temporaryLink =
+      document.createElement("a");
+
+    temporaryLink.href = objectUrl;
+    temporaryLink.download =
+      documentRecord.originalFileName ||
+      "client-document";
+
+    document.body.appendChild(
+      temporaryLink
+    );
+
+    temporaryLink.click();
+    temporaryLink.remove();
+
+    URL.revokeObjectURL(objectUrl);
+  } catch (error) {
+    showAdminDocumentReviewMessage(
+      error.message ||
+        "The document could not be retrieved.",
+      "error"
+    );
+  }
+}
+
+async function updateAdminDocumentReviewStatus(
+  clientId,
+  documentId,
+  reviewStatus
+) {
+  try {
+    await sendProtectedAdminJson(
+      `/api/admin/clients/${
+        encodeURIComponent(clientId)
+      }/documents/${
+        encodeURIComponent(documentId)
+      }/review-status`,
+      "PATCH",
+      {
+        reviewStatus
+      }
+    );
+
+    showAdminDocumentReviewMessage(
+      "Document review status updated.",
+      "success"
+    );
+
+    await loadAdminClientDocuments(
+      clientId
+    );
+
+    await loadAdminClientSummary(
+      clientId
+    );
+  } catch (error) {
+    showAdminDocumentReviewMessage(
+      error.message ||
+        "The review status could not be updated.",
+      "error"
+    );
+  }
+}
+
+function createAdminDocumentReviewCard(
+  clientId,
+  documentRecord
+) {
+  const card =
+    document.createElement("article");
+
+  card.className =
+    "admin-summary-status-card admin-document-review-card";
+
+  const heading =
+    document.createElement("h5");
+
+  heading.textContent =
+    documentRecord.categoryTitle ||
+    "Client Document";
+
+  const fileName =
+    createAdminDetailLine(
+      "File",
+      documentRecord.originalFileName
+    );
+
+  const taxYear =
+    createAdminDetailLine(
+      "Tax year",
+      String(documentRecord.taxYear)
+    );
+
+  const fileType =
+    createAdminDetailLine(
+      "Type",
+      documentRecord.mimeType
+    );
+
+  const fileSize =
+    createAdminDetailLine(
+      "Size",
+      `${documentRecord.sizeBytes} bytes`
+    );
+
+  const uploaded =
+    createAdminDetailLine(
+      "Uploaded",
+      formatAdminDate(
+        documentRecord.uploadedAt
+      )
+    );
+
+  const review =
+    createAdminDetailLine(
+      "Review status",
+      formatAdminStatus(
+        documentRecord.reviewStatus
+      )
+    );
+
+  const actions =
+    document.createElement("div");
+
+  actions.className =
+    "admin-document-review-actions";
+
+  const downloadButton =
+    document.createElement("button");
+
+  downloadButton.type = "button";
+  downloadButton.className =
+    "btn secondary-btn";
+
+  downloadButton.textContent =
+    "Download Securely";
+
+  downloadButton.addEventListener(
+    "click",
+    function () {
+      downloadAdminDocument(
+        clientId,
+        documentRecord
+      );
+    }
+  );
+
+  actions.appendChild(downloadButton);
+
+  const allowedStatuses =
+    getAllowedReviewStatuses(
+      documentRecord.reviewStatus
+    );
+
+  if (allowedStatuses.length > 0) {
+    const statusSelect =
+      document.createElement("select");
+
+    const placeholder =
+      document.createElement("option");
+
+    placeholder.value = "";
+    placeholder.textContent =
+      "Select next review status";
+
+    statusSelect.appendChild(
+      placeholder
+    );
+
+    allowedStatuses.forEach(
+      (status) => {
+        const option =
+          document.createElement("option");
+
+        option.value = status;
+        option.textContent =
+          formatAdminStatus(status);
+
+        statusSelect.appendChild(
+          option
+        );
+      }
+    );
+
+    const updateButton =
+      document.createElement("button");
+
+    updateButton.type = "button";
+    updateButton.className =
+      "btn primary-btn";
+
+    updateButton.textContent =
+      "Update Review Status";
+
+    updateButton.addEventListener(
+      "click",
+      function () {
+        if (!statusSelect.value) {
+          showAdminDocumentReviewMessage(
+            "Select an allowed review status first.",
+            "error"
+          );
+
+          return;
+        }
+
+        updateAdminDocumentReviewStatus(
+          clientId,
+          documentRecord.id,
+          statusSelect.value
+        );
+      }
+    );
+
+    actions.appendChild(statusSelect);
+    actions.appendChild(updateButton);
+  }
+
+  card.appendChild(heading);
+  card.appendChild(fileName);
+  card.appendChild(taxYear);
+  card.appendChild(fileType);
+  card.appendChild(fileSize);
+  card.appendChild(uploaded);
+  card.appendChild(review);
+  card.appendChild(actions);
+
+  return card;
+}
+
+async function loadAdminClientDocuments(
+  clientId
+) {
+  const target = getAdminElement(
+    "adminDocumentReviewList"
+  );
+
+  clearAdminChildren(target);
+
+  showAdminDocumentReviewMessage(
+    "Loading authorized document review..."
+  );
+
+  try {
+    const data =
+      await fetchProtectedAdminJson(
+        `/api/admin/clients/${
+          encodeURIComponent(clientId)
+        }/documents`
+      );
+
+    if (
+      !Array.isArray(data.documents) ||
+      data.documents.length === 0
+    ) {
+      showAdminDocumentReviewMessage(
+        "No stored documents are currently available for this client."
+      );
+
+      return;
+    }
+
+    data.documents.forEach(
+      (documentRecord) => {
+        target.appendChild(
+          createAdminDocumentReviewCard(
+            clientId,
+            documentRecord
+          )
+        );
+      }
+    );
+
+    showAdminDocumentReviewMessage(
+      `${data.documents.length} stored document${
+        data.documents.length === 1
+          ? ""
+          : "s"
+      } available for authorized review.`,
+      "success"
+    );
+  } catch (error) {
+    showAdminDocumentReviewMessage(
+      error.message ||
+        "The document review list could not be loaded.",
+      "error"
+    );
+  }
+}
+
 function displayAdminClientSummary(data) {
   const summaryContent = getAdminElement(
     "adminClientSummaryContent"
@@ -634,7 +1078,11 @@ async function loadAdminClientSummary(clientId) {
       }/summary`
     );
 
-    displayAdminClientSummary(data);
+        displayAdminClientSummary(data);
+
+    await loadAdminClientDocuments(
+      clientId
+    );
 
     await loadAdminClientDirectory(
       adminDirectoryState.page
