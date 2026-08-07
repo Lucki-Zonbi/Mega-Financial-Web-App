@@ -88,16 +88,17 @@
         </h1>
 
         <p>
-          This protected administration foundation confirms
-          server-authorized admin access without displaying
-          client tax records, document records, appointments,
-          payments, or private account information.
+          This protected administration portal provides a
+          narrowly scoped client directory and read-only
+          workflow summaries without exposing detailed tax
+          answers, document filenames, storage information,
+          payments, or private security credentials.
         </p>
 
         <div class="portal-features dashboard-status-tags">
           <span>JWT Authentication</span>
           <span>Server Role Authorization</span>
-          <span>Least-Privilege Foundation</span>
+          <span>Read-Only Client Summaries</span>
         </div>
 
         <button
@@ -141,83 +142,200 @@
     <section class="dashboard-summary-section">
       <div class="section-heading">
         <span class="section-tag">
-          Administration Foundation
+          Authorized Client Directory
         </span>
 
         <h2>
-          Authorized administration tools will be added
-          incrementally.
+          View limited client workflow summaries.
         </h2>
 
-        <p id="adminAccessMessage">
+        <p id="adminAccessMessage" class="auth-message">
           Confirming your protected administrator session...
         </p>
       </div>
 
-      <div class="dashboard-grid">
-        <article class="future-card dashboard-card">
-          <h3>Client Directory</h3>
+      <div class="admin-directory-layout">
+        <article class="admin-directory-panel">
+          <div class="admin-panel-heading">
+            <div>
+              <span class="section-tag">
+                Client Accounts
+              </span>
 
-          <p>
-            No client list is exposed in Sprint 021.
+              <h3>Client Directory</h3>
+
+              <p>
+                Search by client name or email address.
+              </p>
+            </div>
+          </div>
+
+          <form
+            id="adminClientSearchForm"
+            class="admin-client-search-form">
+            <label for="adminClientSearch">
+              Search clients
+            </label>
+
+            <div class="admin-search-controls">
+              <input
+                type="search"
+                id="adminClientSearch"
+                name="search"
+                maxlength="100"
+                autocomplete="off"
+                placeholder="Enter a client name or email"
+              />
+
+              <button
+                type="submit"
+                class="btn primary-btn"
+              >
+                Search
+              </button>
+
+              <button
+                type="button"
+                id="adminClientSearchClear"
+                class="btn secondary-btn"
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+
+          <p
+            id="adminDirectoryMessage"
+            class="admin-directory-message"
+            role="status"
+            aria-live="polite"
+          >
+            Client directory access will begin after your
+            administrator session is confirmed.
           </p>
 
-          <span class="dashboard-note">
-            Planned for Sprint 022
-          </span>
+          <div
+            id="adminClientDirectory"
+            class="admin-client-directory"
+            aria-live="polite"
+          ></div>
+
+          <div
+            class="admin-pagination"
+            aria-label="Client directory pagination"
+          >
+            <button
+              type="button"
+              id="adminPreviousPage"
+              class="btn secondary-btn"
+              disabled
+            >
+              Previous
+            </button>
+
+            <span id="adminPaginationStatus">
+              Page 0 of 0
+            </span>
+
+            <button
+              type="button"
+              id="adminNextPage"
+              class="btn secondary-btn"
+              disabled
+            >
+              Next
+            </button>
+          </div>
         </article>
 
-        <article class="future-card dashboard-card">
-          <h3>Client Records</h3>
+        <article class="admin-summary-panel">
+          <div class="admin-panel-heading">
+            <div>
+              <span class="section-tag">
+                Read-Only Summary
+              </span>
 
-          <p>
-            Tax intake and account records remain private.
+              <h3>Selected Client</h3>
+
+              <p>
+                Only limited account and workflow status
+                information is displayed.
+              </p>
+            </div>
+          </div>
+
+          <p
+            id="adminClientSummaryMessage"
+            class="admin-directory-message"
+            role="status"
+            aria-live="polite"
+          >
+            Select a client from the directory to view a
+            read-only summary.
           </p>
 
-          <span class="dashboard-note">
-            Future authorized read-only access
-          </span>
-        </article>
+          <div
+            id="adminClientSummaryContent"
+            class="admin-client-summary-content"
+            hidden
+          >
+            <section class="admin-summary-group">
+              <h4>Account Status</h4>
 
-        <article class="future-card dashboard-card">
-          <h3>Document Review</h3>
+              <dl class="admin-summary-details">
+                <div>
+                  <dt>Client</dt>
+                  <dd id="adminSummaryClientName">—</dd>
+                </div>
 
-          <p>
-            No document files or metadata are available here.
-          </p>
+                <div>
+                  <dt>Email</dt>
+                  <dd id="adminSummaryClientEmail">—</dd>
+                </div>
 
-          <span class="dashboard-note">
-            Planned for a later admin sprint
-          </span>
-        </article>
+                <div>
+                  <dt>Email verification</dt>
+                  <dd id="adminSummaryEmailVerified">—</dd>
+                </div>
 
-        <article class="future-card dashboard-card">
-          <h3>Appointments</h3>
+                <div>
+                  <dt>Two-factor authentication</dt>
+                  <dd id="adminSummaryTwoFactor">—</dd>
+                </div>
 
-          <p>
-            No appointment-management records are active.
-          </p>
+                <div>
+                  <dt>Account created</dt>
+                  <dd id="adminSummaryCreatedAt">—</dd>
+                </div>
 
-          <span class="dashboard-note">
-            Future scheduling administration
-          </span>
-        </article>
+                <div>
+                  <dt>Last account update</dt>
+                  <dd id="adminSummaryUpdatedAt">—</dd>
+                </div>
+              </dl>
+            </section>
 
-        <article
-          class="future-card dashboard-card dashboard-wide-card"
-        >
-          <h3>Authorization Boundary</h3>
+            <section class="admin-summary-group">
+              <h4>Tax Intake Status</h4>
 
-          <p>
-            This dashboard currently confirms only the
-            authenticated administrator's identity and role.
-            It does not retrieve or expose client-owned data.
-          </p>
+              <div
+                id="adminIntakeSummary"
+                class="admin-summary-list"
+              ></div>
+            </section>
 
-          <span class="dashboard-note">
-            Server authorization required for every future
-            admin resource
-          </span>
+            <section class="admin-summary-group">
+              <h4>Document Metadata Status</h4>
+
+              <p class="admin-summary-privacy-note">
+                Only aggregated metadata counts are shown.
+                Filenames and document contents remain hidden.
+              </p>
+
+                <div id="adminDocumentSummary"                                       class="admin-summary-list">
+              </div>
+            </section>
+          </div>
         </article>
       </div>
     </section>
@@ -225,36 +343,22 @@
     <section class="quick-actions-section">
       <div class="section-heading">
         <span class="section-tag">
-          Future Admin Actions
+          Restricted Admin Actions
         </span>
 
         <h2>
-          Administrative actions remain inactive.
+          Record-changing tools remain unavailable.
         </h2>
 
         <p>
-          Later sprints will add narrowly authorized tools
-          without allowing unrestricted database access.
+          Sprint 022 permits read-only summaries only.
+          Document review, appointments, payments, audit
+          activity, and client-record changes remain outside
+          this sprint.
         </p>
       </div>
 
       <div class="quick-actions-grid">
-        <button
-          type="button"
-          class="quick-action-card"
-          disabled
-        >
-          View Client Directory
-        </button>
-
-        <button
-          type="button"
-          class="quick-action-card"
-          disabled
-        >
-          Review Client Records
-        </button>
-
         <button
           type="button"
           class="quick-action-card"
@@ -268,7 +372,23 @@
           class="quick-action-card"
           disabled
         >
+          Edit Client Records
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
           Manage Appointments
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Manage Payments
         </button>
 
         <button
@@ -293,16 +413,16 @@
         </h2>
 
         <p>
-          Every future administrator endpoint must use
-          explicit server-side role authorization, limited
-          response fields, validated input, and auditable
-          access boundaries.
+          Every administrator request uses explicit
+          server-side role authorization. The browser receives
+          only approved summary fields and cannot request
+          unrestricted database records.
         </p>
 
         <div class="portal-features">
           <span>Explicit Roles</span>
           <span>Limited Responses</span>
-          <span>No Client Data Yet</span>
+          <span>Read-Only Access</span>
           <span>No Browser-Only Authorization</span>
         </div>
       </div>
