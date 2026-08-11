@@ -1419,9 +1419,14 @@ section {
 
 .schedule-btn {
   border: none;
-  cursor: not-allowed;
+  cursor: pointer;
   margin-top: 1.2rem;
   text-align: center;
+}
+
+.schedule-btn:disabled {
+  cursor: wait;
+  opacity: 0.75;
 }
 
 .schedule-side-panel {
@@ -1431,6 +1436,45 @@ section {
 
 .schedule-options-grid {
   margin-bottom: 1.2rem;
+}
+
+.schedule-list-message {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+}
+
+.schedule-appointment-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.schedule-appointment-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.schedule-appointment-card p {
+  margin-bottom: 0.45rem;
+}
+
+.schedule-appointment-card strong {
+  color: var(--deep-blue);
+}
+
+.schedule-status-badge {
+  margin-top: 0.8rem;
+}
+
+.schedule-appointment-actions {
+  width: 100%;
+  margin-top: 1.2rem;
+}
+
+.schedule-appointment-actions .btn {
+  border: none;
+  cursor: pointer;
 }
 
 .platform-grid {
@@ -1445,6 +1489,7 @@ section {
 @media (max-width: 900px) {
   .schedule-hero,
   .schedule-layout,
+  .schedule-appointment-list,
   .platform-grid {
     grid-template-columns: 1fr;
   }

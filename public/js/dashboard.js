@@ -22,6 +22,16 @@ const dashboardChecklistNote = document.getElementById(
   "dashboardChecklistNote"
 );
 
+const dashboardAppointmentStatus =
+  document.getElementById(
+    "dashboardAppointmentStatus"
+  );
+
+const dashboardAppointmentNote =
+  document.getElementById(
+    "dashboardAppointmentNote"
+  );
+
 function getDashboardToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
@@ -86,6 +96,146 @@ function getIntakeStatusDisplay(status) {
   };
 
   return statusDisplays[status] || statusDisplays.submitted;
+}
+
+function updateDashboardAppointmentDisplay(
+  message,
+  note
+) {
+  if (dashboardAppointmentStatus) {
+    dashboardAppointmentStatus.textContent =
+      message;
+  }
+
+  if (dashboardAppointmentNote) {
+    dashboardAppointmentNote.textContent =
+      note;
+  }
+}
+
+function formatDashboardAppointmentDate(
+  value
+) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-US",
+    {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    }
+  ).format(date);
+}
+
+async function loadDashboardAppointmentStatus() {
+  if (!dashboardAppointmentStatus) {
+    return;
+  }
+
+  const token = getDashboardToken();
+
+  if (!token) {
+    updateDashboardAppointmentDisplay(
+      "Please log in to view your appointment status.",
+      "Client session required"
+    );
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/appointments/me/upcoming",
+      {
+        method: "GET",
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      clearDashboardSession();
+
+      updateDashboardAppointmentDisplay(
+        data.message ||
+          "Your session expired. Please log in again.",
+        "Session expired"
+      );
+
+      setTimeout(() => {
+        window.location.href =
+          "./login.html";
+      }, 1200);
+
+      return;
+    }
+
+    if (response.status === 403) {
+      updateDashboardAppointmentDisplay(
+        data.message ||
+          "Only authorized clients may view appointments.",
+        "Authorization required"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      updateDashboardAppointmentDisplay(
+        data.message ||
+          "Unable to retrieve your upcoming appointment.",
+        "Appointment unavailable"
+      );
+
+      return;
+    }
+
+    if (!data.appointment) {
+      updateDashboardAppointmentDisplay(
+        "No upcoming appointment is currently scheduled.",
+        "No active appointment"
+      );
+
+      return;
+    }
+
+    const readableStatus =
+      String(
+        data.appointment.status || ""
+      )
+        .split("_")
+        .join(" ");
+
+    updateDashboardAppointmentDisplay(
+      `${
+        data.appointment.serviceType
+      } via ${
+        data.appointment.platformType
+      } on ${
+        formatDashboardAppointmentDate(
+          data.appointment.appointmentStart
+        )
+      }.`,
+      `Status: ${readableStatus}`
+    );
+  } catch (error) {
+    updateDashboardAppointmentDisplay(
+      "Unable to connect to the appointment server.",
+      "Connection unavailable"
+    );
+  }
 }
 
 function updateDashboardChecklistDisplay(message, note) {
@@ -261,3 +411,4 @@ async function loadDashboardIntakeStatus() {
 
 loadDashboardIntakeStatus();
 loadDashboardChecklistStatus();
+loadDashboardAppointmentStatus();

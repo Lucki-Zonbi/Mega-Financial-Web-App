@@ -14,6 +14,10 @@ const clientRoutes = require("./routes/clientRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 
+const appointmentRoutes = require(
+  "./routes/appointmentRoutes"
+);
+
 const documentMetadataRoutes = require(
   "./routes/documentMetadataRoutes"
 );
@@ -34,6 +38,7 @@ app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/intake", intakeRoutes);
+app.use("/api/appointments", appointmentRoutes);
 app.use("/api/document-metadata", documentMetadataRoutes);
 app.use(express.static(path.join(__dirname, "../public")));
 

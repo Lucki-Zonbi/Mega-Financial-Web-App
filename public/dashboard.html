@@ -41,7 +41,9 @@
         <span class="section-tag">Client Dashboard Preview</span>
         <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
         <p>
-          Review your protected account information and current tax intake status.Additional scheduling, upload, payment, and messaging features will beconnected in future sprints.
+          Review your protected account information, tax intake status,
+          personalized document workflow, and appointment requests. Payment
+          and messaging features will be connected in future sprints.
         </p>
 
         <div class="portal-features dashboard-status-tags">
@@ -67,18 +69,34 @@
     <section class="dashboard-summary-section">
       <div class="section-heading">
         <span class="section-tag">Dashboard Overview</span>
-        <h2>Your client activity will appear here.</h2>
+        <h2>Your protected client activity.</h2>
         <p>
-          These cards prepare the dashboard structure for future authenticated
-          client records from MongoDB Atlas.
+         These cards retrieve authorized intake, document-checklist, and
+          appointment information connected to your authenticated account.
         </p>
       </div>
 
       <div class="dashboard-grid">
         <article class="future-card dashboard-card">
           <h3>Upcoming Appointment</h3>
-          <p>No appointment scheduled yet.</p>
-          <span class="dashboard-note">Future appointment records</span>
+
+          <p id="dashboardAppointmentStatus">
+            Checking your protected appointment records...
+          </p>
+
+          <span
+            id="dashboardAppointmentNote"
+            class="dashboard-note">
+            Connecting to appointment data
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a
+              href="./schedule.html"
+              class="btn primary-btn">
+              Manage Appointments
+            </a>
+          </div>
         </article>
 
         <article class="future-card dashboard-card">
@@ -140,8 +158,8 @@
         <span class="section-tag">Quick Actions</span>
         <h2>Client actions.</h2>
           <p>
-            Continue your protected intake or preview upcoming scheduling,
-            document, payment, and messaging tools.
+            Continue your protected intake, request an appointment, manage
+            required documents, or preview future payment and messaging tools.
           </p>
       </div>
 
@@ -156,20 +174,26 @@
 
     <section class="virtual-section">
       <div>
-        <span class="section-tag light-tag">Future Backend Connections</span>
-        <h2>This dashboard is ready for protected client features later.</h2>
+        <span class="section-tag light-tag">
+          Protected Client Connections
+        </span>
+
+        <h2>
+          Core client intake, document, and appointment records are connected.
+        </h2>
+
         <p>
-          Future sprints will connect authenticated client data, appointment
-          records, uploaded document records, Stripe payment records, intake
-          status, client/admin messages, and protected route middleware.
+          The dashboard now connects authenticated client identity, tax intake
+          status, personalized document requirements, secure uploads, and
+          appointment requests. Payment and messaging records remain deferred.
         </p>
 
         <div class="portal-features">
-          <span>Client Data</span>
+          <span>Client Identity</span>
           <span>Appointments</span>
-          <span>Uploads</span>
-          <span>Payments</span>
-          <span>Messages</span>
+          <span>Secure Uploads</span>
+          <span>Tax Intake</span>
+          <span>Protected Routes</span>
         </div>
       </div>
     </section>
