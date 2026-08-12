@@ -893,13 +893,43 @@ async function submitAppointment(
   );
 });
 
-if (appointmentForm) {
-  appointmentForm.addEventListener(
-    "submit",
-    submitAppointment
-  );
-}
+const isScheduleAdminPreview =
+  window.megaFinancialClientGuard
+    ?.isAdminPreviewMode?.() === true;
 
-setAppointmentDateLimits();
-updateAppointmentSummary();
-loadAppointments();
+if (isScheduleAdminPreview) {
+  if (appointmentSubmitButton) {
+    appointmentSubmitButton.disabled =
+      true;
+
+    appointmentSubmitButton.textContent =
+      "Disabled in Admin Preview";
+  }
+
+  appointmentForm
+    ?.querySelectorAll(
+      "input, select, textarea"
+    )
+    .forEach((control) => {
+      control.disabled = true;
+    });
+
+  setAppointmentMessage(
+    "Executive Admin Preview Mode: appointment creation and client-owned appointment actions are disabled."
+  );
+
+  setAppointmentListMessage(
+    "Client appointment history appears here during normal authenticated client use."
+  );
+} else {
+  if (appointmentForm) {
+    appointmentForm.addEventListener(
+      "submit",
+      submitAppointment
+    );
+  }
+
+  setAppointmentDateLimits();
+  updateAppointmentSummary();
+  loadAppointments();
+}

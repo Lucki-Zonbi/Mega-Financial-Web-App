@@ -409,6 +409,31 @@ async function loadDashboardIntakeStatus() {
   }
 }
 
-loadDashboardIntakeStatus();
-loadDashboardChecklistStatus();
-loadDashboardAppointmentStatus();
+const isDashboardAdminPreview =
+  window.megaFinancialClientGuard
+    ?.isAdminPreviewMode?.() === true;
+
+if (isDashboardAdminPreview) {
+  updateDashboardIntakeDisplay({
+    message:
+      "Client tax-intake status appears here during normal client use.",
+    note:
+      "Executive Admin Preview",
+    linkText:
+      "Preview Tax Intake"
+  });
+
+  updateDashboardChecklistDisplay(
+    "Client required-document checklist status appears here during normal client use.",
+    "Executive Admin Preview"
+  );
+
+  updateDashboardAppointmentDisplay(
+    "The client's next upcoming appointment appears here during normal client use.",
+    "Executive Admin Preview"
+  );
+} else {
+  loadDashboardIntakeStatus();
+  loadDashboardChecklistStatus();
+  loadDashboardAppointmentStatus();
+}

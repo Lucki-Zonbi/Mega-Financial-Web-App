@@ -1007,19 +1007,65 @@ async function loadDocumentChecklist() {
   }
 }
 
-if (documentMetadataForm) {
-  documentMetadataForm.addEventListener(
-    "submit",
-    submitDocumentMetadata
-  );
-}
+const isDocumentsAdminPreview =
+  window.megaFinancialClientGuard
+    ?.isAdminPreviewMode?.() === true;
 
-if (secureDocumentUploadForm) {
-  secureDocumentUploadForm.addEventListener(
-    "submit",
-    submitSecureDocumentUpload
-  );
-}
+if (isDocumentsAdminPreview) {
+  documentMetadataForm
+    ?.querySelectorAll(
+      "input, select, textarea, button"
+    )
+    .forEach((control) => {
+      control.disabled = true;
+    });
 
-loadDocumentChecklist();
-loadDocumentMetadataDrafts();
+  secureDocumentUploadForm
+    ?.querySelectorAll(
+      "input, select, textarea, button"
+    )
+    .forEach((control) => {
+      control.disabled = true;
+    });
+
+  setMetadataMessage(
+    "Executive Admin Preview Mode: client document preparation is displayed for demonstration only."
+  );
+
+  setMetadataFormMessage(
+    "Document metadata submission is disabled while previewing as an administrator."
+  );
+
+  setChecklistStatus({
+    title:
+      "Executive Admin Preview",
+    count:
+      "Preview",
+    note:
+      "Personalized client checklist data is not loaded into administrator preview mode.",
+    message:
+      "This area displays the client's personalized required-document checklist during normal client use."
+  });
+
+  renderChecklistState(
+    "Client Checklist Preview",
+    "The authenticated client's required tax-document categories appear here during normal client use."
+  );
+} else {
+  if (documentMetadataForm) {
+    documentMetadataForm.addEventListener(
+      "submit",
+      submitDocumentMetadata
+    );
+  }
+
+  if (secureDocumentUploadForm) {
+    secureDocumentUploadForm.addEventListener(
+      "submit",
+      submitSecureDocumentUpload
+    );
+  }
+
+  loadDocumentChecklist();
+  loadDocumentMetadataDrafts();
+}

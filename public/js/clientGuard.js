@@ -37,8 +37,72 @@ function redirectToLogin() {
   window.location.href = "./login.html";
 }
 
-function redirectToAdminDashboard() {
-  window.location.href = "./admin-dashboard.html";
+function isAdminPreviewMode() {
+  const user = getStoredUser();
+
+  if (!user) {
+    return false;
+  }
+
+  const adminRoles = [
+    "general_admin",
+    "executive_admin"
+  ];
+
+  return adminRoles.includes(
+    user.role
+  );
+}
+
+function enableAdminPreviewMode() {
+  if (!isAdminPreviewMode()) {
+    return;
+  }
+
+  document.body.classList.add(
+    "admin-preview-mode"
+  );
+
+  const existingBanner =
+    document.getElementById(
+      "adminPreviewBanner"
+    );
+
+  if (existingBanner) {
+    return;
+  }
+
+  const banner =
+    document.createElement("div");
+
+  banner.id =
+    "adminPreviewBanner";
+
+  banner.className =
+    "admin-preview-banner";
+
+  const message =
+    document.createElement("p");
+
+  message.textContent =
+    "Executive Admin Preview Mode — client-facing actions are disabled.";
+
+  const returnLink =
+    document.createElement("a");
+
+  returnLink.href =
+    "./admin-dashboard.html";
+
+  returnLink.className =
+    "btn secondary-btn";
+
+  returnLink.textContent =
+    "Return to Admin Dashboard";
+
+  banner.appendChild(message);
+  banner.appendChild(returnLink);
+
+  document.body.prepend(banner);
 }
 
 function displayDashboardUser() {
@@ -83,13 +147,8 @@ function guardClientPreviewPage() {
     return;
   }
 
-  const adminRoles = [
-    "general_admin",
-    "executive_admin"
-  ];
-
-  if (user && adminRoles.includes(user.role)) {
-    redirectToAdminDashboard();
+    if (user && isAdminPreviewMode()) {
+    enableAdminPreviewMode();
   }
 }
 
@@ -100,5 +159,6 @@ setupLogoutButton();
 window.megaFinancialClientGuard = {
   getStoredUser,
   getStoredToken,
-  clearClientSession
+  clearClientSession,
+  isAdminPreviewMode
 };

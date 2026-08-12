@@ -26,6 +26,31 @@ body {
   line-height: 1.6;
 }
 
+.admin-preview-banner {
+  position: relative;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 1.5rem;
+  background: var(--soft-green);
+  border-bottom: 2px solid var(--money-blue);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.admin-preview-banner p {
+  margin: 0;
+  color: var(--deep-blue);
+  font-weight: 700;
+}
+
+.admin-preview-banner .btn {
+  margin: 0;
+}
+
 a {
   text-decoration: none;
 }

@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
@@ -86,6 +87,168 @@ router.post("/register", async (req, res) => {
     });
   }
 });
+
+router.post(
+  "/bootstrap-executive-admin",
+  async (req, res) => {
+    try {
+      const bootstrapEnabled =
+        process.env.ADMIN_BOOTSTRAP_ENABLED === "true";
+
+      const configuredBootstrapKey =
+        String(
+          process.env.ADMIN_BOOTSTRAP_KEY || ""
+        );
+
+      const suppliedBootstrapKey =
+        String(
+          req.get("X-Admin-Bootstrap-Key") || ""
+        );
+
+      if (
+        process.env.NODE_ENV === "production" ||
+        !bootstrapEnabled ||
+        !configuredBootstrapKey
+      ) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested resource is not available."
+        });
+      }
+
+      const configuredKeyBuffer =
+        Buffer.from(
+          configuredBootstrapKey,
+          "utf8"
+        );
+
+      const suppliedKeyBuffer =
+        Buffer.from(
+          suppliedBootstrapKey,
+          "utf8"
+        );
+
+      const bootstrapKeyMatches =
+        configuredKeyBuffer.length ===
+          suppliedKeyBuffer.length &&
+        crypto.timingSafeEqual(
+          configuredKeyBuffer,
+          suppliedKeyBuffer
+        );
+
+      if (!bootstrapKeyMatches) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Administrator bootstrap authorization failed."
+        });
+      }
+
+      const {
+        fullName,
+        email,
+        phone,
+        password,
+        confirmPassword
+      } = req.body;
+
+      if (
+        !fullName ||
+        !email ||
+        !phone ||
+        !password ||
+        !confirmPassword
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please complete all required administrator fields."
+        });
+      }
+
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Password and confirm password must match."
+        });
+      }
+
+      if (password.length < 12) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Administrator passwords must be at least 12 characters."
+        });
+      }
+
+      const normalizedEmail =
+        normalizeEmail(email);
+
+      const existingUser =
+        await User.findOne({
+          email: normalizedEmail
+        });
+
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "An account with this email already exists."
+        });
+      }
+
+      const passwordHash =
+        await bcrypt.hash(
+          password,
+          12
+        );
+
+      const user =
+        await User.create({
+          fullName:
+            String(fullName).trim(),
+          email:
+            normalizedEmail,
+          phone:
+            String(phone).trim(),
+          passwordHash,
+          role:
+            "executive_admin"
+        });
+
+      return res.status(201).json({
+        success: true,
+        message:
+          "Executive administrator account created successfully.",
+        user: {
+          id:
+            user._id,
+          fullName:
+            user.fullName,
+          email:
+            user.email,
+          role:
+            user.role,
+          createdAt:
+            user.createdAt
+        }
+      });
+    } catch (error) {
+      console.error(
+        "Executive administrator bootstrap error:",
+        error.message
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "The administrator account could not be created."
+      });
+    }
+  }
+);
 
 router.post("/login", async (req, res) => {
   try {

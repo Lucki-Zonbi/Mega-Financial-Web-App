@@ -294,7 +294,31 @@ async function submitTaxIntake(event) {
   }
 }
 
-if (taxIntakeForm) {
-  taxIntakeForm.addEventListener("submit", submitTaxIntake);
+const isIntakeAdminPreview =
+  window.megaFinancialClientGuard
+    ?.isAdminPreviewMode?.() === true;
+
+if (
+  taxIntakeForm &&
+  isIntakeAdminPreview
+) {
+  taxIntakeForm
+    .querySelectorAll(
+      "input, select, textarea, button[type='submit']"
+    )
+    .forEach((control) => {
+      control.disabled = true;
+    });
+
+  showIntakeMessage(
+    "Executive Admin Preview Mode: this page demonstrates the client tax-intake experience. Saving client tax data is disabled.",
+    "info"
+  );
+} else if (taxIntakeForm) {
+  taxIntakeForm.addEventListener(
+    "submit",
+    submitTaxIntake
+  );
+
   loadSavedIntake();
 }
