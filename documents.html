@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Document Upload Preview | Mega Financial</title>
+  <title>Required Document Checklist | Mega Financial</title>
 
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
@@ -41,27 +41,31 @@
 
     <section class="documents-hero">
       <div class="documents-hero-content">
-        <span class="section-tag">Document Upload Preview</span>
-        <h1>Prepare your tax documents for secure upload.</h1>
+        <span class="section-tag">Required Document Checklist</span>
+        <h1>Prepare the documents that match your tax intake.</h1>
         <p>
-          This static preview prepares the future document upload workflow for
-          tax forms, business records, payroll records, dependent information,
-          and supporting files.
+          Your protected checklist is generated from your saved 2026 tax intake.
+          File upload processing remains inactive in this sprint.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Static Preview</span>
+          <span>Protected Checklist</span>
+          <span>Intake-Driven Requirements</span>
           <span>No Upload Active</span>
-          <span>Future Secure Storage</span>
         </div>
       </div>
 
       <div class="documents-status-card">
-        <span class="section-tag">Upload Status</span>
-        <h3>Documents Pending</h3>
-        <p>Uploaded: 0</p>
-        <p>Required: Waiting for intake completion</p>
-        <p>Review Status: Not started</p>
+        <span class="section-tag">Checklist Status</span>
+        <h3 id="documentsChecklistStatus">Loading Checklist</h3>
+        <p>Uploaded: 0 — upload processing is not active</p>
+        <p>
+          Required categories:
+          <span id="documentsChecklistCount">Checking...</span>
+        </p>
+        <p id="documentsChecklistNote">
+          Connecting to your protected intake data.
+        </p>
       </div>
     </section>
 
@@ -69,122 +73,311 @@
       <div class="section-heading">
         <span class="section-tag">Required Documents</span>
         <h2>Your checklist will be created from your tax intake answers.</h2>
-        <p>
-          These placeholder items prepare the system for future intake-driven
-          document requirements and admin review.
+        <p id="documentChecklistMessage">
+          Your checklist will show only the categories supported by your saved
+          intake answers.
         </p>
       </div>
 
-      <div class="document-checklist-grid">
-        <article class="future-card">
-          <h3>Government-issued ID</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+      <div id="documentChecklistGrid"
+      class="document-checklist-grid"
+      aria-live="polite">
 
-        <article class="future-card">
-          <h3>W-2 Forms</h3>
-          <p>Waiting for questionnaire completion.</p>
+        <article class="future-card document-checklist-state">
+          <h3>Loading your checklist</h3>
+          <p>Connecting to your protected 2026 tax intake.</p>
         </article>
+      </div>
+        </section>
 
-        <article class="future-card">
-          <h3>1099 Forms</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+    <section class="documents-upload-section">
+      <div class="section-heading">
+        <span class="section-tag">Metadata Preparation</span>
 
-        <article class="future-card">
-          <h3>Prior-year Tax Return</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+        <h2>Prepare test metadata without selecting or uploading a file.</h2>
 
-        <article class="future-card">
-          <h3>Business Income Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+        <p>
+          This controlled foundation form sends only manually entered document
+          metadata as JSON. No file is selected, transferred, uploaded, parsed,
+          or stored.
+        </p>
+      </div>
 
-        <article class="future-card">
-          <h3>Business Expense Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+      <div class="documents-layout">
+        <form
+          id="documentMetadataForm"
+          class="documents-form-card"
+          novalidate
+        >
+          <h3>Prepare a Pending Metadata Draft</h3>
 
-        <article class="future-card">
-          <h3>Payroll Records</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+          <p class="auth-note metadata-foundation-notice">
+            Enter the original filename, MIME type, and approximate size only
+            for foundation testing. This information does not represent a real
+            uploaded document.
+          </p>
 
-        <article class="future-card">
-          <h3>Dependent Information</h3>
-          <p>Waiting for questionnaire completion.</p>
-        </article>
+          <label for="metadataTaxYear">Tax Year</label>
 
-        <article class="future-card">
-          <h3>Additional Supporting Documents</h3>
-          <p>Waiting for questionnaire completion.</p>
+          <input
+            type="number"
+            id="metadataTaxYear"
+            name="taxYear"
+            value="2026"
+            min="2000"
+            max="2100"
+            required
+          />
+
+          <label for="metadataChecklistKey">Required Document Category</label>
+
+          <select
+            id="metadataChecklistKey"
+            name="checklistKey"
+            required
+            disabled
+          >
+            <option value="">
+              Loading your protected checklist...
+            </option>
+          </select>
+
+          <label for="metadataOriginalFileName">
+            Original Filename
+          </label>
+
+          <input
+            type="text"
+            id="metadataOriginalFileName"
+            name="originalFileName"
+            maxlength="255"
+            placeholder="Example: 2026-W2.pdf"
+            autocomplete="off"
+            required
+          />
+
+          <label for="metadataMimeType">MIME Type</label>
+
+          <select
+            id="metadataMimeType"
+            name="mimeType"
+            required
+          >
+            <option value="">Select a MIME type</option>
+            <option value="application/pdf">PDF — application/pdf</option>
+            <option value="image/jpeg">JPEG — image/jpeg</option>
+            <option value="image/png">PNG — image/png</option>
+          </select>
+
+          <label for="metadataSizeBytes">
+            Approximate Size in Bytes
+          </label>
+
+          <input
+            type="number"
+            id="metadataSizeBytes"
+            name="sizeBytes"
+            min="1"
+            max="10485760"
+            step="1"
+            placeholder="Example: 250000"
+            required
+          />
+
+          <button
+            type="submit"
+            id="documentMetadataSubmitButton"
+            class="btn primary-btn metadata-submit-btn"
+            disabled
+          >
+            Prepare Metadata Draft
+          </button>
+
+          <p
+            id="documentMetadataFormMessage"
+            class="auth-message metadata-form-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </form>
+
+        <aside class="documents-side-panel">
+          <article class="future-card">
+            <h3>No Real File Selection</h3>
+
+            <p>
+              This form intentionally contains no file input and cannot read a
+              document from your device.
+            </p>
+
+            <span class="dashboard-note">
+              JSON metadata only
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>No File Transfer</h3>
+
+            <p>
+              The browser sends only tax year, checklist category, original
+              filename, MIME type, and size metadata.
+            </p>
+
+            <span class="dashboard-note">
+              No FormData or multipart request
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>No File Storage</h3>
+
+            <p>
+              A successful submission creates a pending metadata record. It
+              does not create an uploaded or stored document.
+            </p>
+
+            <span class="dashboard-note">
+              storedFileName remains null
+            </span>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section class="documents-checklist-section">
+      <div class="section-heading">
+        <span class="section-tag">Metadata Draft Status</span>
+        <h2>Pending metadata is not an uploaded document.</h2>
+        <p id="documentMetadataMessage">
+          Checking for protected metadata drafts associated with your account.
+        </p>
+      </div>
+
+      <div
+        id="documentMetadataGrid"
+        class="document-checklist-grid"
+        aria-live="polite"
+      >
+        <article class="future-card document-checklist-state">
+          <h3>Loading metadata status</h3>
+          <p>
+            Retrieving protected metadata records without requesting or
+            uploading file contents.
+          </p>
         </article>
       </div>
     </section>
 
     <section class="documents-upload-section">
       <div class="section-heading">
-        <span class="section-tag">Upload Form</span>
-        <h2>Upload functionality will be activated later.</h2>
+        <span class="section-tag">Secure Upload</span>
+        <h2>Upload a required tax document securely.</h2>
         <p>
-          This form is a placeholder only. It does not send, store, validate, or
-          upload files yet.
+          Select a category from your protected checklist and upload one PDF,
+          JPEG, or PNG document up to 10 MB.
         </p>
       </div>
 
       <div class="documents-layout">
-        <form class="documents-form-card">
-          <h3>Document Upload Preview</h3>
+        <form
+          id="secureDocumentUploadForm"
+          class="documents-form-card"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <h3>Secure Document Upload</h3>
 
-          <label for="documentType">Document Type</label>
-          <select id="documentType" name="documentType">
-            <option>Government-issued ID</option>
-            <option>W-2 Forms</option>
-            <option>1099 Forms</option>
-            <option>Prior-year Tax Return</option>
-            <option>Business Income Records</option>
-            <option>Business Expense Records</option>
-            <option>Payroll Records</option>
-            <option>Dependent Information</option>
-            <option>Additional Supporting Documents</option>
+          <p class="auth-note metadata-foundation-notice">
+            Your account identity is verified by the server. Client ownership
+            and private storage information cannot be supplied through this form.
+          </p>
+
+          <label for="uploadTaxYear">Tax Year</label>
+
+          <input
+            type="number"
+            id="uploadTaxYear"
+            name="taxYear"
+            value="2026"
+            min="2000"
+            max="2100"
+            required
+          />
+
+          <label for="documentType">
+            Required Document Category
+          </label>
+
+          <select
+            id="documentType"
+            name="checklistKey"
+            required
+            disabled
+          >
+            <option value="">
+              Loading your protected checklist...
+            </option>
           </select>
 
           <label for="documentFile">File Upload</label>
-          <input type="file" id="documentFile" name="documentFile" />
 
-          <label for="documentNotes">Notes</label>
-          <textarea id="documentNotes" name="documentNotes" rows="5" placeholder="Add any notes about this document."></textarea>
+          <input
+            type="file"
+            id="documentFile"
+            name="document"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            required
+          />
 
-          <button type="button" class="btn primary-btn documents-btn" disabled>
-            Upload Placeholder
+          <button
+            type="submit"
+            id="secureDocumentUploadButton"
+            class="btn primary-btn metadata-submit-btn"
+            disabled
+          >
+            Upload Document Securely
           </button>
 
-          <p class="auth-note">
-            Real upload handling will be added in a future sprint.
-          </p>
+          <p
+            id="secureDocumentUploadMessage"
+            class="auth-message metadata-form-message"
+            role="status"
+            aria-live="polite"
+          ></p>
         </form>
 
         <aside class="documents-side-panel">
           <article class="future-card">
-            <h3>Uploaded Documents Status</h3>
-            <p>No documents uploaded yet.</p>
-            <span class="dashboard-note">Future MongoDB document records</span>
-          </article>
-
-          <article class="future-card">
-            <h3>Document Review Status</h3>
-            <p>Admin review has not started.</p>
-            <span class="dashboard-note">Future admin review queue</span>
-          </article>
-
-          <article class="future-card">
-            <h3>Confirmation Message</h3>
+            <h3>Private Storage</h3>
             <p>
-              A future confirmation will appear after each successful upload and
-              may also be sent by email.
+              Uploaded tax documents are stored outside the publicly served
+              website directory.
             </p>
-            <span class="dashboard-note">Future upload confirmation email</span>
+            <span class="dashboard-note">
+              No public document URLs
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>Strict Validation</h3>
+            <p>
+              File size, extension, MIME metadata, actual file signature,
+              tax year, and checklist category are validated by the server.
+            </p>
+            <span class="dashboard-note">
+              PDF, JPEG, or PNG • 10 MB maximum
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>Authorized Review</h3>
+            <p>
+              Successfully stored documents begin with a not-reviewed status
+              and are available only through protected administrator review.
+            </p>
+            <span class="dashboard-note">
+              Server-authorized review only
+            </span>
           </article>
         </aside>
       </div>
@@ -193,19 +386,19 @@
     <section class="virtual-section">
       <div>
         <span class="section-tag light-tag">Secure Storage Notice</span>
-        <h2>Future uploads will require protected client access.</h2>
+        <h2>Tax documents remain behind protected access.</h2>
         <p>
-          Later sprints will connect secure file upload routes, MongoDB document
-          records, cloud storage, client document status, admin review, protected
-          route middleware, and dashboard tracking.
+          Uploaded documents are stored outside the public website directory,
+          linked to the authenticated client, and available for review only
+          through protected administrator routes.
         </p>
 
         <div class="portal-features">
           <span>Secure Upload Route</span>
-          <span>MongoDB Records</span>
-          <span>Cloud Storage</span>
+          <span>Private Storage</span>
+          <span>Verified Ownership</span>
           <span>Admin Review</span>
-          <span>Dashboard Tracking</span>
+          <span>No Public File URLs</span>
         </div>
       </div>
     </section>
@@ -220,6 +413,9 @@
     <p>&copy; 2026 Mega Financial. All rights reserved.</p>
   </footer>
 
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/clientGuard.js"></script>
+  <script src="./js/documents.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>

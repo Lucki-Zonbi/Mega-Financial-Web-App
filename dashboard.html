@@ -39,24 +39,28 @@
     <section class="dashboard-hero">
       <div class="dashboard-hero-content">
         <span class="section-tag">Client Dashboard Preview</span>
-        <h1>Welcome back, future Mega Financial client.</h1>
+        <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
         <p>
-          This static dashboard preview shows the layout clients will eventually
-          see after secure login. Real client data, authentication, scheduling,
-          uploads, payments, and messages will be connected in future sprints.
+          Review your protected account information, tax intake status,
+          personalized document workflow, and appointment requests. Payment
+          and messaging features will be connected in future sprints.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Static Preview</span>
-          <span>No Login Active</span>
-          <span>Future Protected Route</span>
+          <span>Protected Client Session</span>
+          <span>JWT Login Active</span>
+          <span>MongoDB Intake Tracking</span>
         </div>
+
+        <button type="button" id="logoutBtn" class="btn secondary-btn dashboard-logout-btn">
+          Logout
+        </button>
       </div>
 
       <div class="dashboard-profile-card">
         <span class="section-tag">Client Profile</span>
         <h3>Client Name Placeholder</h3>
-        <p>Email: client@example.com</p>
+        <p>Email: <span id="dashboardClientEmail">client@example.com</span></p>
         <p>Phone: (555) 555-5555</p>
         <p>Status: Account preview only</p>
       </div>
@@ -65,24 +69,52 @@
     <section class="dashboard-summary-section">
       <div class="section-heading">
         <span class="section-tag">Dashboard Overview</span>
-        <h2>Your client activity will appear here.</h2>
+        <h2>Your protected client activity.</h2>
         <p>
-          These cards prepare the dashboard structure for future authenticated
-          client records from MongoDB Atlas.
+         These cards retrieve authorized intake, document-checklist, and
+          appointment information connected to your authenticated account.
         </p>
       </div>
 
       <div class="dashboard-grid">
         <article class="future-card dashboard-card">
           <h3>Upcoming Appointment</h3>
-          <p>No appointment scheduled yet.</p>
-          <span class="dashboard-note">Future appointment records</span>
+
+          <p id="dashboardAppointmentStatus">
+            Checking your protected appointment records...
+          </p>
+
+          <span
+            id="dashboardAppointmentNote"
+            class="dashboard-note">
+            Connecting to appointment data
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a
+              href="./schedule.html"
+              class="btn primary-btn">
+              Manage Appointments
+            </a>
+          </div>
         </article>
 
         <article class="future-card dashboard-card">
-          <h3>Document Upload Status</h3>
-          <p>No documents uploaded yet.</p>
-          <span class="dashboard-note">Future secure upload records</span>
+          <h3>Required Documents</h3>
+
+          <p id="dashboardChecklistStatus">
+            Checking your protected document checklist...
+          </p>
+
+          <span id="dashboardChecklistNote" class="dashboard-note">
+            Connecting to intake data
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a href="./documents.html" class="btn primary-btn">
+              View Checklist
+            </a>
+          </div>
         </article>
 
         <article class="future-card dashboard-card">
@@ -99,11 +131,24 @@
 
         <article class="future-card dashboard-card dashboard-wide-card">
           <h3>Tax Intake Status</h3>
-          <p>
-            Intake form not started. Future clients will complete required tax
-            preparation questions before or after scheduling.
+
+          <p id="dashboardIntakeStatus">
+            Checking your protected tax intake status...
           </p>
-          <span class="dashboard-note">Future intake completion status</span>
+
+          <span id="dashboardIntakeNote" class="dashboard-note">
+            Connecting to your intake record
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a
+              href="./intake.html"
+              id="dashboardIntakeLink"
+              class="btn primary-btn"
+            >
+              Start Tax Intake
+            </a>
+          </div>
         </article>
       </div>
     </section>
@@ -111,17 +156,17 @@
     <section class="quick-actions-section">
       <div class="section-heading">
         <span class="section-tag">Quick Actions</span>
-        <h2>Future client actions.</h2>
-        <p>
-          These buttons are visual placeholders only. They do not submit,
-          upload, schedule, pay, or send messages yet.
-        </p>
+        <h2>Client actions.</h2>
+          <p>
+            Continue your protected intake, request an appointment, manage
+            required documents, or preview future payment and messaging tools.
+          </p>
       </div>
 
       <div class="quick-actions-grid">
         <a href="./schedule.html" class="quick-action-card">Schedule Appointment</a>
         <a href="./documents.html" class="quick-action-card">Upload Documents</a>
-        <a href="./intake.html" class="quick-action-card">Complete Tax Intake</a>
+        <a href="./intake.html" id="dashboardQuickIntakeLink" class="quick-action-card">Complete Tax Intake</a>
         <button type="button" class="quick-action-card">View Payment Status</button>
         <button type="button" class="quick-action-card">Send Message</button>
       </div>
@@ -129,20 +174,26 @@
 
     <section class="virtual-section">
       <div>
-        <span class="section-tag light-tag">Future Backend Connections</span>
-        <h2>This dashboard is ready for protected client features later.</h2>
+        <span class="section-tag light-tag">
+          Protected Client Connections
+        </span>
+
+        <h2>
+          Core client intake, document, and appointment records are connected.
+        </h2>
+
         <p>
-          Future sprints will connect authenticated client data, appointment
-          records, uploaded document records, Stripe payment records, intake
-          status, client/admin messages, and protected route middleware.
+          The dashboard now connects authenticated client identity, tax intake
+          status, personalized document requirements, secure uploads, and
+          appointment requests. Payment and messaging records remain deferred.
         </p>
 
         <div class="portal-features">
-          <span>Client Data</span>
+          <span>Client Identity</span>
           <span>Appointments</span>
-          <span>Uploads</span>
-          <span>Payments</span>
-          <span>Messages</span>
+          <span>Secure Uploads</span>
+          <span>Tax Intake</span>
+          <span>Protected Routes</span>
         </div>
       </div>
     </section>
@@ -157,6 +208,10 @@
     <p>&copy; 2026 Mega Financial. All rights reserved.</p>
   </footer>
 
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/clientGuard.js"></script>
+  <script src="./js/dashboard.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>

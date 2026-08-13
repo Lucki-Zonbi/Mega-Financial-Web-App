@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Admin Dashboard | Mega Financial</title>
+
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+
+  <header id="site-header" class="site-header">
+    <nav class="navbar">
+      <a href="./index.html" class="logo">
+        Mega Financial
+      </a>
+
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Open navigation menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li>
+          <a href="./index.html">Home</a>
+        </li>
+
+        <li>
+          <a href="./about.html">About</a>
+        </li>
+
+        <li>
+          <a href="./services.html">Services</a>
+        </li>
+
+        <li>
+          <a href="./portal.html">Portal</a>
+        </li>
+
+        <li>
+          <a href="./admin-dashboard.html">
+            Admin Dashboard
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="./login.html"
+            class="mobile-login-link"
+          >
+            Account Login
+          </a>
+        </li>
+      </ul>
+
+      <a
+        href="./login.html"
+        class="nav-btn desktop-login-btn"
+      >
+        Account Login
+      </a>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="dashboard-hero">
+      <div class="dashboard-hero-content">
+        <span class="section-tag">
+          Protected Admin Portal
+        </span>
+
+        <h1>
+          Welcome,
+          <span id="adminDashboardName">
+            Mega Financial administrator
+          </span>.
+        </h1>
+
+        <p>
+          This protected administration portal provides a narrowly scoped
+          client directory, limited workflow summaries, and authorized
+          document review without exposing detailed tax answers, private
+          storage paths, payments, or private security credentials.
+        </p>
+
+        <div class="portal-features dashboard-status-tags">
+          <span>JWT Authentication</span>
+          <span>Server Role Authorization</span>
+          <span>Read-Only Client Summaries</span>
+          <span>Authorized Document Review</span>
+        </div>
+
+        <button
+          type="button"
+          id="adminLogoutBtn"
+          class="btn secondary-btn dashboard-logout-btn"
+        >
+          Logout
+        </button>
+      </div>
+
+      <div class="dashboard-profile-card">
+        <span class="section-tag">
+          Administrator Profile
+        </span>
+
+        <h3 id="adminProfileName">
+          Administrator
+        </h3>
+
+        <p>
+          Email:
+          <span id="adminProfileEmail">
+            Confirming...
+          </span>
+        </p>
+
+        <p>
+          Role:
+          <span id="adminProfileRole">
+            Confirming...
+          </span>
+        </p>
+
+        <p>
+          Status: Protected admin session
+        </p>
+      </div>
+    </section>
+
+    <section class="dashboard-summary-section">
+      <div class="section-heading">
+        <span class="section-tag">
+          Authorized Client Directory
+        </span>
+
+        <h2>
+          View limited client workflow summaries.
+        </h2>
+
+        <p id="adminAccessMessage" class="auth-message">
+          Confirming your protected administrator session...
+        </p>
+      </div>
+
+      <div class="admin-directory-layout">
+        <article class="admin-directory-panel">
+          <div class="admin-panel-heading">
+            <div>
+              <span class="section-tag">
+                Client Accounts
+              </span>
+
+              <h3>Client Directory</h3>
+
+              <p>
+                Search by client name or email address.
+              </p>
+            </div>
+          </div>
+
+          <form
+            id="adminClientSearchForm"
+            class="admin-client-search-form">
+            <label for="adminClientSearch">
+              Search clients
+            </label>
+
+            <div class="admin-search-controls">
+              <input
+                type="search"
+                id="adminClientSearch"
+                name="search"
+                maxlength="100"
+                autocomplete="off"
+                placeholder="Enter a client name or email"
+              />
+
+              <button
+                type="submit"
+                class="btn primary-btn"
+              >
+                Search
+              </button>
+
+              <button
+                type="button"
+                id="adminClientSearchClear"
+                class="btn secondary-btn"
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+
+          <p
+            id="adminDirectoryMessage"
+            class="admin-directory-message"
+            role="status"
+            aria-live="polite"
+          >
+            Client directory access will begin after your
+            administrator session is confirmed.
+          </p>
+
+          <div
+            id="adminClientDirectory"
+            class="admin-client-directory"
+            aria-live="polite"
+          ></div>
+
+          <div
+            class="admin-pagination"
+            aria-label="Client directory pagination"
+          >
+            <button
+              type="button"
+              id="adminPreviousPage"
+              class="btn secondary-btn"
+              disabled
+            >
+              Previous
+            </button>
+
+            <span id="adminPaginationStatus">
+              Page 0 of 0
+            </span>
+
+            <button
+              type="button"
+              id="adminNextPage"
+              class="btn secondary-btn"
+              disabled
+            >
+              Next
+            </button>
+          </div>
+        </article>
+
+        <article class="admin-summary-panel">
+          <div class="admin-panel-heading">
+            <div>
+              <span class="section-tag">
+                Read-Only Summary
+              </span>
+
+              <h3>Selected Client</h3>
+
+              <p>
+                Only limited account and workflow status
+                information is displayed.
+              </p>
+            </div>
+          </div>
+
+          <p
+            id="adminClientSummaryMessage"
+            class="admin-directory-message"
+            role="status"
+            aria-live="polite"
+          >
+            Select a client from the directory to view a
+            read-only summary.
+          </p>
+
+          <div
+            id="adminClientSummaryContent"
+            class="admin-client-summary-content"
+            hidden
+          >
+            <section class="admin-summary-group">
+              <h4>Account Status</h4>
+
+              <dl class="admin-summary-details">
+                <div>
+                  <dt>Client</dt>
+                  <dd id="adminSummaryClientName">—</dd>
+                </div>
+
+                <div>
+                  <dt>Email</dt>
+                  <dd id="adminSummaryClientEmail">—</dd>
+                </div>
+
+                <div>
+                  <dt>Email verification</dt>
+                  <dd id="adminSummaryEmailVerified">—</dd>
+                </div>
+
+                <div>
+                  <dt>Two-factor authentication</dt>
+                  <dd id="adminSummaryTwoFactor">—</dd>
+                </div>
+
+                <div>
+                  <dt>Account created</dt>
+                  <dd id="adminSummaryCreatedAt">—</dd>
+                </div>
+
+                <div>
+                  <dt>Last account update</dt>
+                  <dd id="adminSummaryUpdatedAt">—</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="admin-summary-group">
+              <h4>Tax Intake Status</h4>
+
+              <div
+                id="adminIntakeSummary"
+                class="admin-summary-list">
+              </div>
+            </section>
+
+            <section class="admin-summary-group">
+              <h4>Document Metadata Status</h4>
+
+              <p class="admin-summary-privacy-note">
+                This summary preserves the Sprint 022 aggregated
+                metadata view.
+              </p>
+
+              <div
+                id="adminDocumentSummary"
+                class="admin-summary-list">
+              </div>
+            </section>
+
+            <section class="admin-summary-group">
+              <h4>Authorized Document Review</h4>
+
+              <p class="admin-summary-privacy-note">
+                Stored document details are shown only after an
+                administrator selects this client. Files remain private
+                and have no public URLs.
+              </p>
+
+              <p
+                id="adminDocumentReviewMessage"
+                class="admin-directory-message"
+                role="status"
+                aria-live="polite">
+                Select a client to load authorized document review.
+              </p>
+
+              <div
+                id="adminDocumentReviewList"
+                class="admin-summary-list">
+              </div>
+            </section>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="quick-actions-section">
+      <div class="section-heading">
+        <span class="section-tag">
+          Restricted Admin Actions
+        </span>
+
+        <h2>
+          Record-changing tools remain unavailable.
+        </h2>
+
+        <p>
+          Sprint 023 activates narrowly scoped document review for the
+          currently selected client. Client-record editing, appointments,
+          payments, audit activity, impersonation, deletion, and role
+          changes remain unavailable.
+        </p>
+      </div>
+
+      <div class="quick-actions-grid">
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Review Documents
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Edit Client Records
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Manage Appointments
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          Manage Payments
+        </button>
+
+        <button
+          type="button"
+          class="quick-action-card"
+          disabled
+        >
+          View Audit Activity
+        </button>
+      </div>
+    </section>
+
+    <section class="virtual-section">
+      <div>
+        <span class="section-tag light-tag">
+          Security Boundary
+        </span>
+
+        <h2>
+          Authentication does not automatically grant
+          access to client information.
+        </h2>
+
+        <p>
+          Every administrator request uses explicit
+          server-side role authorization. The browser receives
+          only approved summary fields and cannot request
+          unrestricted database records.
+        </p>
+
+        <div class="portal-features">
+          <span>Explicit Roles</span>
+          <span>Limited Responses</span>
+          <span>Read-Only Access</span>
+          <span>No Browser-Only Authorization</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-top-link">
+      <a href="#top" id="backToTop">
+        ↑ Return To Top
+      </a>
+    </div>
+
+    <p>
+      &copy; 2026 Mega Financial. All rights reserved.
+    </p>
+  </footer>
+
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/adminGuard.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+</html>

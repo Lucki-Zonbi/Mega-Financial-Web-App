@@ -26,6 +26,31 @@ body {
   line-height: 1.6;
 }
 
+.admin-preview-banner {
+  position: relative;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 1.5rem;
+  background: var(--soft-green);
+  border-bottom: 2px solid var(--money-blue);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.admin-preview-banner p {
+  margin: 0;
+  color: var(--deep-blue);
+  font-weight: 700;
+}
+
+.admin-preview-banner .btn {
+  margin: 0;
+}
+
 a {
   text-decoration: none;
 }
@@ -956,6 +981,10 @@ section {
   font-weight: 800;
 }
 
+.dashboard-intake-action {
+  margin-top: 1.5rem;
+}
+
 .dashboard-status-tags {
   justify-content: flex-start;
   margin-top: 1.5rem;
@@ -985,6 +1014,10 @@ section {
   transform: translateY(-6px);
 }
 
+.active-action-card {
+  cursor: pointer;
+}
+
 @media (max-width: 900px) {
   .dashboard-hero,
   .dashboard-grid,
@@ -1005,6 +1038,309 @@ section {
   .dashboard-hero {
     margin: 1rem;
     padding: 3rem 1.2rem;
+  }
+}
+
+
+/* =========================
+   Admin Client Directory - Sprint 022
+========================= */
+
+.admin-directory-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.admin-directory-panel,
+.admin-summary-panel {
+  background: var(--white);
+  border-radius: 24px;
+  padding: 1.8rem;
+  box-shadow: var(--shadow);
+}
+
+.admin-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-panel-heading h3 {
+  color: var(--deep-blue);
+  font-size: 1.65rem;
+  margin: 0.7rem 0 0.35rem;
+}
+
+.admin-client-search-form {
+  margin-bottom: 1.5rem;
+}
+
+.admin-client-search-form label {
+  display: block;
+  color: var(--deep-blue);
+  font-weight: 800;
+  margin-bottom: 0.65rem;
+}
+
+.admin-search-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.75rem;
+}
+
+.admin-search-controls input {
+  width: 100%;
+  border: 2px solid var(--soft-green);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  color: var(--deep-blue);
+  background: var(--white);
+  font: inherit;
+}
+
+.admin-search-controls input:focus {
+  outline: 3px solid var(--mint-green);
+  border-color: var(--money-blue);
+}
+
+.admin-directory-message {
+  background: var(--soft-green);
+  color: var(--gray-text);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.2rem;
+  font-weight: 700;
+}
+
+.admin-directory-message.success {
+  background: linear-gradient(
+    135deg,
+    var(--soft-green),
+    var(--mint-green)
+  );
+  color: var(--deep-blue);
+}
+
+.admin-directory-message.error {
+  background: var(--light-gray);
+  color: var(--money-blue);
+  border: 2px solid var(--money-blue);
+}
+
+.admin-client-directory {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-client-card {
+  background: var(--soft-green);
+  border: 2px solid transparent;
+  border-radius: 20px;
+  padding: 1.25rem;
+  transition: 0.3s ease;
+}
+
+.admin-client-card:hover,
+.admin-client-card.selected {
+  border-color: var(--money-blue);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.admin-client-card h4 {
+  color: var(--deep-blue);
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-client-card p {
+  overflow-wrap: anywhere;
+}
+
+.admin-client-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.9rem 0;
+}
+
+.admin-status-pill {
+  background: var(--white);
+  color: var(--money-blue);
+  border-radius: 999px;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.admin-client-created {
+  font-size: 0.92rem;
+  margin-bottom: 1rem;
+}
+
+.admin-client-view-btn {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.admin-pagination span {
+  color: var(--deep-blue);
+  font-weight: 800;
+  text-align: center;
+}
+
+.admin-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.admin-client-summary-content {
+  display: grid;
+  gap: 1.3rem;
+}
+
+.admin-client-summary-content[hidden] {
+  display: none;
+}
+
+.admin-summary-group {
+  margin: 0;
+  padding: 1.2rem;
+  background: var(--soft-green);
+  border-radius: 20px;
+}
+
+.admin-summary-group h4 {
+  color: var(--deep-blue);
+  margin-bottom: 1rem;
+}
+
+.admin-summary-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.admin-summary-details div {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 0.8rem;
+  min-width: 0;
+}
+
+.admin-summary-details dt {
+  color: var(--money-blue);
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.admin-summary-details dd {
+  margin: 0;
+  color: var(--gray-text);
+  overflow-wrap: anywhere;
+}
+
+.admin-summary-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.admin-summary-status-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.admin-summary-status-card h5 {
+  color: var(--deep-blue);
+  font-size: 1rem;
+  margin-bottom: 0.55rem;
+}
+
+.admin-summary-status-card p {
+  margin: 0.3rem 0;
+}
+
+.admin-summary-privacy-note,
+.admin-summary-empty {
+  color: var(--gray-text);
+  margin-bottom: 1rem;
+}
+
+.admin-document-status-list {
+  margin: 0.7rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.admin-document-status-list li {
+  margin-bottom: 0.35rem;
+}
+
+.admin-document-review-card {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-document-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+.admin-document-review-actions select {
+  flex: 1 1 220px;
+  padding: 0.75rem 0.9rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--gray-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.admin-document-review-actions select:focus {
+  border-color: var(--money-blue);
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
+@media (max-width: 900px) {
+  .admin-directory-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-search-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-summary-details {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-pagination .btn {
+    width: 100%;
   }
 }
 
@@ -1108,9 +1444,14 @@ section {
 
 .schedule-btn {
   border: none;
-  cursor: not-allowed;
+  cursor: pointer;
   margin-top: 1.2rem;
   text-align: center;
+}
+
+.schedule-btn:disabled {
+  cursor: wait;
+  opacity: 0.75;
 }
 
 .schedule-side-panel {
@@ -1120,6 +1461,45 @@ section {
 
 .schedule-options-grid {
   margin-bottom: 1.2rem;
+}
+
+.schedule-list-message {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+}
+
+.schedule-appointment-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.schedule-appointment-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.schedule-appointment-card p {
+  margin-bottom: 0.45rem;
+}
+
+.schedule-appointment-card strong {
+  color: var(--deep-blue);
+}
+
+.schedule-status-badge {
+  margin-top: 0.8rem;
+}
+
+.schedule-appointment-actions {
+  width: 100%;
+  margin-top: 1.2rem;
+}
+
+.schedule-appointment-actions .btn {
+  border: none;
+  cursor: pointer;
 }
 
 .platform-grid {
@@ -1134,6 +1514,7 @@ section {
 @media (max-width: 900px) {
   .schedule-hero,
   .schedule-layout,
+  .schedule-appointment-list,
   .platform-grid {
     grid-template-columns: 1fr;
   }
@@ -1335,8 +1716,13 @@ section {
 
 .intake-submit-btn {
   border: none;
-  cursor: not-allowed;
-  opacity: 0.85;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.intake-submit-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 .document-checklist-grid {
@@ -1480,6 +1866,38 @@ section {
   opacity: 0.85;
 }
 
+.metadata-foundation-notice {
+  margin-bottom: 0.8rem;
+}
+
+.metadata-submit-btn {
+  border: none;
+  cursor: pointer;
+  margin-top: 1.2rem;
+  text-align: center;
+}
+
+.metadata-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.metadata-form-message:empty {
+  display: none;
+}
+
+.metadata-form-message.info {
+  border-left: 4px solid var(--money-blue);
+}
+
+.metadata-form-message.success {
+  border-left: 4px solid var(--mint-green);
+}
+
+.metadata-form-message.error {
+  border-left: 4px solid var(--deep-blue);
+}
+
 .documents-side-panel {
   display: grid;
   gap: 1.5rem;
@@ -1511,4 +1929,66 @@ section {
   .documents-form-card {
     padding: 1.3rem;
   }
+}
+
+/* =========================
+   Auth Foundation - Sprint 010
+========================= */
+
+.auth-message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: var(--soft-green);
+  color: var(--gray-text);
+  font-weight: 800;
+}
+
+.auth-message.success {
+  background: linear-gradient(135deg, var(--soft-green), var(--mint-green));
+  color: var(--deep-blue);
+}
+
+.auth-message.error {
+  background: var(--light-gray);
+  color: var(--money-blue);
+  border: 2px solid var(--money-blue);
+}
+
+.auth-btn {
+  border: none;
+}
+
+/* =========================
+   Client Session Guard - Sprint 013
+========================= */
+
+.dashboard-logout-btn {
+  margin-top: 1.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+#dashboardClientName,
+#dashboardClientEmail {
+  color: inherit;
+}
+
+/* =========================
+   Dynamic Document Checklist - Sprint 017
+========================= */
+
+.document-checklist-state {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.document-checklist-item h3,
+.document-checklist-state h3 {
+  color: var(--deep-blue);
+  margin-bottom: 0.6rem;
+}
+
+.document-checklist-link {
+  margin-top: 1.2rem;
 }

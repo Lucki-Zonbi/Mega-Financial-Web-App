@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Schedule Appointment Preview | Mega Financial</title>
+  <title>Schedule Appointment | Mega Financial</title>
 
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
@@ -39,98 +39,200 @@
 
     <section class="schedule-hero">
       <div class="schedule-hero-content">
-        <span class="section-tag">Scheduling Preview</span>
-        <h1>Plan your future Mega Financial appointment.</h1>
+        <span class="section-tag">Protected Scheduling</span>
+        <h1>Request your Mega Financial appointment.</h1>
         <p>
-          This static scheduling page prepares the future appointment flow.
-          Real scheduling, available time slots, calendar integrations, database
-          records, meeting links, and confirmation emails will be added later.
+          Choose an approved service, consultation platform, future weekday,
+          and available hourly appointment time through your protected client
+          account.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>Static Preview</span>
-          <span>No Booking Active</span>
-          <span>Future Appointment Model</span>
+          <span>JWT Protected</span>
+          <span>MongoDB Appointment Records</span>
+          <span>Verified Client Ownership</span>
         </div>
       </div>
 
       <div class="schedule-summary-card">
         <span class="section-tag">Appointment Summary</span>
-        <h3>Preview Only</h3>
-        <p>Service: Not selected</p>
-        <p>Platform: Not selected</p>
-        <p>Date: Not selected</p>
-        <p>Time: Not selected</p>
+        <h3 id="scheduleSummaryHeading">New Request</h3>
+
+        <p>
+          Service:
+          <span id="scheduleSummaryService">Not selected</span>
+        </p>
+
+        <p>
+          Platform:
+          <span id="scheduleSummaryPlatform">Not selected</span>
+        </p>
+
+        <p>
+          Date:
+          <span id="scheduleSummaryDate">Not selected</span>
+        </p>
+
+        <p>
+          Time:
+          <span id="scheduleSummaryTime">Not selected</span>
+        </p>
       </div>
     </section>
 
     <section class="schedule-form-section">
       <div class="section-heading">
-        <span class="section-tag">Appointment Flow</span>
-        <h2>Select service details in a future sprint.</h2>
-        <p>
-          These fields are placeholders only. They prepare the layout for future
-          client-selected services, consultation platforms, available time slots,
-          and appointment records.
-        </p>
+        <span class="section-tag">Appointment Request</span>
+          <h2>Select your service and requested appointment time.</h2>
+          <p>
+            Requests must be submitted at least 24 hours in advance and no more
+            than 180 days ahead. Current scheduling hours are weekdays from
+            9:00 AM through 4:00 PM.
+          </p>
       </div>
 
       <div class="schedule-layout">
-        <form class="schedule-form-card">
-          <h3>Schedule Appointment Preview</h3>
+        <form id="appointmentForm" class="schedule-form-card" novalidate>
+          <h3>Request an Appointment</h3>
 
           <label for="serviceType">Service Selection</label>
-          <select id="serviceType" name="serviceType">
-            <option>Individual Tax Filing</option>
-            <option>Business Tax Services</option>
-            <option>Bookkeeping</option>
-            <option>Payroll Support</option>
-            <option>Special Services</option>
+
+          <select id="serviceType" name="serviceType" required>
+            <option value="">Select a service</option>
+
+            <option value="Individual Tax Filing">
+              Individual Tax Filing
+            </option>
+
+            <option value="Business Tax Filing">
+              Business Tax Filing
+            </option>
+
+            <option value="Bookkeeping">
+              Bookkeeping
+            </option>
+
+            <option value="Payroll Support">
+              Payroll Support
+            </option>
+
+            <option value="Tax Planning">
+              Tax Planning
+            </option>
           </select>
 
-          <label for="platformType">Consultation Platform</label>
-          <select id="platformType" name="platformType">
-            <option>Microsoft Teams</option>
-            <option>Google Meet</option>
-            <option>Zoom</option>
-            <option>Calendly</option>
+          <label for="platformType">
+            Consultation Platform
+          </label>
+
+          <select
+            id="platformType"
+            name="platformType"
+            required
+          >
+            <option value="">Select a platform</option>
+
+            <option value="Microsoft Teams">
+              Microsoft Teams
+            </option>
+
+            <option value="Google Meet">
+              Google Meet
+            </option>
+
+            <option value="Zoom">
+              Zoom
+            </option>
+
+            <option value="Calendly">
+              Calendly
+            </option>
           </select>
 
-          <label for="appointmentDate">Appointment Date</label>
-          <input type="date" id="appointmentDate" name="appointmentDate" />
+          <label for="appointmentDate">
+            Appointment Date
+          </label>
 
-          <label for="appointmentTime">Appointment Time</label>
-          <input type="time" id="appointmentTime" name="appointmentTime" />
+          <input
+            type="date"
+            id="appointmentDate"
+            name="appointmentDate"
+            required/>
 
-          <label for="clientNotes">Client Notes</label>
-          <textarea id="clientNotes" name="clientNotes" rows="5" placeholder="Add notes for your future appointment request."></textarea>
+          <label for="appointmentTime">
+            Appointment Time
+          </label>
+          <input type="time" id="appointmentTime" name="appointmentTime" required />
 
-          <button type="button" class="btn primary-btn schedule-btn">
-            Scheduling Placeholder
+          <label for="clientNotes">
+            Client Notes
+          </label>
+
+          <textarea
+            id="clientNotes"
+            name="clientNotes"
+            rows="5"
+            maxlength="1000"
+            placeholder="Add optional information Mega Financial should know about your appointment request.">
+          </textarea>
+
+          <button
+            type="submit"
+            id="appointmentSubmitButton"
+            class="btn primary-btn schedule-btn">
+            Submit Appointment Request
           </button>
 
+          <p
+            id="appointmentMessage"
+            class="auth-message"
+            role="status"
+            aria-live="polite">
+          </p>
+
           <p class="auth-note">
-            Scheduling logic will be added in a future sprint.
+            Submitting this form creates an appointment request. It does not
+            generate a meeting link or guarantee confirmation yet.
           </p>
         </form>
-
-        <aside class="schedule-side-panel">
           <article class="future-card">
-            <h3>Scheduling Summary</h3>
+            <h3>Request Status</h3>
+
             <p>
-              A future summary will show the selected service, consultation
-              platform, appointment date, appointment time, and client notes.
+              New appointments begin with a requested status until an authorized
+              confirmation workflow is added in a later sprint.
             </p>
-            <span class="dashboard-note">Future MongoDB appointment record</span>
+
+            <span class="dashboard-note">
+              Protected MongoDB appointment record
+            </span>
           </article>
 
           <article class="future-card">
-            <h3>Confirmation Message</h3>
+            <h3>Consultation Platform</h3>
+
             <p>
-              A future confirmation will appear after successful booking and may
-              also be sent to the client by email.
+              Your selected platform is stored with the appointment request.
+              External provider connections and meeting-link generation remain
+              deferred.
             </p>
-            <span class="dashboard-note">Future confirmation email</span>
+
+            <span class="dashboard-note">
+              No provider credentials exposed
+            </span>
+          </article>
+
+          <article class="future-card">
+            <h3>Verified Client Ownership</h3>
+
+            <p>
+              Appointment ownership is assigned by the server from the
+              authenticated client account rather than submitted by the browser.
+            </p>
+
+            <span class="dashboard-note">
+              Ownership derived from JWT identity
+            </span>
           </article>
         </aside>
       </div>
@@ -138,46 +240,53 @@
 
     <section class="quick-actions-section">
       <div class="section-heading">
-        <span class="section-tag">Scheduling Options</span>
-        <h2>Future service and platform choices.</h2>
+        <span class="section-tag">Your Appointments</span>
+        <h2>Protected appointment records.</h2>
+
         <p>
-          These option cards visually prepare the scheduling flow without
-          submitting or storing any data.
+          Review your appointment requests and cancel eligible future
+          appointments. Only records assigned to your authenticated client
+          account are returned by the server.
         </p>
       </div>
 
-      <div class="quick-actions-grid schedule-options-grid">
-        <button type="button" class="quick-action-card">Individual Tax Filing</button>
-        <button type="button" class="quick-action-card">Business Tax Services</button>
-        <button type="button" class="quick-action-card">Bookkeeping</button>
-        <button type="button" class="quick-action-card">Payroll Support</button>
-        <button type="button" class="quick-action-card">Special Services</button>
-      </div>
+      <p
+        id="appointmentListMessage"
+        class="auth-message schedule-list-message"
+        role="status"
+        aria-live="polite">
+        Loading your protected appointment records...
+      </p>
 
-      <div class="quick-actions-grid schedule-options-grid platform-grid">
-        <button type="button" class="quick-action-card">Microsoft Teams</button>
-        <button type="button" class="quick-action-card">Google Meet</button>
-        <button type="button" class="quick-action-card">Zoom</button>
-        <button type="button" class="quick-action-card">Calendly</button>
+      <div
+        id="appointmentList"
+        class="schedule-appointment-list">
       </div>
     </section>
 
     <section class="virtual-section">
       <div>
-        <span class="section-tag light-tag">Future Scheduling Connections</span>
-        <h2>This page is ready for appointment logic later.</h2>
+        <span class="section-tag light-tag">
+          Protected Scheduling Foundation
+        </span>
+
+        <h2>
+          Appointment requests are now connected to protected client records.
+        </h2>
+
         <p>
-          Future sprints will connect the appointment model, MongoDB appointment
-          records, protected scheduling routes, available time slots, meeting link
-          storage, and appointment confirmation emails.
+          Sprint 024 adds authenticated appointment requests, client-owned
+          records, scheduling-window validation, protected retrieval, and
+          narrowly scoped cancellation. Provider API connections, meeting
+          links, and automatic confirmations remain deferred.
         </p>
 
         <div class="portal-features">
           <span>Appointment Model</span>
           <span>MongoDB Records</span>
-          <span>Protected Route</span>
-          <span>Meeting Links</span>
-          <span>Email Confirmation</span>
+          <span>Protected Client Routes</span>
+          <span>Ownership Isolation</span>
+          <span>Controlled Cancellation</span>
         </div>
       </div>
     </section>
@@ -192,6 +301,9 @@
     <p>&copy; 2026 Mega Financial. All rights reserved.</p>
   </footer>
 
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/clientGuard.js"></script>
+  <script src="./js/schedule.js"></script>
   <script src="./js/main.js"></script>
 </body>
 </html>
