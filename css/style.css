@@ -866,6 +866,39 @@ section {
   box-shadow: var(--shadow);
 }
 
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  padding-right: 5rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.9rem;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--money-blue);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.password-toggle-btn:hover {
+  color: var(--deep-blue);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--money-blue);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 .auth-btn {
   border: none;
   cursor: not-allowed;

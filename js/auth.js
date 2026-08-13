@@ -2,6 +2,49 @@ const registerForm = document.getElementById("registerForm");
 const loginForm = document.getElementById("loginForm");
 const authMessage = document.getElementById("authMessage");
 
+const loginPassword =
+  document.getElementById("password");
+
+const toggleLoginPassword =
+  document.getElementById(
+    "toggleLoginPassword"
+  );
+
+if (
+  loginPassword &&
+  toggleLoginPassword
+) {
+  toggleLoginPassword.addEventListener(
+    "click",
+    function () {
+      const passwordIsVisible =
+        loginPassword.type === "text";
+
+      loginPassword.type =
+        passwordIsVisible
+          ? "password"
+          : "text";
+
+      toggleLoginPassword.textContent =
+        passwordIsVisible
+          ? "Show"
+          : "Hide";
+
+      toggleLoginPassword.setAttribute(
+        "aria-label",
+        passwordIsVisible
+          ? "Show password"
+          : "Hide password"
+      );
+
+      toggleLoginPassword.setAttribute(
+        "aria-pressed",
+        String(!passwordIsVisible)
+      );
+    }
+  );
+}
+
 function showAuthMessage(message, type = "info") {
   if (!authMessage) return;
 
