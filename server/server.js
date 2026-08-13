@@ -28,7 +28,46 @@ app.use(
   })
 );
 
-app.use(cors());
+const allowedOrigins = new Set(
+  [
+    process.env.FRONTEND_ORIGIN,
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+  ].filter(Boolean)
+);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.has(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(
+        new Error(
+          "Origin is not allowed by the Mega Financial API."
+        )
+      );
+    },
+
+    methods: [
+      "GET",
+      "POST",
+      "PATCH",
+      "OPTIONS"
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Admin-Bootstrap-Key"
+    ]
+  })
+);
 
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
@@ -55,6 +94,12 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Mega Financial Web App running on port ${PORT}`);
-});
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `Mega Financial Web App running on port ${PORT}`
+    );
+  }
+);

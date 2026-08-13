@@ -86,8 +86,8 @@ if (registerForm) {
 
       registerForm.reset();
     } catch (error) {
-      showAuthMessage(
-        "Unable to connect to the registration server. Make sure npm start is running.",
+        showAuthMessage(
+        "Unable to connect to the registration server. Please try again.",
         "error"
       );
     }
@@ -148,7 +148,7 @@ if (loginForm) {
       }, 900);
     } catch (error) {
       showAuthMessage(
-        "Unable to connect to the login server. Make sure npm start is running.",
+        "Unable to connect to the login server. Please try again.",
         "error"
       );
     }
