@@ -9,7 +9,7 @@
     ".onrender.com";
 
   const productionApiOrigin =
-    "https://REPLACE_WITH_YOUR_RENDER_SERVICE.onrender.com";
+    "https://mega-financial-web-app-api.onrender.com";
 
   function shouldUseSameOriginApi() {
     const hostname =
