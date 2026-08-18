@@ -1352,6 +1352,48 @@ section {
   box-shadow: var(--shadow);
 }
 
+.admin-appointment-card {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-appointment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.9rem;
+}
+
+.admin-appointment-actions select {
+  flex: 1 1 220px;
+  padding: 0.75rem 0.9rem;
+  border: 2px solid var(--mint-green);
+  border-radius: 14px;
+  background: var(--white);
+  color: var(--gray-text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.admin-appointment-actions select:focus {
+  border-color: var(--money-blue);
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
+.admin-appointment-actions button:disabled,
+.admin-appointment-actions select:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.admin-appointment-terminal {
+  margin-top: 0.75rem;
+  color: var(--money-blue);
+  font-weight: 800;
+}
+
 @media (max-width: 900px) {
   .admin-directory-layout {
     grid-template-columns: 1fr;
@@ -1372,7 +1414,17 @@ section {
     flex-direction: column;
   }
 
-  .admin-pagination .btn {
+    .admin-pagination .btn {
+    width: 100%;
+  }
+
+  .admin-appointment-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-appointment-actions select,
+  .admin-appointment-actions .btn {
     width: 100%;
   }
 }

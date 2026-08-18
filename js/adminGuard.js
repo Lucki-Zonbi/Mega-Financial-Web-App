@@ -93,6 +93,26 @@ function formatAdminDate(value) {
   });
 }
 
+function formatAdminDateTime(value) {
+  if (!value) {
+    return "Not available";
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "Not available";
+  }
+
+  return parsedDate.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
 function formatAdminStatus(value) {
   if (!value || typeof value !== "string") {
     return "Not available";
@@ -621,6 +641,30 @@ function renderAdminDocumentSummary(documentSummary) {
   });
 }
 
+function showAdminAppointmentMessage(
+  message,
+  state = ""
+) {
+  const target = getAdminElement(
+    "adminAppointmentMessage"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  target.textContent = message;
+
+  target.classList.remove(
+    "success",
+    "error"
+  );
+
+  if (state) {
+    target.classList.add(state);
+  }
+}
+
 function showAdminDocumentReviewMessage(
   message,
   state = ""
@@ -642,6 +686,28 @@ function showAdminDocumentReviewMessage(
   if (state) {
     target.classList.add(state);
   }
+}
+
+function getAllowedAppointmentStatuses(
+  currentStatus
+) {
+  const transitions = {
+    requested: [
+      "confirmed",
+      "cancelled"
+    ],
+
+    confirmed: [
+      "completed",
+      "cancelled"
+    ],
+
+    completed: [],
+
+    cancelled: []
+  };
+
+  return transitions[currentStatus] || [];
 }
 
 function getAllowedReviewStatuses(
@@ -946,6 +1012,327 @@ function createAdminDocumentReviewCard(
   return card;
 }
 
+async function updateAdminAppointmentStatus(
+  clientId,
+  appointmentId,
+  status
+) {
+  try {
+    await sendProtectedAdminJson(
+      `/api/admin/clients/${
+        encodeURIComponent(clientId)
+      }/appointments/${
+        encodeURIComponent(appointmentId)
+      }/status`,
+      "PATCH",
+      {
+        status
+      }
+    );
+
+    showAdminAppointmentMessage(
+      "Appointment status updated.",
+      "success"
+    );
+
+    await loadAdminClientAppointments(
+      clientId
+    );
+  } catch (error) {
+    showAdminAppointmentMessage(
+      error.message ||
+        "The appointment status could not be updated.",
+      "error"
+    );
+  }
+}
+
+function createAdminAppointmentCard(
+  clientId,
+  appointment
+) {
+  const card =
+    document.createElement("article");
+
+  card.className =
+    "admin-summary-status-card admin-appointment-card";
+
+  const heading =
+    document.createElement("h5");
+
+  heading.textContent =
+    appointment.serviceType ||
+    "Client Appointment";
+
+  const appointmentStart =
+    createAdminDetailLine(
+      "Scheduled",
+      formatAdminDateTime(
+        appointment.appointmentStart
+      )
+    );
+
+  const platform =
+    createAdminDetailLine(
+      "Consultation platform",
+      appointment.platformType ||
+        "Not available"
+    );
+
+  const duration =
+    createAdminDetailLine(
+      "Duration",
+      Number.isFinite(
+        Number(
+          appointment.durationMinutes
+        )
+      )
+        ? `${
+            appointment.durationMinutes
+          } minutes`
+        : "Not available"
+    );
+
+  const status =
+    createAdminDetailLine(
+      "Status",
+      formatAdminStatus(
+        appointment.status
+      )
+    );
+
+  card.appendChild(heading);
+  card.appendChild(appointmentStart);
+  card.appendChild(platform);
+  card.appendChild(duration);
+  card.appendChild(status);
+
+  if (appointment.clientNotes) {
+    card.appendChild(
+      createAdminDetailLine(
+        "Client notes",
+        appointment.clientNotes
+      )
+    );
+  }
+
+  if (appointment.cancellationReason) {
+    card.appendChild(
+      createAdminDetailLine(
+        "Cancellation reason",
+        appointment.cancellationReason
+      )
+    );
+  }
+
+  if (appointment.confirmedAt) {
+    card.appendChild(
+      createAdminDetailLine(
+        "Confirmed",
+        formatAdminDateTime(
+          appointment.confirmedAt
+        )
+      )
+    );
+  }
+
+  if (appointment.completedAt) {
+    card.appendChild(
+      createAdminDetailLine(
+        "Completed",
+        formatAdminDateTime(
+          appointment.completedAt
+        )
+      )
+    );
+  }
+
+  if (appointment.cancelledAt) {
+    card.appendChild(
+      createAdminDetailLine(
+        "Cancelled",
+        formatAdminDateTime(
+          appointment.cancelledAt
+        )
+      )
+    );
+  }
+
+  const allowedStatuses =
+    getAllowedAppointmentStatuses(
+      appointment.status
+    );
+
+  if (allowedStatuses.length > 0) {
+    const actions =
+      document.createElement("div");
+
+    actions.className =
+      "admin-appointment-actions";
+
+    const statusSelect =
+      document.createElement("select");
+
+    const placeholder =
+      document.createElement("option");
+
+    placeholder.value = "";
+    placeholder.textContent =
+      "Select next appointment status";
+
+    statusSelect.appendChild(
+      placeholder
+    );
+
+    allowedStatuses.forEach(
+      (allowedStatus) => {
+        const option =
+          document.createElement("option");
+
+        option.value =
+          allowedStatus;
+
+        option.textContent =
+          formatAdminStatus(
+            allowedStatus
+          );
+
+        statusSelect.appendChild(
+          option
+        );
+      }
+    );
+
+    const updateButton =
+      document.createElement("button");
+
+    updateButton.type = "button";
+
+    updateButton.className =
+      "btn primary-btn";
+
+    updateButton.textContent =
+      "Update Appointment";
+
+    updateButton.addEventListener(
+      "click",
+      async function () {
+        if (!statusSelect.value) {
+          showAdminAppointmentMessage(
+            "Select an allowed appointment status first.",
+            "error"
+          );
+
+          return;
+        }
+
+        updateButton.disabled = true;
+        statusSelect.disabled = true;
+
+        try {
+          await updateAdminAppointmentStatus(
+            clientId,
+            appointment.id,
+            statusSelect.value
+          );
+        } finally {
+          updateButton.disabled = false;
+          statusSelect.disabled = false;
+        }
+      }
+    );
+
+    actions.appendChild(
+      statusSelect
+    );
+
+    actions.appendChild(
+      updateButton
+    );
+
+    card.appendChild(actions);
+  } else {
+    const terminalStatus =
+      document.createElement("p");
+
+    terminalStatus.className =
+      "admin-appointment-terminal";
+
+    terminalStatus.textContent =
+      `${formatAdminStatus(
+        appointment.status
+      )} appointments do not have another authorized status transition.`;
+
+    card.appendChild(
+      terminalStatus
+    );
+  }
+
+  return card;
+}
+
+async function loadAdminClientAppointments(
+  clientId
+) {
+  const target = getAdminElement(
+    "adminAppointmentList"
+  );
+
+  clearAdminChildren(target);
+
+  showAdminAppointmentMessage(
+    "Loading authorized client appointments..."
+  );
+
+  try {
+    const data =
+      await fetchProtectedAdminJson(
+        `/api/admin/clients/${
+          encodeURIComponent(clientId)
+        }/appointments`
+      );
+
+    if (
+      !Array.isArray(
+        data.appointments
+      ) ||
+      data.appointments.length === 0
+    ) {
+      showAdminAppointmentMessage(
+        "No appointments are currently available for this client."
+      );
+
+      return;
+    }
+
+    data.appointments.forEach(
+      (appointment) => {
+        target.appendChild(
+          createAdminAppointmentCard(
+            clientId,
+            appointment
+          )
+        );
+      }
+    );
+
+    showAdminAppointmentMessage(
+      `${data.appointments.length} appointment${
+        data.appointments.length === 1
+          ? ""
+          : "s"
+      } available for authorized management.`,
+      "success"
+    );
+  } catch (error) {
+    showAdminAppointmentMessage(
+      error.message ||
+        "The client appointment list could not be loaded.",
+      "error"
+    );
+  }
+}
+
 async function loadAdminClientDocuments(
   clientId
 ) {
@@ -1055,7 +1442,7 @@ function displayAdminClientSummary(data) {
   }
 
   showAdminSummaryMessage(
-    "Authorized read-only client summary loaded.",
+    "Authorized client workflow summary loaded.",
     "success"
   );
 }
@@ -1079,6 +1466,10 @@ async function loadAdminClientSummary(clientId) {
     );
 
         displayAdminClientSummary(data);
+
+    await loadAdminClientAppointments(
+      clientId
+    );
 
     await loadAdminClientDocuments(
       clientId
@@ -1254,5 +1645,6 @@ window.megaFinancialAdminGuard = {
   clearAdminSession,
   verifyAdminSession,
   loadAdminClientDirectory,
-  loadAdminClientSummary
+  loadAdminClientSummary,
+  loadAdminClientAppointments
 };
