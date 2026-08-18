@@ -89,16 +89,17 @@
 
         <p>
           This protected administration portal provides a narrowly scoped
-          client directory, limited workflow summaries, and authorized
-          document review without exposing detailed tax answers, private
-          storage paths, payments, or private security credentials.
+          client directory, limited workflow summaries, authorized document
+          review, and controlled appointment-status management without
+          exposing detailed tax answers, private storage paths, payments,
+          or private security credentials.
         </p>
 
         <div class="portal-features dashboard-status-tags">
           <span>JWT Authentication</span>
           <span>Server Role Authorization</span>
-          <span>Read-Only Client Summaries</span>
-          <span>Authorized Document Review</span>
+          <span>Protected Client Summaries</span>
+          <span>Authorized Workflow Management</span>
         </div>
 
         <button
@@ -252,14 +253,14 @@
           <div class="admin-panel-heading">
             <div>
               <span class="section-tag">
-                Read-Only Summary
+                Protected Client Workflow
               </span>
 
               <h3>Selected Client</h3>
 
               <p>
-                Only limited account and workflow status
-                information is displayed.
+                Limited client information and narrowly authorized
+                workflow actions are available for this selected client.
               </p>
             </div>
           </div>
@@ -338,6 +339,30 @@
               </div>
             </section>
 
+            <section
+              class="admin-summary-group"
+              id="adminAppointmentManagement">
+              <h4>Appointment Management</h4>
+
+              <p class="admin-summary-privacy-note">
+                Review this client's appointments and apply only
+                authorized appointment-status transitions.
+              </p>
+
+              <p
+                id="adminAppointmentMessage"
+                class="admin-directory-message"
+                role="status"
+                aria-live="polite">
+                Select a client to load appointment management.
+              </p>
+
+              <div
+                id="adminAppointmentList"
+                class="admin-summary-list">
+              </div>
+            </section>
+
             <section class="admin-summary-group">
               <h4>Authorized Document Review</h4>
 
@@ -372,14 +397,14 @@
         </span>
 
         <h2>
-          Record-changing tools remain unavailable.
+          Record-changing tools remain narrowly restricted.
         </h2>
 
         <p>
-          Sprint 023 activates narrowly scoped document review for the
-          currently selected client. Client-record editing, appointments,
-          payments, audit activity, impersonation, deletion, and role
-          changes remain unavailable.
+          Authorized administrators can perform narrowly scoped document
+          review and appointment-status management for the currently
+          selected client. Client-record editing, payments, audit activity,
+          impersonation, deletion, and role changes remain unavailable.
         </p>
       </div>
 
@@ -400,13 +425,11 @@
           Edit Client Records
         </button>
 
-        <button
-          type="button"
-          class="quick-action-card"
-          disabled
-        >
+        <a
+          href="#adminAppointmentManagement"
+          class="quick-action-card active-action-card">
           Manage Appointments
-        </button>
+        </a>
 
         <button
           type="button"

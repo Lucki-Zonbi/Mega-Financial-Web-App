@@ -10,6 +10,7 @@ const {
 const User = require("../models/User");
 const TaxIntake = require("../models/TaxIntake");
 const DocumentMetadata = require("../models/DocumentMetadata");
+const Appointment = require("../models/Appointment");
 
 const {
   getDocumentCategory
@@ -50,6 +51,23 @@ const REVIEW_STATUS_TRANSITIONS =
     ])
   });
 
+const APPOINTMENT_STATUS_TRANSITIONS =
+  Object.freeze({
+    requested: Object.freeze([
+      "confirmed",
+      "cancelled"
+    ]),
+
+    confirmed: Object.freeze([
+      "completed",
+      "cancelled"
+    ]),
+
+    completed: Object.freeze([]),
+
+    cancelled: Object.freeze([])
+  });
+
 function buildSafeAdminDocumentRecord(
   documentRecord
 ) {
@@ -78,6 +96,38 @@ function buildSafeAdminDocumentRecord(
       documentRecord.reviewStatus,
     uploadedAt:
       documentRecord.uploadedAt
+  };
+}
+
+function buildSafeAdminAppointmentRecord(
+  appointment
+) {
+  return {
+    id: appointment._id,
+    serviceType:
+      appointment.serviceType,
+    platformType:
+      appointment.platformType,
+    appointmentStart:
+      appointment.appointmentStart,
+    durationMinutes:
+      appointment.durationMinutes,
+    clientNotes:
+      appointment.clientNotes,
+    status:
+      appointment.status,
+    cancellationReason:
+      appointment.cancellationReason,
+    cancelledAt:
+      appointment.cancelledAt,
+    confirmedAt:
+      appointment.confirmedAt,
+    completedAt:
+      appointment.completedAt,
+    createdAt:
+      appointment.createdAt,
+    updatedAt:
+      appointment.updatedAt
   };
 }
 
@@ -571,6 +621,185 @@ router.patch(
         success: false,
         message:
           "The document review status could not be updated."
+      });
+    }
+  }
+);
+
+router.get(
+  "/clients/:clientId/appointments",
+  protect,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { clientId } = req.params;
+
+      if (
+        !mongoose.isValidObjectId(
+          clientId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "A valid client identifier is required."
+        });
+      }
+
+      const clientExists =
+        await User.exists({
+          _id: clientId,
+          role: "client"
+        });
+
+      if (!clientExists) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested client record was not found."
+        });
+      }
+
+      const appointments =
+        await Appointment.find({
+          user: clientId
+        })
+          .select(
+            "_id serviceType platformType " +
+            "appointmentStart durationMinutes " +
+            "clientNotes status cancellationReason " +
+            "cancelledAt confirmedAt completedAt " +
+            "createdAt updatedAt"
+          )
+          .sort({
+            appointmentStart: -1,
+            _id: -1
+          })
+          .lean();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Authorized client appointment list retrieved.",
+        count: appointments.length,
+        appointments:
+          appointments.map(
+            buildSafeAdminAppointmentRecord
+          )
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "The client appointment list could not be retrieved."
+      });
+    }
+  }
+);
+
+router.patch(
+  "/clients/:clientId/appointments/:appointmentId/status",
+  protect,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const {
+        clientId,
+        appointmentId
+      } = req.params;
+
+      if (
+        !mongoose.isValidObjectId(clientId) ||
+        !mongoose.isValidObjectId(
+          appointmentId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Valid client and appointment identifiers are required."
+        });
+      }
+
+      const requestedStatus =
+        typeof req.body.status === "string"
+          ? req.body.status.trim()
+          : "";
+
+      const appointment =
+        await Appointment.findOne({
+          _id: appointmentId,
+          user: clientId
+        });
+
+      if (!appointment) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested appointment was not found."
+        });
+      }
+
+      const allowedNextStatuses =
+        APPOINTMENT_STATUS_TRANSITIONS[
+          appointment.status
+        ] || [];
+
+      if (
+        !allowedNextStatuses.includes(
+          requestedStatus
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "The requested appointment status transition is not permitted."
+        });
+      }
+
+      const statusChangedAt =
+        new Date();
+
+      appointment.status =
+        requestedStatus;
+
+      if (
+        requestedStatus === "confirmed"
+      ) {
+        appointment.confirmedAt =
+          statusChangedAt;
+      }
+
+      if (
+        requestedStatus === "completed"
+      ) {
+        appointment.completedAt =
+          statusChangedAt;
+      }
+
+      if (
+        requestedStatus === "cancelled"
+      ) {
+        appointment.cancelledAt =
+          statusChangedAt;
+      }
+
+      await appointment.save();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Appointment status updated.",
+        appointment:
+          buildSafeAdminAppointmentRecord(
+            appointment
+          )
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "The appointment status could not be updated."
       });
     }
   }
