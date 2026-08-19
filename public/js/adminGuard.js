@@ -127,13 +127,18 @@ function formatAdminStatus(value) {
 }
 
 function handleAdminAuthorizationFailure(status) {
-  clearAdminSession();
+  if (status === 401) {
+    clearAdminSession();
+    redirectAdminToLogin();
+    return;
+  }
 
   if (status === 403) {
     redirectAdminToClientDashboard();
     return;
   }
 
+  clearAdminSession();
   redirectAdminToLogin();
 }
 
@@ -152,14 +157,23 @@ async function sendProtectedAdminJson(
     );
   }
 
-  const response = await fetch(url, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(body)
-  });
+    let response;
+
+  try {
+    response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+  } catch (error) {
+    throw new Error(
+      "The Mega Financial server could not be reached. " +
+        "Your administrator session has been preserved."
+    );
+  }
 
   let data;
 
@@ -204,12 +218,21 @@ async function fetchProtectedAdminJson(url) {
     throw new Error("Administrator authentication is required.");
   }
 
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+    let response;
+
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  } catch (error) {
+    throw new Error(
+      "The Mega Financial server could not be reached. " +
+        "Your administrator session has been preserved."
+    );
+  }
 
   let data;
 
@@ -1591,8 +1614,7 @@ async function verifyAdminSession() {
   const token = getStoredAdminToken();
 
   if (!token) {
-    clearAdminSession();
-    redirectAdminToLogin();
+    handleAdminAuthorizationFailure(401);
     return;
   }
 
@@ -1600,40 +1622,79 @@ async function verifyAdminSession() {
     "Confirming your protected administrator session..."
   );
 
+  let response;
+
   try {
-    const response = await fetch("/api/admin/me", {
+    response = await fetch("/api/admin/me", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      clearAdminSession();
-
-      if (response.status === 403) {
-        redirectAdminToClientDashboard();
-        return;
-      }
-
-      redirectAdminToLogin();
-      return;
-    }
-
-        displayAdminIdentity(data.admin);
-
+  } catch (error) {
     showAdminAccessMessage(
-      "Administrator session confirmed. Read-only client directory access is active.",
-      "success"
+      "The Mega Financial server could not be reached. " +
+        "Your administrator session has been preserved. " +
+        "Please try again when the service is available.",
+      "error"
     );
 
-    await loadAdminClientDirectory(1);
-  } catch (error) {
-    clearAdminSession();
-    redirectAdminToLogin();
+    return;
   }
+
+  if (
+    response.status === 401 ||
+    response.status === 403
+  ) {
+    handleAdminAuthorizationFailure(
+      response.status
+    );
+
+    return;
+  }
+
+  if (!response.ok) {
+    showAdminAccessMessage(
+      "Administrator verification is temporarily unavailable. " +
+        "Your stored session has been preserved.",
+      "error"
+    );
+
+    return;
+  }
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch (error) {
+    showAdminAccessMessage(
+      "The administrator service returned an unreadable response. " +
+        "Your stored session has been preserved.",
+      "error"
+    );
+
+    return;
+  }
+
+  if (!data || !data.admin) {
+    showAdminAccessMessage(
+      "Administrator verification could not be completed. " +
+        "Your stored session has been preserved.",
+      "error"
+    );
+
+    return;
+  }
+
+  displayAdminIdentity(data.admin);
+
+  showAdminAccessMessage(
+    "Administrator session confirmed. Protected client workflow access is active.",
+    "success"
+  );
+
+  await loadAdminClientDirectory(1);
 }
 
 setupAdminLogoutButton();
