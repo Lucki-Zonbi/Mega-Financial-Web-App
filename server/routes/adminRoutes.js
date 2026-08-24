@@ -4,13 +4,15 @@ const mongoose = require("mongoose");
 const protect = require("../middleware/authMiddleware");
 
 const {
-  requireAdmin
+  requireAdmin,
+  requireExecutiveAdmin
 } = require("../middleware/roleAuthorizationMiddleware");
 
 const User = require("../models/User");
 const TaxIntake = require("../models/TaxIntake");
 const DocumentMetadata = require("../models/DocumentMetadata");
 const Appointment = require("../models/Appointment");
+const AuditLog = require("../models/AuditLog");
 
 const {
   recordAdminAuditEvent
@@ -103,6 +105,56 @@ function buildSafeAdminDocumentRecord(
   };
 }
 
+function buildSafeAuditActivityRecord(
+  auditRecord
+) {
+  return {
+    id: auditRecord._id,
+
+    administrator: {
+      id:
+        auditRecord.administrator?._id ||
+        auditRecord.administrator,
+
+      fullName:
+        auditRecord.administrator?.fullName ||
+        "Administrator",
+
+      role:
+        auditRecord.administratorRole
+    },
+
+    client: {
+      id:
+        auditRecord.client?._id ||
+        auditRecord.client,
+
+      fullName:
+        auditRecord.client?.fullName ||
+        "Client"
+    },
+
+    action:
+      auditRecord.action,
+
+    resourceType:
+      auditRecord.resourceType,
+
+    resourceId:
+      auditRecord.resourceId,
+
+    previousStatus:
+      auditRecord.previousStatus,
+
+    newStatus:
+      auditRecord.newStatus,
+
+    createdAt:
+      auditRecord.createdAt
+  };
+}
+
+
 function buildSafeAdminAppointmentRecord(
   appointment
 ) {
@@ -134,6 +186,102 @@ function buildSafeAdminAppointmentRecord(
       appointment.updatedAt
   };
 }
+
+router.get(
+  "/audit-activity",
+  protect,
+  requireExecutiveAdmin,
+  async (req, res) => {
+    try {
+      const page =
+        parseBoundedPositiveInteger(
+          req.query.page,
+          1
+        );
+
+      const limit =
+        parseBoundedPositiveInteger(
+          req.query.limit,
+          10,
+          25
+        );
+
+      const skip =
+        (page - 1) * limit;
+
+      const [
+        auditRecords,
+        totalRecords
+      ] = await Promise.all([
+        AuditLog.find({})
+          .select(
+            "_id administrator administratorRole " +
+            "client action resourceType resourceId " +
+            "previousStatus newStatus createdAt"
+          )
+          .populate({
+            path: "administrator",
+            select: "_id fullName"
+          })
+          .populate({
+            path: "client",
+            select: "_id fullName"
+          })
+          .sort({
+            createdAt: -1,
+            _id: -1
+          })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+
+        AuditLog.countDocuments({})
+      ]);
+
+      const totalPages =
+        totalRecords === 0
+          ? 0
+          : Math.ceil(
+              totalRecords / limit
+            );
+
+      return res.status(200).json({
+        success: true,
+
+        message:
+          "Authorized audit activity retrieved.",
+
+        activity:
+          auditRecords.map(
+            buildSafeAuditActivityRecord
+          ),
+
+        pagination: {
+          page,
+          limit,
+          totalRecords,
+          totalPages,
+          hasPreviousPage:
+            page > 1,
+          hasNextPage:
+            totalPages > 0 &&
+            page < totalPages
+        }
+      });
+    } catch (error) {
+      console.error(
+        "Administrator audit activity error:",
+        error.message
+      );
+
+      return res.status(500).json({
+        success: false,
+        message:
+          "Audit activity could not be retrieved."
+      });
+    }
+  }
+);
 
 router.get("/me", protect, requireAdmin, (req, res) => {
   res.status(200).json({

@@ -441,12 +441,98 @@
 
         <button
           type="button"
+          id="adminAuditActivityButton"
           class="quick-action-card"
           disabled
+          aria-controls="adminAuditActivitySection"
         >
           View Audit Activity
         </button>
       </div>
+    </section>
+
+    <section
+      id="adminAuditActivitySection"
+      class="quick-actions-section"
+      hidden
+    >
+      <div class="section-heading">
+        <span class="section-tag">
+          Executive Security Review
+        </span>
+
+        <h2>
+          Administrator Audit Activity
+        </h2>
+
+        <p>
+          Executive administrators can review a
+          privacy-minimized record of supported
+          administrator workflow changes.
+        </p>
+      </div>
+
+      <article class="admin-summary-panel">
+        <div class="admin-panel-heading">
+          <div>
+            <span class="section-tag">
+              Read-Only Audit Trail
+            </span>
+
+            <h3>
+              Recent Administrator Activity
+            </h3>
+
+            <p>
+              Audit records cannot be edited or deleted
+              from this interface.
+            </p>
+          </div>
+        </div>
+
+        <p
+          id="adminAuditActivityMessage"
+          class="admin-directory-message"
+          role="status"
+          aria-live="polite"
+        >
+          Audit activity is available only after
+          executive-administrator verification.
+        </p>
+
+        <div
+          id="adminAuditActivityList"
+          class="admin-summary-list"
+          aria-live="polite"
+        ></div>
+
+        <div
+          class="admin-pagination"
+          aria-label="Audit activity pagination"
+        >
+          <button
+            type="button"
+            id="adminAuditPreviousPage"
+            class="btn secondary-btn"
+            disabled
+          >
+            Previous
+          </button>
+
+          <span id="adminAuditPaginationStatus">
+            Page 0 of 0
+          </span>
+
+          <button
+            type="button"
+            id="adminAuditNextPage"
+            class="btn secondary-btn"
+            disabled
+          >
+            Next
+          </button>
+        </div>
+      </article>
     </section>
 
     <section class="virtual-section">
