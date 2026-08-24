@@ -13,6 +13,10 @@ const DocumentMetadata = require("../models/DocumentMetadata");
 const Appointment = require("../models/Appointment");
 
 const {
+  recordAdminAuditEvent
+} = require("../utils/adminAuditUtils");
+
+const {
   getDocumentCategory
 } = require("../constants/documentCategories");
 
@@ -585,9 +589,12 @@ router.patch(
         });
       }
 
+      const previousReviewStatus =
+        documentRecord.reviewStatus;
+
       const allowedNextStatuses =
         REVIEW_STATUS_TRANSITIONS[
-          documentRecord.reviewStatus
+          previousReviewStatus
         ] || [];
 
       if (
@@ -606,6 +613,31 @@ router.patch(
         requestedStatus;
 
       await documentRecord.save();
+
+      await recordAdminAuditEvent({
+        administratorId:
+          req.user.id,
+
+        administratorRole:
+          req.user.role,
+
+        clientId,
+
+        action:
+          "document_review_status_changed",
+
+        resourceType:
+          "document",
+
+        resourceId:
+          documentRecord._id,
+
+        previousStatus:
+          previousReviewStatus,
+
+        newStatus:
+          requestedStatus
+      });
 
       return res.status(200).json({
         success: true,
@@ -740,9 +772,12 @@ router.patch(
         });
       }
 
+      const previousAppointmentStatus =
+        appointment.status;
+
       const allowedNextStatuses =
         APPOINTMENT_STATUS_TRANSITIONS[
-          appointment.status
+          previousAppointmentStatus
         ] || [];
 
       if (
@@ -785,6 +820,31 @@ router.patch(
       }
 
       await appointment.save();
+
+      await recordAdminAuditEvent({
+        administratorId:
+          req.user.id,
+
+        administratorRole:
+          req.user.role,
+
+        clientId,
+
+        action:
+          "appointment_status_changed",
+
+        resourceType:
+          "appointment",
+
+        resourceId:
+          appointment._id,
+
+        previousStatus:
+          previousAppointmentStatus,
+
+        newStatus:
+          requestedStatus
+      });
 
       return res.status(200).json({
         success: true,
