@@ -37,17 +37,56 @@ const apiLimiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  windowMs: authWindowMinutes * 60 * 1000,
-  max: authMaxRequests,
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs:
+    authWindowMinutes *
+    60 *
+    1000,
+
+  max:
+    authMaxRequests,
+
+  standardHeaders:
+    true,
+
+  legacyHeaders:
+    false,
+
   message: {
-    success: false,
-    message: "Too many login or registration attempts. Please wait and try again."
+    success:
+      false,
+
+    message:
+      "Too many login or registration attempts. Please wait and try again."
   }
 });
 
+const accountSecurityLimiter =
+  rateLimit({
+    windowMs:
+      15 *
+      60 *
+      1000,
+
+    max:
+      5,
+
+    standardHeaders:
+      true,
+
+    legacyHeaders:
+      false,
+
+    message: {
+      success:
+        false,
+
+      message:
+        "Too many account security requests. Please wait and try again."
+    }
+  });
+
 module.exports = {
   apiLimiter,
-  authLimiter
+  authLimiter,
+  accountSecurityLimiter
 };

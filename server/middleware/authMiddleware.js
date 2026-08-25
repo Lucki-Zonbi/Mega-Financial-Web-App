@@ -16,13 +16,49 @@ async function protect(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id).select("-passwordHash");
+       const user =
+      await User
+        .findById(
+          decoded.id
+        )
+        .select(
+          "-passwordHash"
+        );
 
     if (!user) {
       return res.status(401).json({
-        success: false,
-        message: "User account no longer exists."
+        success:
+          false,
+
+        message:
+          "User account no longer exists."
       });
+    }
+
+    if (
+      user.passwordChangedAt &&
+      decoded.iat
+    ) {
+      const passwordChangedAtSeconds =
+        Math.floor(
+          user
+            .passwordChangedAt
+            .getTime() /
+            1000
+        );
+
+      if (
+        decoded.iat <
+        passwordChangedAtSeconds
+      ) {
+        return res.status(401).json({
+          success:
+            false,
+
+          message:
+            "Session expired after a password change. Please log in again."
+        });
+      }
     }
 
     req.user = {
