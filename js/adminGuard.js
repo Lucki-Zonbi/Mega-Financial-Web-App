@@ -10,6 +10,13 @@ const adminDirectoryState = {
   selectedClientId: null
 };
 
+const adminAuditState = {
+  page: 1,
+  limit: 10,
+  pagination: null,
+  accessEnabled: false
+};
+
 function getStoredAdminToken() {
   return localStorage.getItem("megaFinancialToken");
 }
@@ -125,6 +132,88 @@ function formatAdminStatus(value) {
     })
     .join(" ");
 }
+
+function showAdminAuditMessage(
+  message,
+  type = ""
+) {
+  const target =
+    getAdminElement(
+      "adminAuditActivityMessage"
+    );
+
+  if (!target) {
+    return;
+  }
+
+  target.textContent = message;
+
+  target.className =
+    "admin-directory-message";
+
+  if (
+    type === "success" ||
+    type === "error"
+  ) {
+    target.classList.add(type);
+  }
+}
+
+function updateAdminAuditPagination(
+  pagination
+) {
+  const previousButton =
+    getAdminElement(
+      "adminAuditPreviousPage"
+    );
+
+  const nextButton =
+    getAdminElement(
+      "adminAuditNextPage"
+    );
+
+  const status =
+    getAdminElement(
+      "adminAuditPaginationStatus"
+    );
+
+  adminAuditState.pagination =
+    pagination || null;
+
+  if (!pagination) {
+    if (previousButton) {
+      previousButton.disabled = true;
+    }
+
+    if (nextButton) {
+      nextButton.disabled = true;
+    }
+
+    if (status) {
+      status.textContent =
+        "Page 0 of 0";
+    }
+
+    return;
+  }
+
+  if (previousButton) {
+    previousButton.disabled =
+      !pagination.hasPreviousPage;
+  }
+
+  if (nextButton) {
+    nextButton.disabled =
+      !pagination.hasNextPage;
+  }
+
+  if (status) {
+    status.textContent =
+      `Page ${pagination.page} of ` +
+      `${pagination.totalPages}`;
+  }
+}
+
 
 function handleAdminAuthorizationFailure(status) {
   if (status === 401) {
@@ -261,6 +350,45 @@ async function fetchProtectedAdminJson(url) {
 
   return data;
 }
+
+function configureAdminAuditAccess(
+  admin
+) {
+  const button =
+    getAdminElement(
+      "adminAuditActivityButton"
+    );
+
+  const section =
+    getAdminElement(
+      "adminAuditActivitySection"
+    );
+
+  const isExecutiveAdmin =
+    admin?.role ===
+    "executive_admin";
+
+  adminAuditState.accessEnabled =
+    isExecutiveAdmin;
+
+  if (button) {
+    button.disabled =
+      !isExecutiveAdmin;
+
+    button.classList.toggle(
+      "active-action-card",
+      isExecutiveAdmin
+    );
+  }
+
+  if (
+    section &&
+    !isExecutiveAdmin
+  ) {
+    section.hidden = true;
+  }
+}
+
 
 function displayAdminIdentity(admin) {
   const nameTarget = document.getElementById(
@@ -540,6 +668,173 @@ async function loadAdminClientDirectory(page = 1) {
     );
   }
 }
+
+function renderAdminAuditActivity(
+  activity
+) {
+  const list =
+    getAdminElement(
+      "adminAuditActivityList"
+    );
+
+  if (!list) {
+    return;
+  }
+
+  clearAdminChildren(list);
+
+  if (
+    !Array.isArray(activity) ||
+    activity.length === 0
+  ) {
+    const emptyMessage =
+      document.createElement("p");
+
+    emptyMessage.className =
+      "admin-summary-empty";
+
+    emptyMessage.textContent =
+      "No administrator audit activity is available.";
+
+    list.appendChild(emptyMessage);
+    return;
+  }
+
+  activity.forEach((entry) => {
+    const card =
+      document.createElement("article");
+
+    card.className =
+      "admin-summary-status-card";
+
+    const heading =
+      document.createElement("h5");
+
+    heading.textContent =
+      formatAdminStatus(
+        entry.action
+      );
+
+    const administrator =
+      document.createElement("p");
+
+    administrator.textContent =
+      "Administrator: " +
+      (
+        entry.administrator?.fullName ||
+        "Administrator"
+      );
+
+    const role =
+      document.createElement("p");
+
+    role.textContent =
+      "Role: " +
+      formatAdminRole(
+        entry.administrator?.role
+      );
+
+    const client =
+      document.createElement("p");
+
+    client.textContent =
+      "Client: " +
+      (
+        entry.client?.fullName ||
+        "Client"
+      );
+
+    const resource =
+      document.createElement("p");
+
+    resource.textContent =
+      "Resource: " +
+      formatAdminStatus(
+        entry.resourceType
+      );
+
+    const transition =
+      document.createElement("p");
+
+    transition.textContent =
+      "Status: " +
+      formatAdminStatus(
+        entry.previousStatus
+      ) +
+      " → " +
+      formatAdminStatus(
+        entry.newStatus
+      );
+
+    const occurredAt =
+      document.createElement("p");
+
+    occurredAt.textContent =
+      "Recorded: " +
+      formatAdminDateTime(
+        entry.createdAt
+      );
+
+    card.appendChild(heading);
+    card.appendChild(administrator);
+    card.appendChild(role);
+    card.appendChild(client);
+    card.appendChild(resource);
+    card.appendChild(transition);
+    card.appendChild(occurredAt);
+
+    list.appendChild(card);
+  });
+}
+
+async function loadAdminAuditActivity(
+  page = 1
+) {
+  if (!adminAuditState.accessEnabled) {
+    return;
+  }
+
+  adminAuditState.page =
+    Math.max(1, page);
+
+  showAdminAuditMessage(
+    "Loading protected administrator audit activity..."
+  );
+
+  try {
+    const data =
+      await fetchProtectedAdminJson(
+        `/api/admin/audit-activity?page=` +
+        `${adminAuditState.page}&limit=` +
+        `${adminAuditState.limit}`
+      );
+
+    renderAdminAuditActivity(
+      data.activity
+    );
+
+    updateAdminAuditPagination(
+      data.pagination
+    );
+
+    showAdminAuditMessage(
+      data.message ||
+        "Audit activity loaded.",
+      "success"
+    );
+  } catch (error) {
+    renderAdminAuditActivity([]);
+
+    updateAdminAuditPagination(null);
+
+    showAdminAuditMessage(
+      error.message ||
+        "Audit activity could not be loaded.",
+      "error"
+    );
+  }
+}
+
 
 function renderAdminIntakeSummary(intakeSummary) {
   const target = getAdminElement("adminIntakeSummary");
@@ -1591,6 +1886,96 @@ function setupAdminDirectoryControls() {
   }
 }
 
+function setupAdminAuditControls() {
+  const auditButton =
+    getAdminElement(
+      "adminAuditActivityButton"
+    );
+
+  const section =
+    getAdminElement(
+      "adminAuditActivitySection"
+    );
+
+  const previousButton =
+    getAdminElement(
+      "adminAuditPreviousPage"
+    );
+
+  const nextButton =
+    getAdminElement(
+      "adminAuditNextPage"
+    );
+
+  if (auditButton) {
+    auditButton.addEventListener(
+      "click",
+      async function () {
+        if (
+          !adminAuditState.accessEnabled
+        ) {
+          return;
+        }
+
+        if (section) {
+          section.hidden = false;
+
+          section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+        }
+
+        await loadAdminAuditActivity(1);
+      }
+    );
+  }
+
+  if (previousButton) {
+    previousButton.addEventListener(
+      "click",
+      async function () {
+        const pagination =
+          adminAuditState.pagination;
+
+        if (
+          !pagination?.hasPreviousPage
+        ) {
+          return;
+        }
+
+        await loadAdminAuditActivity(
+          Math.max(
+            1,
+            pagination.page - 1
+          )
+        );
+      }
+    );
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener(
+      "click",
+      async function () {
+        const pagination =
+          adminAuditState.pagination;
+
+        if (
+          !pagination?.hasNextPage
+        ) {
+          return;
+        }
+
+        await loadAdminAuditActivity(
+          pagination.page + 1
+        );
+      }
+    );
+  }
+}
+
+
 function setupAdminLogoutButton() {
   const logoutButton = document.getElementById(
     "adminLogoutBtn"
@@ -1689,16 +2074,23 @@ async function verifyAdminSession() {
 
   displayAdminIdentity(data.admin);
 
+  configureAdminAuditAccess(
+    data.admin
+  );
+
   showAdminAccessMessage(
     "Administrator session confirmed. Protected client workflow access is active.",
     "success"
   );
 
   await loadAdminClientDirectory(1);
+
+  await loadAdminClientDirectory(1);
 }
 
 setupAdminLogoutButton();
 setupAdminDirectoryControls();
+setupAdminAuditControls();
 verifyAdminSession();
 
 window.megaFinancialAdminGuard = {
@@ -1707,5 +2099,6 @@ window.megaFinancialAdminGuard = {
   verifyAdminSession,
   loadAdminClientDirectory,
   loadAdminClientSummary,
-  loadAdminClientAppointments
+  loadAdminClientAppointments,
+  loadAdminAuditActivity
 };

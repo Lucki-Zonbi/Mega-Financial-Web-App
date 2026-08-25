@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Verify Email | Mega Financial
+  </title>
+
+  <link
+    rel="icon"
+    href="data:,"
+  />
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  />
+</head>
+
+<body>
+
+  <header
+    id="site-header"
+    class="site-header"
+  >
+    <nav class="navbar">
+
+      <a
+        href="./index.html"
+        class="logo"
+      >
+        Mega Financial
+      </a>
+
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Open navigation menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul
+        class="nav-links"
+        id="navLinks"
+      >
+        <li>
+          <a href="./index.html">
+            Home
+          </a>
+        </li>
+
+        <li>
+          <a href="./index.html#specials">
+            Specials
+          </a>
+        </li>
+
+        <li>
+          <a href="./about.html">
+            About
+          </a>
+        </li>
+
+        <li>
+          <a href="./services.html">
+            Services
+          </a>
+        </li>
+
+        <li>
+          <a href="./portal.html">
+            Portal
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="./login.html"
+            class="mobile-login-link"
+          >
+            Client Login
+          </a>
+        </li>
+      </ul>
+
+      <a
+        href="./login.html"
+        class="nav-btn desktop-login-btn"
+      >
+        Client Login
+      </a>
+
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="auth-page-section">
+
+      <div class="auth-info-card">
+
+        <span class="section-tag">
+          Email Verification
+        </span>
+
+        <h1>
+          Protect your Mega Financial account.
+        </h1>
+
+        <p>
+          Verification links are single-use
+          and expire after 24 hours. You can
+          request another verification message
+          without exposing whether an account
+          exists.
+        </p>
+
+        <div
+          class="portal-features auth-feature-list"
+        >
+          <span>
+            Single-Use Token
+          </span>
+
+          <span>
+            24-Hour Expiration
+          </span>
+
+          <span>
+            Privacy-Minimized Response
+          </span>
+        </div>
+
+      </div>
+
+      <form
+        class="auth-form-card"
+        id="resendVerificationForm"
+      >
+
+        <h2>
+          Verify Email
+        </h2>
+
+        <label for="email">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="client@example.com"
+          autocomplete="email"
+          required
+        />
+
+        <button
+          type="submit"
+          class="btn primary-btn auth-btn"
+        >
+          Send Verification Email
+        </button>
+
+        <p
+          id="accountSecurityMessage"
+          class="auth-message"
+          role="status"
+          aria-live="polite"
+        >
+          Open a verification link from your
+          email, or request a new one here.
+        </p>
+
+        <p class="auth-switch">
+          Already verified?
+          <a href="./login.html">
+            Return to login.
+          </a>
+        </p>
+
+      </form>
+
+    </section>
+
+  </main>
+
+  <footer class="footer">
+
+    <div class="footer-top-link">
+      <a
+        href="#top"
+        id="backToTop"
+      >
+        ↑ Return To Top
+      </a>
+    </div>
+
+    <p>
+      &copy; 2026 Mega Financial.
+      All rights reserved.
+    </p>
+
+  </footer>
+
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/accountSecurity.js"></script>
+  <script src="./js/main.js"></script>
+
+</body>
+</html>

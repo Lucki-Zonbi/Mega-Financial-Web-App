@@ -39,11 +39,15 @@
     <section class="auth-page-section">
       <div class="auth-info-card">
         <span class="section-tag">Client Login</span>
-        <h1>Access to client accounts is coming soon.</h1>
+        <h1>
+          Securely access your Mega Financial account.
+        </h1>
+
         <p>
-          This login page is a visual placeholder. Real authentication, password
-          security, JWT login, protected routes, and MongoDB user accounts will
-          be added in future backend sprints.
+          Sign in with your Mega Financial
+          account credentials to reach the
+          protected client or administrator
+          experience authorized for your role.
         </p>
 
         <div class="portal-features auth-feature-list">
@@ -54,7 +58,7 @@
       </div>
 
       <form class="auth-form-card" id="loginForm">
-        <h2>Login Preview</h2>
+        <h2>Account Login</h2>
 
         <label for="email">Email</label>
         <input type="email" id="email" name="email" placeholder="Enter email" />
@@ -79,20 +83,30 @@
         </div>
 
         <button type="submit" class="btn primary-btn auth-btn">
-          Login Preview
+          Login
         </button>
 
         <p id="authMessage" class="auth-message">
-          Login form hook is ready for a future backend connection.
+          Enter your account email and password.
         </p>
 
         <p class="auth-switch">
-          <a href="#">Forgot password/email?</a>
+          <a href="./forgot-password.html">
+            Forgot password?
+          </a>
+        </p>
+
+        <p class="auth-switch">
+          <a href="./verify-email.html">
+            Resend email verification
+          </a>
         </p>
 
         <p class="auth-switch">
           Need an account?
-          <a href="./register.html">Create one here.</a>
+          <a href="./register.html">
+            Create one here.
+          </a>
         </p>
       </form>
     </section>

@@ -39,22 +39,35 @@
     <section class="auth-page-section">
       <div class="auth-info-card">
         <span class="section-tag">Create Account</span>
-        <h1>Client registration is being prepared.</h1>
+        <h1>
+          Create your secure client account.
+        </h1>
+
         <p>
-          This page prepares the layout for future account creation. Real user
-          registration, password hashing, database storage, and protected client
-          portal access will be added later.
+          Register for Mega Financial client
+          access using an email address you
+          can verify. Passwords are hashed
+          before storage and account security
+          workflows remain server controlled.
         </p>
 
         <div class="portal-features auth-feature-list">
-          <span>MongoDB Users</span>
-          <span>Password Security</span>
-          <span>Client Profiles</span>
+          <span>
+            MongoDB Account
+          </span>
+
+          <span>
+            bcrypt Password Hashing
+          </span>
+
+          <span>
+            Email Verification
+          </span>
         </div>
       </div>
 
       <form class="auth-form-card" id="registerForm">
-        <h2>Register Preview</h2>
+        <h2>Create Account</h2>
 
         <label for="fullName">Full Name</label>
         <input type="text" id="fullName" name="fullName" placeholder="Client full name" />
@@ -72,11 +85,11 @@
         <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" />
 
         <button type="submit" class="btn primary-btn auth-btn">
-          Register Preview
+          Create Account
         </button>
 
         <p id="authMessage" class="auth-message">
-          Registration form hook is ready for a future backend connection.
+          Create your account, then check your email for a verification link.
         </p>
         <p class="auth-switch">
           Already have an account?
