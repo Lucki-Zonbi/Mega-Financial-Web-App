@@ -84,6 +84,9 @@ router.post("/register", async (req, res) => {
         role:
           "client",
 
+        emailVerificationRequired:
+          true,
+
         emailVerificationTokenHash:
           verification.tokenHash,
 
@@ -464,6 +467,9 @@ router.post(
               isEmailVerified:
                 true,
 
+              emailVerifiedAt:
+                new Date(),
+
               emailVerificationTokenHash:
                 null,
 
@@ -829,10 +835,23 @@ router.post("/login", async (req, res) => {
 
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
-    if (!passwordMatches) {
+        if (!passwordMatches) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password."
+      });
+    }
+
+    if (
+      user.emailVerificationRequired &&
+      !user.isEmailVerified
+    ) {
+      return res.status(403).json({
+        success: false,
+        code:
+          "EMAIL_VERIFICATION_REQUIRED",
+        message:
+          "Please verify your email address before logging in."
       });
     }
 

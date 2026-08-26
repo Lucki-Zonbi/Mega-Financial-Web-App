@@ -34,9 +34,19 @@ const userSchema = new mongoose.Schema(
       default: "client"
     },
 
-        isEmailVerified: {
+               isEmailVerified: {
       type: Boolean,
       default: false
+    },
+
+    emailVerificationRequired: {
+      type: Boolean,
+      default: false
+    },
+
+    emailVerifiedAt: {
+      type: Date,
+      default: null
     },
 
     emailVerificationTokenHash: {
