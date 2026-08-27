@@ -850,7 +850,8 @@ section {
   margin: 0.8rem 0 0.35rem;
 }
 
-.auth-form-card input {
+.auth-form-card input,
+.auth-form-card select {
   width: 100%;
   padding: 0.9rem 1rem;
   border: 2px solid var(--mint-green);
@@ -861,7 +862,8 @@ section {
   outline: none;
 }
 
-.auth-form-card input:focus {
+.auth-form-card input:focus,
+.auth-form-card select:focus {
   border-color: var(--money-blue);
   box-shadow: var(--shadow);
 }
