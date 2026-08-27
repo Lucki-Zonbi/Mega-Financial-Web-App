@@ -2,7 +2,8 @@ const protectedPreviewPages = [
   "dashboard.html",
   "schedule.html",
   "intake.html",
-  "documents.html"
+  "documents.html",
+  "payment.html"
 ];
 
 function getStoredUser() {

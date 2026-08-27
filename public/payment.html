@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Payments | Mega Financial
+  </title>
+
+  <link
+    rel="icon"
+    href="data:,"
+  />
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  />
+</head>
+
+<body>
+
+  <header
+    id="site-header"
+    class="site-header"
+  >
+    <nav class="navbar">
+
+      <a
+        href="./index.html"
+        class="logo"
+      >
+        Mega Financial
+      </a>
+
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Open navigation menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul
+        class="nav-links"
+        id="navLinks"
+      >
+        <li>
+          <a href="./index.html">
+            Home
+          </a>
+        </li>
+
+        <li>
+          <a href="./index.html#specials">
+            Specials
+          </a>
+        </li>
+
+        <li>
+          <a href="./about.html">
+            About
+          </a>
+        </li>
+
+        <li>
+          <a href="./services.html">
+            Services
+          </a>
+        </li>
+
+        <li>
+          <a href="./portal.html">
+            Portal
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="./dashboard.html"
+            class="mobile-login-link"
+          >
+            Dashboard
+          </a>
+        </li>
+      </ul>
+
+      <a
+        href="./dashboard.html"
+        class="nav-btn desktop-login-btn"
+      >
+        Dashboard
+      </a>
+
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="auth-page-section">
+
+      <div class="auth-info-card">
+
+        <span class="section-tag">
+          Protected Client Payment
+        </span>
+
+        <h1>
+          Securely pay for Mega Financial services.
+        </h1>
+
+        <p>
+          Mega Financial creates checkout
+          sessions on the protected backend.
+          Payment details are collected on
+          Stripe-hosted Checkout rather than
+          stored by this application.
+        </p>
+
+        <div
+          class="portal-features auth-feature-list"
+        >
+          <span>
+            Protected Client Session
+          </span>
+
+          <span>
+            Stripe Checkout
+          </span>
+
+          <span>
+            Server-Confirmed Status
+          </span>
+        </div>
+
+      </div>
+
+      <form
+        class="auth-form-card"
+        id="paymentCheckoutForm"
+      >
+
+        <h2>
+          Start Secure Checkout
+        </h2>
+
+        <label for="paymentService">
+          Mega Financial Service
+        </label>
+
+        <select
+          id="paymentService"
+          name="serviceKey"
+          required
+        >
+          <option value="">
+            Loading available services...
+          </option>
+        </select>
+
+        <p class="auth-note">
+          Pricing is controlled by Mega
+          Financial's server-side Stripe
+          configuration and displayed during
+          secure Stripe Checkout.
+        </p>
+
+        <button
+          type="submit"
+          class="btn primary-btn auth-btn"
+        >
+          Continue to Stripe Checkout
+        </button>
+
+        <p
+          id="paymentMessage"
+          class="auth-message"
+          role="status"
+          aria-live="polite"
+        >
+          Select a configured service to
+          begin secure checkout.
+        </p>
+
+        <p class="auth-switch">
+          <a href="./dashboard.html">
+            Return to dashboard
+          </a>
+        </p>
+
+      </form>
+
+    </section>
+
+    <section class="portal-tools-section">
+
+      <div class="section-heading">
+
+        <span class="section-tag">
+          Payment History
+        </span>
+
+        <h2>
+          Your protected payment records.
+        </h2>
+
+        <p>
+          Payment status is controlled by
+          server-verified Stripe events.
+          Returning from Checkout does not
+          independently mark a payment paid.
+        </p>
+
+      </div>
+
+      <div
+        id="paymentHistoryList"
+        class="portal-tools-grid"
+      >
+        <article class="future-card">
+          <h3>
+            Loading payment history...
+          </h3>
+        </article>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="footer">
+
+    <div class="footer-top-link">
+      <a
+        href="#top"
+        id="backToTop"
+      >
+        ↑ Return To Top
+      </a>
+    </div>
+
+    <p>
+      &copy; 2026 Mega Financial.
+      All rights reserved.
+    </p>
+
+  </footer>
+
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/clientGuard.js"></script>
+  <script src="./js/payment.js"></script>
+  <script src="./js/main.js"></script>
+
+</body>
+</html>

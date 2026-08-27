@@ -42,8 +42,8 @@
         <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
         <p>
           Review your protected account information, tax intake status,
-          personalized document workflow, and appointment requests. Payment
-          and messaging features will be connected in future sprints.
+          personalized document workflow, appointment requests, and secure
+          payment activity. Client messaging remains scheduled for a future sprint.
         </p>
 
         <div class="portal-features dashboard-status-tags">
@@ -119,8 +119,25 @@
 
         <article class="future-card dashboard-card">
           <h3>Payment Status</h3>
-          <p>No payment history available yet.</p>
-          <span class="dashboard-note">Future Stripe payment records</span>
+
+          <p>
+            Start secure Stripe Checkout or
+            review your server-confirmed
+            payment history.
+          </p>
+
+          <span class="dashboard-note">
+            Protected Stripe payment workflow
+          </span>
+
+          <div class="dashboard-intake-action">
+            <a
+              href="./payment.html"
+              class="btn primary-btn"
+            >
+              View Payments
+            </a>
+          </div>
         </article>
 
         <article class="future-card dashboard-card">
@@ -159,7 +176,7 @@
         <h2>Client actions.</h2>
           <p>
             Continue your protected intake, request an appointment, manage
-            required documents, or preview future payment and messaging tools.
+            required documents, review payments, or preview the future messaging tool.
           </p>
       </div>
 
@@ -167,8 +184,17 @@
         <a href="./schedule.html" class="quick-action-card">Schedule Appointment</a>
         <a href="./documents.html" class="quick-action-card">Upload Documents</a>
         <a href="./intake.html" id="dashboardQuickIntakeLink" class="quick-action-card">Complete Tax Intake</a>
-        <button type="button" class="quick-action-card">View Payment Status</button>
-        <button type="button" class="quick-action-card">Send Message</button>
+        <a
+          href="./payment.html"
+          class="quick-action-card active-action-card">
+          View Payment Status
+        </a>
+
+        <button
+          type="button"
+          class="quick-action-card">
+          Send Message
+        </button>
       </div>
     </section>
 

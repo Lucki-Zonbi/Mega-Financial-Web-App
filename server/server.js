@@ -22,6 +22,13 @@ const documentMetadataRoutes = require(
   "./routes/documentMetadataRoutes"
 );
 
+const {
+  paymentRoutes,
+  handleStripeWebhook
+} = require(
+  "./routes/paymentRoutes"
+);
+
 app.use(
   helmet({
     contentSecurityPolicy: false
@@ -69,17 +76,52 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+app.post(
+  "/api/payments/webhook",
+  apiLimiter,
+  express.raw({
+    type:
+      "application/json"
+  }),
+  handleStripeWebhook
+);
 
-app.use("/api", apiLimiter);
+app.use(express.json({
+    limit:"100kb"})
+);
+
+app.use(  express.urlencoded({
+    extended: true, limit:"100kb"})
+);
+
+app.use( "/api", apiLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/intake", intakeRoutes);
-app.use("/api/appointments", appointmentRoutes);
-app.use("/api/document-metadata", documentMetadataRoutes);
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(
+  "/api/appointments",
+  appointmentRoutes
+);
+
+app.use(
+  "/api/document-metadata",
+  documentMetadataRoutes
+);
+
+app.use(
+  "/api/payments",
+  paymentRoutes
+);
+
+app.use(
+  express.static(
+    path.join(
+      __dirname,
+      "../public"
+    )
+  )
+);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
