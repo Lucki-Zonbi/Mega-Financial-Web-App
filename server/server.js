@@ -13,6 +13,11 @@ const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
+const messageRoutes = require("./routes/messageRoutes");
+
+const notificationRoutes = require(
+  "./routes/notificationRoutes"
+);
 
 const appointmentRoutes = require(
   "./routes/appointmentRoutes"
@@ -94,11 +99,17 @@ app.use(  express.urlencoded({
     extended: true, limit:"100kb"})
 );
 
-app.use( "/api", apiLimiter);
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/client", clientRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/intake", intakeRoutes);
+app.use("/api/messages", messageRoutes);
+
+app.use(
+  "/api/notifications",
+  notificationRoutes
+);
+
 app.use(
   "/api/appointments",
   appointmentRoutes

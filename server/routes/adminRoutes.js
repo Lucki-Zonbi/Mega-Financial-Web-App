@@ -13,6 +13,10 @@ const TaxIntake = require("../models/TaxIntake");
 const DocumentMetadata = require("../models/DocumentMetadata");
 const Appointment = require("../models/Appointment");
 const AuditLog = require("../models/AuditLog");
+const Message = require("../models/Message");
+const Notification = require(
+  "../models/Notification"
+);
 
 const {
   recordAdminAuditEvent
@@ -73,6 +77,50 @@ const APPOINTMENT_STATUS_TRANSITIONS =
 
     cancelled: Object.freeze([])
   });
+
+const DEFAULT_ADMIN_MESSAGE_LIMIT = 25;
+const MAX_ADMIN_MESSAGE_LIMIT = 50;
+
+function parseAdminMessageLimit(value) {
+  const parsed = Number.parseInt(
+    value,
+    10
+  );
+
+  if (
+    !Number.isInteger(parsed) ||
+    parsed < 1
+  ) {
+    return DEFAULT_ADMIN_MESSAGE_LIMIT;
+  }
+
+  return Math.min(
+    parsed,
+    MAX_ADMIN_MESSAGE_LIMIT
+  );
+}
+
+function normalizeAdminMessageText(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  return value.trim();
+}
+
+function buildSafeAdminMessageRecord(
+  messageRecord
+) {
+  return {
+    id: messageRecord._id,
+    senderRole:
+      messageRecord.senderRole,
+    messageText:
+      messageRecord.messageText,
+    createdAt:
+      messageRecord.createdAt
+  };
+}
 
 function buildSafeAdminDocumentRecord(
   documentRecord
@@ -1004,10 +1052,167 @@ router.patch(
           )
       });
     } catch (error) {
-      return res.status(500).json({
+        return res.status(500).json({
         success: false,
         message:
           "The appointment status could not be updated."
+      });
+    }
+  }
+);
+
+router.get(
+  "/clients/:clientId/messages",
+  protect,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { clientId } = req.params;
+
+      if (
+        !mongoose.isValidObjectId(
+          clientId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "A valid client identifier is required."
+        });
+      }
+
+      const clientExists =
+        await User.exists({
+          _id: clientId,
+          role: "client"
+        });
+
+      if (!clientExists) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested client record was not found."
+        });
+      }
+
+      const limit =
+        parseAdminMessageLimit(
+          req.query.limit
+        );
+
+      const messages =
+        await Message.find({
+          client: clientId
+        })
+          .sort({
+            createdAt: -1
+          })
+          .limit(limit)
+          .select(
+            "_id senderRole messageText createdAt"
+          )
+          .lean();
+
+      return res.status(200).json({
+        success: true,
+        messages:
+          messages
+            .reverse()
+            .map(
+              buildSafeAdminMessageRecord
+            )
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "Client messages could not be retrieved."
+      });
+    }
+  }
+);
+
+router.post(
+  "/clients/:clientId/messages",
+  protect,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { clientId } = req.params;
+
+      if (
+        !mongoose.isValidObjectId(
+          clientId
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "A valid client identifier is required."
+        });
+      }
+
+      const clientExists =
+        await User.exists({
+          _id: clientId,
+          role: "client"
+        });
+
+      if (!clientExists) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested client record was not found."
+        });
+      }
+
+      const messageText =
+        normalizeAdminMessageText(
+          req.body.messageText
+        );
+
+      if (
+        !messageText ||
+        messageText.length > 2000
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Message text must contain between 1 and 2000 characters."
+        });
+      }
+
+      const messageRecord =
+        await Message.create({
+          client: clientId,
+          sender: req.user.id,
+          senderRole: req.user.role,
+          messageText
+        });
+
+      await Notification.create({
+        user: clientId,
+        type: "new_message",
+        message:
+          "You have a new secure message from Mega Financial.",
+        relatedMessage:
+          messageRecord._id
+      });
+
+      return res.status(201).json({
+        success: true,
+        message:
+          "The secure client message was sent.",
+        portalMessage:
+          buildSafeAdminMessageRecord(
+            messageRecord
+          )
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "The client message could not be sent."
       });
     }
   }

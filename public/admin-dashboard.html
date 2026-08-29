@@ -363,6 +363,64 @@
               </div>
             </section>
 
+            <section
+              class="admin-summary-group"
+              id="adminClientMessaging">
+              <h4>Secure Client Messaging</h4>
+
+              <p class="admin-summary-privacy-note">
+                Review and send protected portal messages only for the
+                currently selected client.
+              </p>
+
+              <p
+                id="adminMessageCenterStatus"
+                class="admin-directory-message"
+                role="status"
+                aria-live="polite">
+                Select a client to load secure messaging.
+              </p>
+
+              <div
+                id="adminMessageList"
+                class="portal-message-list admin-message-list">
+              </div>
+
+              <form
+                id="adminMessageForm"
+                class="portal-message-form">
+                <label for="adminMessageText">
+                  Message selected client
+                </label>
+
+                <textarea
+                  id="adminMessageText"
+                  name="messageText"
+                  rows="4"
+                  maxlength="2000"
+                  placeholder="Type a secure portal message..."
+                  required
+                ></textarea>
+
+                <div class="portal-message-form-footer">
+                  <span
+                    id="adminMessageCount"
+                    class="dashboard-note"
+                  >
+                    0 / 2000 characters
+                  </span>
+
+                  <button
+                    type="submit"
+                    id="adminMessageSubmit"
+                    class="btn primary-btn"
+                  >
+                    Send Secure Message
+                  </button>
+                </div>
+              </form>
+            </section>
+
             <section class="admin-summary-group">
               <h4>Authorized Document Review</h4>
 
@@ -472,8 +530,35 @@
         </p>
       </div>
 
-      <article class="admin-summary-panel">
-        <div class="admin-panel-heading">
+          <article class="admin-summary-panel">
+          <div class="admin-panel-heading">
+            <div>
+              <span class="section-tag">
+                In-App Notifications
+              </span>
+
+              <h3>Administrator Notifications</h3>
+
+              <p>
+                Privacy-limited portal notifications associated with
+                your authenticated administrator account.
+              </p>
+            </div>
+          </div>
+
+          <p
+            id="adminNotificationMessage"
+            class="admin-directory-message"
+            role="status"
+            aria-live="polite">
+            Notifications will load after administrator verification.
+          </p>
+
+          <div
+            id="adminNotificationList"
+            class="portal-notification-list">
+          </div>
+        </article>
           <div>
             <span class="section-tag">
               Read-Only Audit Trail
@@ -494,8 +579,7 @@
           id="adminAuditActivityMessage"
           class="admin-directory-message"
           role="status"
-          aria-live="polite"
-        >
+          aria-live="polite">
           Audit activity is available only after
           executive-administrator verification.
         </p>
@@ -503,13 +587,12 @@
         <div
           id="adminAuditActivityList"
           class="admin-summary-list"
-          aria-live="polite"
-        ></div>
+          aria-live="polite">
+      </div>
 
         <div
           class="admin-pagination"
-          aria-label="Audit activity pagination"
-        >
+          aria-label="Audit activity pagination">
           <button
             type="button"
             id="adminAuditPreviousPage"

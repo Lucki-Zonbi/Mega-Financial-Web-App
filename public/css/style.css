@@ -2079,3 +2079,157 @@ section {
 .document-checklist-link {
   margin-top: 1.2rem;
 }
+
+/* =========================
+   Secure Portal Messaging
+   Sprint 032
+========================= */
+
+.portal-message-list,
+.portal-notification-list {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.portal-message-list {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+}
+
+.portal-message-card,
+.portal-notification-card {
+  padding: 1rem 1.1rem;
+  border-radius: 18px;
+  background: var(--white);
+  box-shadow: 0 10px 25px rgba(20, 52, 86, 0.08);
+}
+
+.portal-message-card {
+  border-left: 4px solid var(--money-blue);
+}
+
+.portal-message-card.client-message {
+  background: var(--soft-green);
+  border-left-color: var(--mint-green);
+}
+
+.portal-message-card.admin-message {
+  background: var(--light-gray);
+  border-left-color: var(--money-blue);
+}
+
+.portal-message-card strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--deep-blue);
+}
+
+.portal-message-card p,
+.portal-notification-card p {
+  margin-bottom: 0.55rem;
+  color: var(--gray-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.portal-message-empty {
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--soft-green);
+  color: var(--gray-text);
+  text-align: center;
+}
+
+.portal-message-form {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+
+.portal-message-form label {
+  color: var(--deep-blue);
+  font-weight: 800;
+}
+
+.portal-message-form textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  padding: 1rem;
+  border: 2px solid var(--light-blue);
+  border-radius: 18px;
+  background: var(--white);
+  color: var(--deep-blue);
+  font: inherit;
+}
+
+.portal-message-form textarea:focus {
+  outline: none;
+  border-color: var(--money-blue);
+}
+
+.portal-message-form textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.portal-message-form-footer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.portal-notification-panel {
+  padding: 1.5rem;
+  border-radius: 24px;
+  background: var(--white);
+  box-shadow: 0 15px 35px rgba(20, 52, 86, 0.08);
+}
+
+.portal-notification-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.portal-notification-heading h3 {
+  color: var(--deep-blue);
+}
+
+.portal-notification-card {
+  border: 2px solid transparent;
+}
+
+.portal-notification-card.unread {
+  border-color: var(--mint-green);
+  background: var(--soft-green);
+}
+
+.portal-notification-read-btn {
+  margin-top: 0.6rem;
+  border: none;
+  cursor: pointer;
+}
+
+.admin-message-list {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .portal-message-form-footer,
+  .portal-notification-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .portal-message-form-footer .btn,
+  .portal-notification-read-btn {
+    width: 100%;
+  }
+}

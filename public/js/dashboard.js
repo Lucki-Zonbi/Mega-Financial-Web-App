@@ -32,6 +32,58 @@ const dashboardAppointmentNote =
     "dashboardAppointmentNote"
   );
 
+const dashboardMessageList =
+  document.getElementById(
+    "dashboardMessageList"
+  );
+
+const dashboardMessageForm =
+  document.getElementById(
+    "dashboardMessageForm"
+  );
+
+const dashboardMessageText =
+  document.getElementById(
+    "dashboardMessageText"
+  );
+
+const dashboardMessageCount =
+  document.getElementById(
+    "dashboardMessageCount"
+  );
+
+const dashboardMessageSubmit =
+  document.getElementById(
+    "dashboardMessageSubmit"
+  );
+
+const dashboardMessageStatus =
+  document.getElementById(
+    "dashboardMessageStatus"
+  );
+
+const dashboardMessageNote =
+  document.getElementById(
+    "dashboardMessageNote"
+  );
+
+const dashboardNotificationList =
+  document.getElementById(
+    "dashboardNotificationList"
+  );
+
+const dashboardNotificationCount =
+  document.getElementById(
+    "dashboardNotificationCount"
+  );
+
+const dashboardNotificationStatus =
+  document.getElementById(
+    "dashboardNotificationStatus"
+  );
+
+function getDashboardToken() {
+
 function getDashboardToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
@@ -46,6 +98,114 @@ function clearDashboardSession() {
   } else {
     localStorage.removeItem("megaFinancialToken");
     localStorage.removeItem("megaFinancialUser");
+  }
+}
+
+function clearDashboardElementChildren(
+  element
+) {
+  if (!element) {
+    return;
+  }
+
+  while (element.firstChild) {
+    element.removeChild(
+      element.firstChild
+    );
+  }
+}
+
+function formatDashboardDateTime(value) {
+  if (!value) {
+    return "Date unavailable";
+  }
+
+  const parsedDate = new Date(value);
+
+  if (
+    Number.isNaN(
+      parsedDate.getTime()
+    )
+  ) {
+    return "Date unavailable";
+  }
+
+  return parsedDate.toLocaleString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    }
+  );
+}
+
+function showDashboardMessageStatus(
+  message,
+  type = ""
+) {
+  if (!dashboardMessageStatus) {
+    return;
+  }
+
+  dashboardMessageStatus.textContent =
+    message;
+
+  dashboardMessageStatus.className =
+    "auth-message";
+
+  if (type) {
+    dashboardMessageStatus.classList.add(
+      type
+    );
+  }
+
+  dashboardMessageStatus.hidden =
+    !message;
+}
+
+function showDashboardNotificationStatus(
+  message,
+  type = ""
+) {
+  if (!dashboardNotificationStatus) {
+    return;
+  }
+
+  dashboardNotificationStatus.textContent =
+    message;
+
+  dashboardNotificationStatus.className =
+    "auth-message";
+
+  if (type) {
+    dashboardNotificationStatus.classList.add(
+      type
+    );
+  }
+
+  dashboardNotificationStatus.hidden =
+    !message;
+}
+
+function handleDashboardAuthorizationFailure(
+  status
+) {
+  if (status === 401) {
+    clearDashboardSession();
+
+    setTimeout(() => {
+      window.location.href =
+        "./login.html";
+    }, 1200);
+
+    return;
+  }
+
+  if (status === 403) {
+    return;
   }
 }
 
@@ -409,11 +569,664 @@ async function loadDashboardIntakeStatus() {
   }
 }
 
+function createDashboardMessageCard(
+  portalMessage
+) {
+  const card =
+    document.createElement("article");
+
+  const sender =
+    document.createElement("strong");
+
+  const messageText =
+    document.createElement("p");
+
+  const timestamp =
+    document.createElement("span");
+
+  const isClientMessage =
+    portalMessage.senderRole ===
+    "client";
+
+  card.className =
+    "portal-message-card";
+
+  card.classList.add(
+    isClientMessage
+      ? "client-message"
+      : "admin-message"
+  );
+
+  sender.textContent =
+    isClientMessage
+      ? "You"
+      : "Mega Financial";
+
+  messageText.textContent =
+    portalMessage.messageText ||
+    "";
+
+  timestamp.className =
+    "dashboard-note";
+
+  timestamp.textContent =
+    formatDashboardDateTime(
+      portalMessage.createdAt
+    );
+
+  card.appendChild(sender);
+  card.appendChild(messageText);
+  card.appendChild(timestamp);
+
+  return card;
+}
+
+function renderDashboardMessages(
+  messages
+) {
+  if (!dashboardMessageList) {
+    return;
+  }
+
+  clearDashboardElementChildren(
+    dashboardMessageList
+  );
+
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0
+  ) {
+    const emptyState =
+      document.createElement("p");
+
+    emptyState.className =
+      "portal-message-empty";
+
+    emptyState.textContent =
+      "No secure portal messages yet.";
+
+    dashboardMessageList.appendChild(
+      emptyState
+    );
+
+    if (dashboardMessageNote) {
+      dashboardMessageNote.textContent =
+        "No messages yet";
+    }
+
+    return;
+  }
+
+  messages.forEach(
+    (portalMessage) => {
+      dashboardMessageList.appendChild(
+        createDashboardMessageCard(
+          portalMessage
+        )
+      );
+    }
+  );
+
+  if (dashboardMessageNote) {
+    dashboardMessageNote.textContent =
+      `${messages.length} recent message${
+        messages.length === 1
+          ? ""
+          : "s"
+      }`;
+  }
+
+  dashboardMessageList.scrollTop =
+    dashboardMessageList.scrollHeight;
+}
+
+async function loadDashboardMessages() {
+  if (!dashboardMessageList) {
+    return;
+  }
+
+  const token = getDashboardToken();
+
+  if (!token) {
+    showDashboardMessageStatus(
+      "Please log in to view secure messages.",
+      "error"
+    );
+
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/messages/me?limit=50",
+      {
+        method: "GET",
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {
+        success: false,
+        message:
+          "The message service returned an unreadable response."
+      };
+    }
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      handleDashboardAuthorizationFailure(
+        response.status
+      );
+
+      showDashboardMessageStatus(
+        data.message ||
+          "Messaging authorization could not be confirmed.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      showDashboardMessageStatus(
+        data.message ||
+          "Secure messages could not be loaded.",
+        "error"
+      );
+
+      return;
+    }
+
+    renderDashboardMessages(
+      data.messages
+    );
+
+    showDashboardMessageStatus("");
+  } catch (error) {
+    showDashboardMessageStatus(
+      "The Mega Financial server could not be reached. Your stored session has been preserved.",
+      "error"
+    );
+  }
+}
+
+async function sendDashboardMessage(
+  messageText
+) {
+  const token = getDashboardToken();
+
+  if (!token) {
+    showDashboardMessageStatus(
+      "Please log in before sending a message.",
+      "error"
+    );
+
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/messages/me",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+          Authorization:
+            `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          messageText
+        })
+      }
+    );
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {
+        success: false,
+        message:
+          "The message service returned an unreadable response."
+      };
+    }
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      handleDashboardAuthorizationFailure(
+        response.status
+      );
+
+      showDashboardMessageStatus(
+        data.message ||
+          "Messaging authorization could not be confirmed.",
+        "error"
+      );
+
+      return false;
+    }
+
+    if (!response.ok) {
+      showDashboardMessageStatus(
+        data.message ||
+          "Your secure message could not be sent.",
+        "error"
+      );
+
+      return false;
+    }
+
+    showDashboardMessageStatus(
+      data.message ||
+        "Your secure message was sent.",
+      "success"
+    );
+
+    await loadDashboardMessages();
+
+    return true;
+  } catch (error) {
+    showDashboardMessageStatus(
+      "The Mega Financial server could not be reached. Your stored session has been preserved.",
+      "error"
+    );
+
+    return false;
+  }
+}
+
+function setupDashboardMessaging() {
+  if (
+    !dashboardMessageForm ||
+    !dashboardMessageText
+  ) {
+    return;
+  }
+
+  function updateCharacterCount() {
+    if (!dashboardMessageCount) {
+      return;
+    }
+
+    dashboardMessageCount.textContent =
+      `${dashboardMessageText.value.length} / 2000 characters`;
+  }
+
+  dashboardMessageText.addEventListener(
+    "input",
+    updateCharacterCount
+  );
+
+  dashboardMessageForm.addEventListener(
+    "submit",
+    async function (event) {
+      event.preventDefault();
+
+      const messageText =
+        dashboardMessageText.value.trim();
+
+      if (
+        !messageText ||
+        messageText.length > 2000
+      ) {
+        showDashboardMessageStatus(
+          "Message text must contain between 1 and 2000 characters.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (dashboardMessageSubmit) {
+        dashboardMessageSubmit.disabled =
+          true;
+
+        dashboardMessageSubmit.textContent =
+          "Sending...";
+      }
+
+      try {
+        const sent =
+          await sendDashboardMessage(
+            messageText
+          );
+
+        if (sent) {
+          dashboardMessageText.value =
+            "";
+
+          updateCharacterCount();
+        }
+      } finally {
+        if (dashboardMessageSubmit) {
+          dashboardMessageSubmit.disabled =
+            false;
+
+          dashboardMessageSubmit.textContent =
+            "Send Secure Message";
+        }
+      }
+    }
+  );
+
+  updateCharacterCount();
+}
+
+function createDashboardNotificationCard(
+  notification
+) {
+  const card =
+    document.createElement("article");
+
+  const message =
+    document.createElement("p");
+
+  const timestamp =
+    document.createElement("span");
+
+  card.className =
+    "portal-notification-card";
+
+  if (!notification.isRead) {
+    card.classList.add("unread");
+  }
+
+  message.textContent =
+    notification.message ||
+    "Portal notification";
+
+  timestamp.className =
+    "dashboard-note";
+
+  timestamp.textContent =
+    formatDashboardDateTime(
+      notification.createdAt
+    );
+
+  card.appendChild(message);
+  card.appendChild(timestamp);
+
+  if (
+    !notification.isRead &&
+    notification.id
+  ) {
+    const readButton =
+      document.createElement("button");
+
+    readButton.type = "button";
+
+    readButton.className =
+      "btn secondary-btn portal-notification-read-btn";
+
+    readButton.textContent =
+      "Mark Read";
+
+    readButton.addEventListener(
+      "click",
+      async function () {
+        readButton.disabled = true;
+
+        try {
+          await markDashboardNotificationRead(
+            notification.id
+          );
+        } finally {
+          readButton.disabled = false;
+        }
+      }
+    );
+
+    card.appendChild(readButton);
+  }
+
+  return card;
+}
+
+function renderDashboardNotifications(
+  notifications,
+  unreadCount
+) {
+  if (!dashboardNotificationList) {
+    return;
+  }
+
+  clearDashboardElementChildren(
+    dashboardNotificationList
+  );
+
+  if (dashboardNotificationCount) {
+    dashboardNotificationCount.textContent =
+      `${unreadCount || 0} unread`;
+  }
+
+  if (
+    !Array.isArray(notifications) ||
+    notifications.length === 0
+  ) {
+    const emptyState =
+      document.createElement("p");
+
+    emptyState.className =
+      "portal-message-empty";
+
+    emptyState.textContent =
+      "No in-app notifications yet.";
+
+    dashboardNotificationList.appendChild(
+      emptyState
+    );
+
+    return;
+  }
+
+  notifications.forEach(
+    (notification) => {
+      dashboardNotificationList.appendChild(
+        createDashboardNotificationCard(
+          notification
+        )
+      );
+    }
+  );
+}
+
+async function loadDashboardNotifications() {
+  if (!dashboardNotificationList) {
+    return;
+  }
+
+  const token = getDashboardToken();
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      "/api/notifications/me?limit=20",
+      {
+        method: "GET",
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {
+        success: false,
+        message:
+          "The notification service returned an unreadable response."
+      };
+    }
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      handleDashboardAuthorizationFailure(
+        response.status
+      );
+
+      showDashboardNotificationStatus(
+        data.message ||
+          "Notification authorization could not be confirmed.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      showDashboardNotificationStatus(
+        data.message ||
+          "Notifications could not be loaded.",
+        "error"
+      );
+
+      return;
+    }
+
+    renderDashboardNotifications(
+      data.notifications,
+      data.unreadCount
+    );
+
+    showDashboardNotificationStatus("");
+  } catch (error) {
+    showDashboardNotificationStatus(
+      "The notification service could not be reached. Your stored session has been preserved.",
+      "error"
+    );
+  }
+}
+
+async function markDashboardNotificationRead(
+  notificationId
+) {
+  const token = getDashboardToken();
+
+  if (!token) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `/api/notifications/${
+        encodeURIComponent(
+          notificationId
+        )
+      }/read`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization:
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = {
+        success: false,
+        message:
+          "The notification service returned an unreadable response."
+      };
+    }
+
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      handleDashboardAuthorizationFailure(
+        response.status
+      );
+
+      return;
+    }
+
+    if (!response.ok) {
+      showDashboardNotificationStatus(
+        data.message ||
+          "The notification could not be updated.",
+        "error"
+      );
+
+      return;
+    }
+
+    await loadDashboardNotifications();
+  } catch (error) {
+    showDashboardNotificationStatus(
+      "The notification service could not be reached. Your stored session has been preserved.",
+      "error"
+    );
+  }
+}
+
 const isDashboardAdminPreview =
   window.megaFinancialClientGuard
     ?.isAdminPreviewMode?.() === true;
 
+setupDashboardMessaging();
+
 if (isDashboardAdminPreview) {
+  if (dashboardMessageText) {
+    dashboardMessageText.disabled =
+      true;
+
+    dashboardMessageText.placeholder =
+      "Secure messaging is disabled during Executive Admin Preview.";
+  }
+
+  if (dashboardMessageSubmit) {
+    dashboardMessageSubmit.disabled =
+      true;
+  }
+
+  if (dashboardMessageNote) {
+    dashboardMessageNote.textContent =
+      "Executive Admin Preview";
+  }
+
+  showDashboardMessageStatus(
+    "Secure client messaging is disabled during Executive Admin Preview.",
+    "success"
+  );
+
+  if (dashboardNotificationCount) {
+    dashboardNotificationCount.textContent =
+      "Executive Admin Preview";
+  }
+
+  showDashboardNotificationStatus(
+    "Client notifications are not loaded during Executive Admin Preview.",
+    "success"
+  );
+
   updateDashboardIntakeDisplay({
     message:
       "Client tax-intake status appears here during normal client use.",
@@ -436,4 +1249,7 @@ if (isDashboardAdminPreview) {
   loadDashboardIntakeStatus();
   loadDashboardChecklistStatus();
   loadDashboardAppointmentStatus();
+  loadDashboardMessages();
+  loadDashboardNotifications();
+}
 }
