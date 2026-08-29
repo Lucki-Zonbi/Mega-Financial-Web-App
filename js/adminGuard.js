@@ -17,6 +17,10 @@ const adminAuditState = {
   accessEnabled: false
 };
 
+const adminMessageState = {
+  limit: 50
+};
+
 function getStoredAdminToken() {
   return localStorage.getItem("megaFinancialToken");
 }
@@ -131,6 +135,50 @@ function formatAdminStatus(value) {
       return part.charAt(0).toUpperCase() + part.slice(1);
     })
     .join(" ");
+}
+
+function showAdminMessageCenterStatus(
+  message,
+  type = ""
+) {
+  const target = getAdminElement(
+    "adminMessageCenterStatus"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  target.textContent = message;
+
+  target.className =
+    "admin-directory-message";
+
+  if (type) {
+    target.classList.add(type);
+  }
+}
+
+function showAdminNotificationMessage(
+  message,
+  type = ""
+) {
+  const target = getAdminElement(
+    "adminNotificationMessage"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  target.textContent = message;
+
+  target.className =
+    "admin-directory-message";
+
+  if (type) {
+    target.classList.add(type);
+  }
 }
 
 function showAdminAuditMessage(
@@ -1330,6 +1378,191 @@ function createAdminDocumentReviewCard(
   return card;
 }
 
+function createAdminPortalMessageCard(
+  portalMessage
+) {
+  const card =
+    document.createElement("article");
+
+  const sender =
+    document.createElement("strong");
+
+  const messageText =
+    document.createElement("p");
+
+  const timestamp =
+    document.createElement("span");
+
+  const sentByClient =
+    portalMessage.senderRole ===
+    "client";
+
+  card.className =
+    "portal-message-card";
+
+  card.classList.add(
+    sentByClient
+      ? "client-message"
+      : "admin-message"
+  );
+
+  sender.textContent =
+    sentByClient
+      ? "Client"
+      : "Mega Financial";
+
+  messageText.textContent =
+    portalMessage.messageText ||
+    "";
+
+  timestamp.className =
+    "dashboard-note";
+
+  timestamp.textContent =
+    formatAdminDateTime(
+      portalMessage.createdAt
+    );
+
+  card.appendChild(sender);
+  card.appendChild(messageText);
+  card.appendChild(timestamp);
+
+  return card;
+}
+
+function renderAdminClientMessages(
+  messages
+) {
+  const target = getAdminElement(
+    "adminMessageList"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  clearAdminChildren(target);
+
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0
+  ) {
+    const emptyState =
+      document.createElement("p");
+
+    emptyState.className =
+      "portal-message-empty";
+
+    emptyState.textContent =
+      "No secure messages for this client yet.";
+
+    target.appendChild(
+      emptyState
+    );
+
+    showAdminMessageCenterStatus(
+      "No secure messages for this client."
+    );
+
+    return;
+  }
+
+  messages.forEach(
+    (portalMessage) => {
+      target.appendChild(
+        createAdminPortalMessageCard(
+          portalMessage
+        )
+      );
+    }
+  );
+
+  target.scrollTop =
+    target.scrollHeight;
+
+  showAdminMessageCenterStatus(
+    `${messages.length} recent secure message${
+      messages.length === 1
+        ? ""
+        : "s"
+    } loaded.`,
+    "success"
+  );
+}
+
+async function loadAdminClientMessages(
+  clientId
+) {
+  const target = getAdminElement(
+    "adminMessageList"
+  );
+
+  clearAdminChildren(target);
+
+  showAdminMessageCenterStatus(
+    "Loading secure client messages..."
+  );
+
+  try {
+    const data =
+      await fetchProtectedAdminJson(
+        `/api/admin/clients/${
+          encodeURIComponent(clientId)
+        }/messages?limit=${
+          adminMessageState.limit
+        }`
+      );
+
+    renderAdminClientMessages(
+      data.messages
+    );
+  } catch (error) {
+    showAdminMessageCenterStatus(
+      error.message ||
+        "Secure client messages could not be loaded.",
+      "error"
+    );
+  }
+}
+
+async function sendAdminClientMessage(
+  clientId,
+  messageText
+) {
+  try {
+    const data =
+      await sendProtectedAdminJson(
+        `/api/admin/clients/${
+          encodeURIComponent(clientId)
+        }/messages`,
+        "POST",
+        {
+          messageText
+        }
+      );
+
+    showAdminMessageCenterStatus(
+      data.message ||
+        "The secure client message was sent.",
+      "success"
+    );
+
+    await loadAdminClientMessages(
+      clientId
+    );
+
+    return true;
+  } catch (error) {
+    showAdminMessageCenterStatus(
+      error.message ||
+        "The secure client message could not be sent.",
+      "error"
+    );
+
+    return false;
+  }
+}
+
 async function updateAdminAppointmentStatus(
   clientId,
   appointmentId,
@@ -1789,6 +2022,10 @@ async function loadAdminClientSummary(clientId) {
       clientId
     );
 
+    await loadAdminClientMessages(
+      clientId
+    );
+
     await loadAdminClientDocuments(
       clientId
     );
@@ -1884,6 +2121,273 @@ function setupAdminDirectoryControls() {
       );
     });
   }
+}
+
+function createAdminNotificationCard(
+  notification
+) {
+  const card =
+    document.createElement("article");
+
+  const message =
+    document.createElement("p");
+
+  const timestamp =
+    document.createElement("span");
+
+  card.className =
+    "portal-notification-card";
+
+  if (!notification.isRead) {
+    card.classList.add("unread");
+  }
+
+  message.textContent =
+    notification.message ||
+    "Administrator notification";
+
+  timestamp.className =
+    "dashboard-note";
+
+  timestamp.textContent =
+    formatAdminDateTime(
+      notification.createdAt
+    );
+
+  card.appendChild(message);
+  card.appendChild(timestamp);
+
+  if (
+    !notification.isRead &&
+    notification.id
+  ) {
+    const readButton =
+      document.createElement("button");
+
+    readButton.type = "button";
+
+    readButton.className =
+      "btn secondary-btn portal-notification-read-btn";
+
+    readButton.textContent =
+      "Mark Read";
+
+    readButton.addEventListener(
+      "click",
+      async function () {
+        readButton.disabled = true;
+
+        try {
+          await markAdminNotificationRead(
+            notification.id
+          );
+        } finally {
+          readButton.disabled = false;
+        }
+      }
+    );
+
+    card.appendChild(readButton);
+  }
+
+  return card;
+}
+
+async function loadAdminNotifications() {
+  const target = getAdminElement(
+    "adminNotificationList"
+  );
+
+  if (!target) {
+    return;
+  }
+
+  clearAdminChildren(target);
+
+  try {
+    const data =
+      await fetchProtectedAdminJson(
+        "/api/notifications/me?limit=20"
+      );
+
+    if (
+      !Array.isArray(
+        data.notifications
+      ) ||
+      data.notifications.length === 0
+    ) {
+      const emptyState =
+        document.createElement("p");
+
+      emptyState.className =
+        "portal-message-empty";
+
+      emptyState.textContent =
+        "No administrator notifications yet.";
+
+      target.appendChild(
+        emptyState
+      );
+
+      showAdminNotificationMessage(
+        "No unread administrator notifications.",
+        "success"
+      );
+
+      return;
+    }
+
+    data.notifications.forEach(
+      (notification) => {
+        target.appendChild(
+          createAdminNotificationCard(
+            notification
+          )
+        );
+      }
+    );
+
+    showAdminNotificationMessage(
+      `${data.unreadCount || 0} unread notification${
+        data.unreadCount === 1
+          ? ""
+          : "s"
+      }.`,
+      "success"
+    );
+  } catch (error) {
+    showAdminNotificationMessage(
+      error.message ||
+        "Administrator notifications could not be loaded.",
+      "error"
+    );
+  }
+}
+
+async function markAdminNotificationRead(
+  notificationId
+) {
+  try {
+    await sendProtectedAdminJson(
+      `/api/notifications/${
+        encodeURIComponent(
+          notificationId
+        )
+      }/read`,
+      "PATCH",
+      {}
+    );
+
+    await loadAdminNotifications();
+  } catch (error) {
+    showAdminNotificationMessage(
+      error.message ||
+        "The notification could not be updated.",
+      "error"
+    );
+  }
+}
+
+function setupAdminMessageControls() {
+  const form = getAdminElement(
+    "adminMessageForm"
+  );
+
+  const messageText =
+    getAdminElement(
+      "adminMessageText"
+    );
+
+  const messageCount =
+    getAdminElement(
+      "adminMessageCount"
+    );
+
+  const submitButton =
+    getAdminElement(
+      "adminMessageSubmit"
+    );
+
+  if (!form || !messageText) {
+    return;
+  }
+
+  function updateAdminMessageCount() {
+    if (!messageCount) {
+      return;
+    }
+
+    messageCount.textContent =
+      `${messageText.value.length} / 2000 characters`;
+  }
+
+  messageText.addEventListener(
+    "input",
+    updateAdminMessageCount
+  );
+
+  form.addEventListener(
+    "submit",
+    async function (event) {
+      event.preventDefault();
+
+      const clientId =
+        adminDirectoryState.selectedClientId;
+
+      if (!clientId) {
+        showAdminMessageCenterStatus(
+          "Select a client before sending a secure message.",
+          "error"
+        );
+
+        return;
+      }
+
+      const normalizedMessage =
+        messageText.value.trim();
+
+      if (
+        !normalizedMessage ||
+        normalizedMessage.length > 2000
+      ) {
+        showAdminMessageCenterStatus(
+          "Message text must contain between 1 and 2000 characters.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent =
+          "Sending...";
+      }
+
+      try {
+        const sent =
+          await sendAdminClientMessage(
+            clientId,
+            normalizedMessage
+          );
+
+        if (sent) {
+          messageText.value = "";
+          updateAdminMessageCount();
+        }
+      } finally {
+        if (submitButton) {
+          submitButton.disabled =
+            false;
+
+          submitButton.textContent =
+            "Send Secure Message";
+        }
+      }
+    }
+  );
+
+  updateAdminMessageCount();
 }
 
 function setupAdminAuditControls() {
@@ -2085,11 +2589,12 @@ async function verifyAdminSession() {
 
   await loadAdminClientDirectory(1);
 
-  await loadAdminClientDirectory(1);
+  await loadAdminNotifications();
 }
 
 setupAdminLogoutButton();
 setupAdminDirectoryControls();
+setupAdminMessageControls();
 setupAdminAuditControls();
 verifyAdminSession();
 
@@ -2100,5 +2605,7 @@ window.megaFinancialAdminGuard = {
   loadAdminClientDirectory,
   loadAdminClientSummary,
   loadAdminClientAppointments,
+  loadAdminClientMessages,
+  loadAdminNotifications,
   loadAdminAuditActivity
 };

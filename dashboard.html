@@ -40,11 +40,11 @@
       <div class="dashboard-hero-content">
         <span class="section-tag">Client Dashboard Preview</span>
         <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
-        <p>
-          Review your protected account information, tax intake status,
-          personalized document workflow, appointment requests, and secure
-          payment activity. Client messaging remains scheduled for a future sprint.
-        </p>
+      <p>
+        Review your protected account information, tax intake status,
+        personalized document workflow, appointment requests, secure
+        payment activity, and protected portal messages.
+      </p>
 
         <div class="portal-features dashboard-status-tags">
           <span>Protected Client Session</span>
@@ -133,17 +133,73 @@
           <div class="dashboard-intake-action">
             <a
               href="./payment.html"
-              class="btn primary-btn"
-            >
+              class="btn primary-btn">
               View Payments
             </a>
           </div>
         </article>
 
-        <article class="future-card dashboard-card">
-          <h3>Message Center</h3>
-          <p>No client messages yet.</p>
-          <span class="dashboard-note">Future client/admin messages</span>
+        <article
+          class="future-card dashboard-card dashboard-wide-card"
+          id="clientMessageCenter">
+          <h3>Secure Message Center</h3>
+
+          <p>
+            Send and review protected portal messages with
+            Mega Financial administrators.
+          </p>
+
+          <span
+            id="dashboardMessageNote"
+            class="dashboard-note">
+            Loading secure messages...
+          </span>
+
+          <div
+            id="dashboardMessageList"
+            class="portal-message-list"
+            aria-live="polite">
+          </div>
+
+          <form
+            id="dashboardMessageForm"
+            class="portal-message-form">
+            <label for="dashboardMessageText">
+              New secure message
+            </label>
+
+            <textarea
+              id="dashboardMessageText"
+              name="messageText"
+              rows="4"
+              maxlength="2000"
+              placeholder="Type your message to Mega Financial..."
+              required>
+            </textarea>
+
+            <div class="portal-message-form-footer">
+              <span
+                id="dashboardMessageCount"
+                class="dashboard-note">
+                0 / 2000 characters
+              </span>
+
+              <button
+                type="submit"
+                id="dashboardMessageSubmit"
+                class="btn primary-btn">
+                Send Secure Message
+              </button>
+            </div>
+
+            <p
+              id="dashboardMessageStatus"
+              class="auth-message"
+              role="status"
+              aria-live="polite"
+              hidden>
+            </p>
+          </form>
         </article>
 
         <article class="future-card dashboard-card dashboard-wide-card">
@@ -161,12 +217,54 @@
             <a
               href="./intake.html"
               id="dashboardIntakeLink"
-              class="btn primary-btn"
-            >
+              class="btn primary-btn">
               Start Tax Intake
             </a>
           </div>
         </article>
+      </div>
+    </section>
+
+    <section
+      class="dashboard-summary-section"
+      id="clientNotificationCenter">
+      <div class="section-heading">
+        <span class="section-tag">
+          In-App Notifications
+        </span>
+
+        <h2>
+          Recent portal activity.
+        </h2>
+
+        <p>
+          Review privacy-limited updates associated with your
+          authenticated Mega Financial account.
+        </p>
+      </div>
+
+      <div class="portal-notification-panel">
+        <div class="portal-notification-heading">
+          <h3>Notifications</h3>
+
+          <span
+            id="dashboardNotificationCount"
+            class="dashboard-note">
+            Checking notifications...
+          </span>
+        </div>
+
+        <p
+          id="dashboardNotificationStatus"
+          class="auth-message"
+          role="status"
+          aria-live="polite" hidden>
+        </p>
+
+        <div
+          id="dashboardNotificationList"
+          class="portal-notification-list">
+        </div>
       </div>
     </section>
 
@@ -176,7 +274,7 @@
         <h2>Client actions.</h2>
           <p>
             Continue your protected intake, request an appointment, manage
-            required documents, review payments, or preview the future messaging tool.
+            required documents, review payments, or send a secure portal message.
           </p>
       </div>
 
@@ -190,11 +288,11 @@
           View Payment Status
         </a>
 
-        <button
-          type="button"
-          class="quick-action-card">
+        <a
+          href="#clientMessageCenter"
+          class="quick-action-card active-action-card">
           Send Message
-        </button>
+        </a>
       </div>
     </section>
 
@@ -208,11 +306,11 @@
           Core client intake, document, and appointment records are connected.
         </h2>
 
-        <p>
-          The dashboard now connects authenticated client identity, tax intake
-          status, personalized document requirements, secure uploads, and
-          appointment requests. Payment and messaging records remain deferred.
-        </p>
+       <p>
+        The dashboard now connects authenticated client identity, tax intake
+        status, personalized document requirements, secure uploads, protected
+        payments, and secure portal messaging.
+      </p>
 
         <div class="portal-features">
           <span>Client Identity</span>
