@@ -6,6 +6,15 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const { apiLimiter, authLimiter } = require("./middleware/rateLimitMiddleware");
 
+const {
+  validateDocumentStorageConfiguration
+} = require(
+  "./utils/documentStorageUtils"
+);
+
+validateDocumentStorageConfiguration();
+connectDB();
+
 connectDB();
 
 const app = express();

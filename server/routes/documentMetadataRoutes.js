@@ -548,7 +548,9 @@ router.post(
 
       await storePrivateDocument({
         storedFileName,
-        buffer: req.file.buffer
+        buffer: req.file.buffer,
+        mimeType:
+          verifiedFileType.mimeType
       });
 
       let documentRecord;

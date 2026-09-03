@@ -3,10 +3,72 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client
+} = require("@aws-sdk/client-s3");
+
+const {
   ALLOWED_FILE_EXTENSIONS
 } = require(
   "../middleware/documentUploadMiddleware"
 );
+
+const DOCUMENT_STORAGE_PROVIDERS =
+  Object.freeze([
+    "local",
+    "s3"
+  ]);
+
+let s3Client = null;
+
+function getDocumentStorageProvider() {
+  const configuredProvider =
+    typeof process.env
+      .DOCUMENT_STORAGE_PROVIDER ===
+      "string"
+      ? process.env
+          .DOCUMENT_STORAGE_PROVIDER
+          .trim()
+          .toLowerCase()
+      : "";
+
+  if (!configuredProvider) {
+    if (
+      process.env.NODE_ENV ===
+      "production"
+    ) {
+      throw new Error(
+        "DOCUMENT_STORAGE_PROVIDER must be configured in production."
+      );
+    }
+
+    return "local";
+  }
+
+  if (
+    !DOCUMENT_STORAGE_PROVIDERS.includes(
+      configuredProvider
+    )
+  ) {
+    throw new Error(
+      "DOCUMENT_STORAGE_PROVIDER must be either local or s3."
+    );
+  }
+
+  if (
+    process.env.NODE_ENV ===
+      "production" &&
+    configuredProvider === "local"
+  ) {
+    throw new Error(
+      "Local document storage is not permitted in production."
+    );
+  }
+
+  return configuredProvider;
+}
 
 function getDocumentStorageDirectory() {
   const configuredDirectory =
@@ -33,6 +95,77 @@ async function ensureDocumentStorageDirectory() {
   });
 
   return storageDirectory;
+}
+
+function getRequiredEnvironmentValue(
+  name
+) {
+  const value =
+    typeof process.env[name] ===
+      "string"
+      ? process.env[name].trim()
+      : "";
+
+  if (!value) {
+    throw new Error(
+      `${name} is required for S3 document storage.`
+    );
+  }
+
+  return value;
+}
+
+function getS3Client() {
+  if (s3Client) {
+    return s3Client;
+  }
+
+  const region =
+    getRequiredEnvironmentValue(
+      "AWS_REGION"
+    );
+
+  const accessKeyId =
+    getRequiredEnvironmentValue(
+      "AWS_ACCESS_KEY_ID"
+    );
+
+  const secretAccessKey =
+    getRequiredEnvironmentValue(
+      "AWS_SECRET_ACCESS_KEY"
+    );
+
+  const sessionToken =
+    typeof process.env
+      .AWS_SESSION_TOKEN ===
+      "string"
+      ? process.env
+          .AWS_SESSION_TOKEN
+          .trim()
+      : "";
+
+  s3Client = new S3Client({
+    region,
+
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+
+      ...(sessionToken
+        ? {
+            sessionToken
+          }
+        : {})
+    }
+  });
+
+  return s3Client;
+}
+
+function getDocumentStorageBucket() {
+  return getRequiredEnvironmentValue(
+    "DOCUMENT_STORAGE_BUCKET"
+  );
 }
 
 function getVerifiedFileType(buffer) {
@@ -114,17 +247,31 @@ function generateStoredFileName(extension) {
   return `${crypto.randomUUID()}${normalizedExtension}`;
 }
 
-function buildPrivateFilePath(storedFileName) {
-  const safeStoredFileName =
-    path.basename(storedFileName);
-
+function validateStoredFileName(
+  storedFileName
+) {
   if (
-    safeStoredFileName !== storedFileName
+    typeof storedFileName !==
+      "string" ||
+    !storedFileName ||
+    path.basename(storedFileName) !==
+      storedFileName
   ) {
     throw new Error(
       "Invalid private stored filename."
     );
   }
+
+  return storedFileName;
+}
+
+function buildPrivateFilePath(
+  storedFileName
+) {
+  const safeStoredFileName =
+    validateStoredFileName(
+      storedFileName
+    );
 
   return path.join(
     getDocumentStorageDirectory(),
@@ -132,27 +279,120 @@ function buildPrivateFilePath(storedFileName) {
   );
 }
 
+function buildPrivateObjectKey(
+  storedFileName
+) {
+  const safeStoredFileName =
+    validateStoredFileName(
+      storedFileName
+    );
+
+  return `documents/${safeStoredFileName}`;
+}
+
 async function storePrivateDocument({
   storedFileName,
-  buffer
+  buffer,
+  mimeType
 }) {
-  const storageDirectory =
-    await ensureDocumentStorageDirectory();
+  const provider =
+    getDocumentStorageProvider();
 
-  const filePath = path.join(
-    storageDirectory,
-    path.basename(storedFileName)
+  if (provider === "local") {
+    const storageDirectory =
+      await ensureDocumentStorageDirectory();
+
+    const filePath = path.join(
+      storageDirectory,
+      validateStoredFileName(
+        storedFileName
+      )
+    );
+
+    await fs.writeFile(
+      filePath,
+      buffer,
+      {
+        flag: "wx"
+      }
+    );
+
+    return storedFileName;
+  }
+
+  const client =
+    getS3Client();
+
+  const bucket =
+    getDocumentStorageBucket();
+
+  const objectKey =
+    buildPrivateObjectKey(
+      storedFileName
+    );
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+      Body: buffer,
+      ContentType: mimeType,
+      ServerSideEncryption:
+        "AES256"
+    })
   );
 
-  await fs.writeFile(
-    filePath,
-    buffer,
-    {
-      flag: "wx"
-    }
-  );
+  return storedFileName;
+}
 
-  return filePath;
+async function readPrivateDocument(
+  storedFileName
+) {
+  const provider =
+    getDocumentStorageProvider();
+
+  if (provider === "local") {
+    return fs.readFile(
+      buildPrivateFilePath(
+        storedFileName
+      )
+    );
+  }
+
+  const client =
+    getS3Client();
+
+  const bucket =
+    getDocumentStorageBucket();
+
+  const response =
+    await client.send(
+      new GetObjectCommand({
+        Bucket: bucket,
+
+        Key:
+          buildPrivateObjectKey(
+            storedFileName
+          )
+      })
+    );
+
+  if (
+    !response.Body ||
+    typeof response.Body
+      .transformToByteArray !==
+      "function"
+  ) {
+    throw new Error(
+      "The private document could not be read from storage."
+    );
+  }
+
+  const bytes =
+    await response.Body
+      .transformToByteArray();
+
+  return Buffer.from(bytes);
 }
 
 async function removePrivateDocument(
@@ -162,24 +402,66 @@ async function removePrivateDocument(
     return;
   }
 
-  const filePath =
-    buildPrivateFilePath(storedFileName);
+  const provider =
+    getDocumentStorageProvider();
 
-  try {
-    await fs.unlink(filePath);
-  } catch (error) {
-    if (error.code !== "ENOENT") {
-      throw error;
+  if (provider === "local") {
+    const filePath =
+      buildPrivateFilePath(
+        storedFileName
+      );
+
+    try {
+      await fs.unlink(filePath);
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        throw error;
+      }
     }
+
+    return;
   }
+
+  const client =
+    getS3Client();
+
+  const bucket =
+    getDocumentStorageBucket();
+
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: bucket,
+
+      Key:
+        buildPrivateObjectKey(
+          storedFileName
+        )
+    })
+  );
+}
+
+function validateDocumentStorageConfiguration() {
+  const provider =
+    getDocumentStorageProvider();
+
+  if (provider === "s3") {
+    getDocumentStorageBucket();
+    getS3Client();
+  }
+
+  return provider;
 }
 
 module.exports = {
+  getDocumentStorageProvider,
   getDocumentStorageDirectory,
   ensureDocumentStorageDirectory,
   getVerifiedFileType,
   generateStoredFileName,
   buildPrivateFilePath,
+  buildPrivateObjectKey,
   storePrivateDocument,
-  removePrivateDocument
+  readPrivateDocument,
+  removePrivateDocument,
+  validateDocumentStorageConfiguration
 };

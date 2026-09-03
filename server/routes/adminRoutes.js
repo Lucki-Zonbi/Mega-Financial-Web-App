@@ -1,5 +1,4 @@
 const express = require("express");
-const fs = require("fs");
 const mongoose = require("mongoose");
 const protect = require("../middleware/authMiddleware");
 
@@ -27,8 +26,10 @@ const {
 } = require("../constants/documentCategories");
 
 const {
-  buildPrivateFilePath
-} = require("../utils/documentStorageUtils");
+  readPrivateDocument
+} = require(
+  "../utils/documentStorageUtils"
+);
 
 const {
   DEFAULT_ADMIN_CLIENT_LIMIT,
@@ -690,19 +691,29 @@ router.get(
         });
       }
 
-      const privateFilePath =
-        buildPrivateFilePath(
+      const documentBuffer =
+        await readPrivateDocument(
           documentRecord.storedFileName
         );
 
-      await fs.promises.access(
-        privateFilePath,
-        fs.constants.R_OK
-      );
+      const safeDownloadFileName =
+        String(
+          documentRecord
+            .originalFileName ||
+          "document"
+        )
+          .replace(/[\r\n"]/g, "")
+          .trim() ||
+        "document";
 
       res.setHeader(
         "Content-Type",
         documentRecord.mimeType
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${safeDownloadFileName}"`
       );
 
       res.setHeader(
@@ -715,22 +726,9 @@ router.get(
         "nosniff"
       );
 
-      return res.download(
-        privateFilePath,
-        documentRecord.originalFileName,
-        (error) => {
-          if (
-            error &&
-            !res.headersSent
-          ) {
-            res.status(404).json({
-              success: false,
-              message:
-                "The requested document is not available."
-            });
-          }
-        }
-      );
+      return res
+        .status(200)
+        .send(documentBuffer);
     } catch (error) {
       if (!res.headersSent) {
         return res.status(404).json({
