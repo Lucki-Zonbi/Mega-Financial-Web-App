@@ -109,19 +109,39 @@ function enableAdminPreviewMode() {
 function displayDashboardUser() {
   const user = getStoredUser();
 
-  const nameTarget = document.getElementById("dashboardClientName");
-  const emailTarget = document.getElementById("dashboardClientEmail");
+const nameTarget = document.getElementById("dashboardClientName");
+const profileNameTarget = document.getElementById("dashboardProfileName");
+const emailTarget = document.getElementById("dashboardClientEmail");
+const phoneTarget = document.getElementById("dashboardClientPhone");
+const accountStatusTarget = document.getElementById(
+  "dashboardAccountStatus"
+);
 
   if (!user) return;
 
-  if (nameTarget) {
-    nameTarget.textContent = user.fullName || "Client Name Placeholder";
-  }
+    if (nameTarget) {
+      nameTarget.textContent = user.fullName || "Client Name Placeholder";
+    }
 
-  if (emailTarget) {
-    emailTarget.textContent = user.email || "client@example.com";
+    if (profileNameTarget) {
+      profileNameTarget.textContent =
+        user.fullName || "Client Name Placeholder";
+    }
+
+    if (emailTarget) {
+      emailTarget.textContent = user.email || "Not provided";
+    }
+
+    if (phoneTarget) {
+      phoneTarget.textContent = user.phone || "Not provided";
+    }
+
+    if (accountStatusTarget) {
+      accountStatusTarget.textContent = user.isEmailVerified
+        ? "Email verified"
+        : "Email verification required";
+    }
   }
-}
 
 function setupLogoutButton() {
   const logoutBtn = document.getElementById("logoutBtn");
