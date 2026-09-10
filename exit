@@ -1,0 +1,70 @@
+[1mdiff --git a/public/dashboard.html b/public/dashboard.html[m
+[1mindex 996f686..94e6b7b 100644[m
+[1m--- a/public/dashboard.html[m
+[1m+++ b/public/dashboard.html[m
+[36m@@ -59,10 +59,10 @@[m
+ [m
+       <div class="dashboard-profile-card">[m
+         <span class="section-tag">Client Profile</span>[m
+[31m-        <h3>Client Name Placeholder</h3>[m
+[32m+[m[32m        <h3 id="dashboardProfileName">Client Name Placeholder</h3>[m
+         <p>Email: <span id="dashboardClientEmail">client@example.com</span></p>[m
+[31m-        <p>Phone: (555) 555-5555</p>[m
+[31m-        <p>Status: Account preview only</p>[m
+[32m+[m[32m        <p>Phone: <span id="dashboardClientPhone">Not provided</span></p>[m
+[32m+[m[32m        <p>Status: <span id="dashboardAccountStatus">Loading...</span></p>[m
+       </div>[m
+     </section>[m
+ [m
+[1mdiff --git a/public/js/clientGuard.js b/public/js/clientGuard.js[m
+[1mindex 8ac45b0..5f45ee0 100644[m
+[1m--- a/public/js/clientGuard.js[m
+[1m+++ b/public/js/clientGuard.js[m
+[36m@@ -109,19 +109,39 @@[m [mfunction enableAdminPreviewMode() {[m
+ function displayDashboardUser() {[m
+   const user = getStoredUser();[m
+ [m
+[31m-  const nameTarget = document.getElementById("dashboardClientName");[m
+[31m-  const emailTarget = document.getElementById("dashboardClientEmail");[m
+[32m+[m[32mconst nameTarget = document.getElementById("dashboardClientName");[m
+[32m+[m[32mconst profileNameTarget = document.getElementById("dashboardProfileName");[m
+[32m+[m[32mconst emailTarget = document.getElementById("dashboardClientEmail");[m
+[32m+[m[32mconst phoneTarget = document.getElementById("dashboardClientPhone");[m
+[32m+[m[32mconst accountStatusTarget = document.getElementById([m
+[32m+[m[32m  "dashboardAccountStatus"[m
+[32m+[m[32m);[m
+ [m
+   if (!user) return;[m
+ [m
+[31m-  if (nameTarget) {[m
+[31m-    nameTarget.textContent = user.fullName || "Client Name Placeholder";[m
+[31m-  }[m
+[32m+[m[32m    if (nameTarget) {[m
+[32m+[m[32m      nameTarget.textContent = user.fullName || "Client Name Placeholder";[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    if (profileNameTarget) {[m
+[32m+[m[32m      profileNameTarget.textContent =[m
+[32m+[m[32m        user.fullName || "Client Name Placeholder";[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    if (emailTarget) {[m
+[32m+[m[32m      emailTarget.textContent = user.email || "Not provided";[m
+[32m+[m[32m    }[m
+ [m
+[31m-  if (emailTarget) {[m
+[31m-    emailTarget.textContent = user.email || "client@example.com";[m
+[32m+[m[32m    if (phoneTarget) {[m
+[32m+[m[32m      phoneTarget.textContent = user.phone || "Not provided";[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    if (accountStatusTarget) {[m
+[32m+[m[32m      accountStatusTarget.textContent = user.isEmailVerified[m
+[32m+[m[32m        ? "Email verified"[m
+[32m+[m[32m        : "Email verification required";[m
+[32m+[m[32m    }[m
+   }[m
+[31m-}[m
+ [m
+ function setupLogoutButton() {[m
+   const logoutBtn = document.getElementById("logoutBtn");[m
