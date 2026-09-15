@@ -15,8 +15,6 @@ const {
 validateDocumentStorageConfiguration();
 connectDB();
 
-connectDB();
-
 const app = express();
 const authRoutes = require("./routes/authRoutes");
 const clientRoutes = require("./routes/clientRoutes");
