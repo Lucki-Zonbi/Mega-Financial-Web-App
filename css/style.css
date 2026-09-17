@@ -539,6 +539,15 @@ section {
   box-shadow: var(--shadow);
 }
 
+.owner-photo {
+  width: 45%;
+  max-width: 270px;
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
+  border-radius: 22px;
+}
+
 .about-owner-card h3 {
   color: var(--deep-blue);
   margin-bottom: 0.6rem;
