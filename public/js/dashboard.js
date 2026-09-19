@@ -83,8 +83,6 @@ const dashboardNotificationStatus =
   );
 
 function getDashboardToken() {
-
-function getDashboardToken() {
   if (window.megaFinancialClientGuard) {
     return window.megaFinancialClientGuard.getStoredToken();
   }

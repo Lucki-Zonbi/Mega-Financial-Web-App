@@ -290,6 +290,47 @@ function buildPrivateObjectKey(
   return `documents/${safeStoredFileName}`;
 }
 
+function validatePolicyStorageSegment(
+  value
+) {
+  const normalizedValue =
+    String(value || "").trim();
+
+  if (
+    !normalizedValue ||
+    !/^[a-zA-Z0-9_-]+$/.test(
+      normalizedValue
+    )
+  ) {
+    throw new Error(
+      "Invalid policy acknowledgement storage identifier."
+    );
+  }
+
+  return normalizedValue;
+}
+
+function buildPolicyAcknowledgementObjectKey({
+  userId,
+  acknowledgementId
+}) {
+  const safeUserId =
+    validatePolicyStorageSegment(
+      userId
+    );
+
+  const safeAcknowledgementId =
+    validatePolicyStorageSegment(
+      acknowledgementId
+    );
+
+  return (
+    "policy-acknowledgements/" +
+    `${safeUserId}/` +
+    `${safeAcknowledgementId}.txt`
+  );
+}
+
 async function storePrivateDocument({
   storedFileName,
   buffer,
@@ -440,6 +481,82 @@ async function removePrivateDocument(
   );
 }
 
+async function storePolicyAcknowledgementDocument({
+  userId,
+  acknowledgementId,
+  buffer
+}) {
+  if (!Buffer.isBuffer(buffer)) {
+    throw new Error(
+      "Policy acknowledgement document must be a Buffer."
+    );
+  }
+
+  const provider =
+    getDocumentStorageProvider();
+
+  const objectKey =
+    buildPolicyAcknowledgementObjectKey({
+      userId,
+      acknowledgementId
+    });
+
+  if (provider === "local") {
+    const storageDirectory =
+      await ensureDocumentStorageDirectory();
+
+    const policyDirectory =
+      path.join(
+        storageDirectory,
+        "policy-acknowledgements",
+        String(userId)
+      );
+
+    await fs.mkdir(
+      policyDirectory,
+      {
+        recursive: true
+      }
+    );
+
+    const filePath =
+      path.join(
+        policyDirectory,
+        `${acknowledgementId}.txt`
+      );
+
+    await fs.writeFile(
+      filePath,
+      buffer,
+      {
+        flag: "wx"
+      }
+    );
+
+    return objectKey;
+  }
+
+  const client =
+    getS3Client();
+
+  const bucket =
+    getDocumentStorageBucket();
+
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+      Body: buffer,
+      ContentType:
+        "text/plain; charset=utf-8",
+      ServerSideEncryption:
+        "AES256"
+    })
+  );
+
+  return objectKey;
+}
+
 function validateDocumentStorageConfiguration() {
   const provider =
     getDocumentStorageProvider();
@@ -463,5 +580,7 @@ module.exports = {
   storePrivateDocument,
   readPrivateDocument,
   removePrivateDocument,
-  validateDocumentStorageConfiguration
+  validateDocumentStorageConfiguration,
+  buildPolicyAcknowledgementObjectKey,
+  storePolicyAcknowledgementDocument,
 };

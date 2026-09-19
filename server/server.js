@@ -21,6 +21,9 @@ const clientRoutes = require("./routes/clientRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const intakeRoutes = require("./routes/intakeRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const policyRoutes = require(
+  "./routes/policyRoutes"
+);
 
 const notificationRoutes = require(
   "./routes/notificationRoutes"
@@ -111,7 +114,10 @@ app.use("/api/client", clientRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/intake", intakeRoutes);
 app.use("/api/messages", messageRoutes);
-
+app.use(
+  "/api/policies",
+  policyRoutes
+);
 app.use(
   "/api/notifications",
   notificationRoutes
