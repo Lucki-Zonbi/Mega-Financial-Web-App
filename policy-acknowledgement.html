@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Policy Acknowledgement | Mega Financial
+  </title>
+
+  <link rel="icon" href="data:," />
+
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  />
+</head>
+
+<body>
+  <main>
+    <section class="policy-page">
+      <div class="policy-container">
+        <span class="section-tag">
+          Client Privacy
+        </span>
+
+        <h1>
+          Policy Acknowledgement
+        </h1>
+
+        <p>
+          Before continuing to protected
+          Mega Financial client services,
+          please review and acknowledge the
+          current privacy and data collection
+          notices.
+        </p>
+
+        <form
+          id="policyAcknowledgementForm"
+          class="policy-acknowledgement-form"
+        >
+          <div class="policy-acknowledgement-card">
+            <label>
+              <input
+                type="checkbox"
+                id="privacyPolicyAcknowledgement"
+              />
+
+              <span>
+                I acknowledge that I have read
+                the
+                <a
+                  href="./privacy-policy.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Mega Financial Privacy Policy
+                </a>.
+              </span>
+            </label>
+
+            <p
+              id="privacyPolicyStatus"
+              class="dashboard-note"
+            >
+              Checking acknowledgement status...
+            </p>
+          </div>
+
+          <div class="policy-acknowledgement-card">
+            <label>
+              <input
+                type="checkbox"
+                id="cookieNoticeAcknowledgement"
+              />
+
+              <span>
+                I acknowledge that I have read
+                the
+                <a
+                  href="./cookie-data-notice.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Mega Financial Cookie & Data
+                  Collection Notice
+                </a>.
+              </span>
+            </label>
+
+            <p
+              id="cookieNoticeStatus"
+              class="dashboard-note"
+            >
+              Checking acknowledgement status...
+            </p>
+          </div>
+
+          <p
+            id="policyAcknowledgementStatus"
+            class="auth-message"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></p>
+
+          <button
+            type="submit"
+            id="policyAcknowledgementSubmit"
+            class="btn primary-btn"
+          >
+            Record My Acknowledgement
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="./js/apiConfig.js"></script>
+  <script src="./js/auth.js"></script>
+  <script src="./js/clientGuard.js"></script>
+  <script
+    src="./js/policyAcknowledgement.js"
+  ></script>
+</body>
+</html>
