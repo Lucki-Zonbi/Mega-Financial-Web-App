@@ -10,6 +10,24 @@ const toggleLoginPassword =
     "toggleLoginPassword"
   );
 
+const registerPassword =
+  document.getElementById("password");
+
+const confirmPassword =
+  document.getElementById(
+    "confirmPassword"
+  );
+
+const toggleRegisterPassword =
+  document.getElementById(
+    "toggleRegisterPassword"
+  );
+
+const toggleConfirmPassword =
+  document.getElementById(
+    "toggleConfirmPassword"
+  );
+
 if (
   loginPassword &&
   toggleLoginPassword
@@ -38,6 +56,78 @@ if (
       );
 
       toggleLoginPassword.setAttribute(
+        "aria-pressed",
+        String(!passwordIsVisible)
+      );
+    }
+  );
+}
+
+if (
+  registerForm &&
+  registerPassword &&
+  toggleRegisterPassword
+) {
+  toggleRegisterPassword.addEventListener(
+    "click",
+    function () {
+      const passwordIsVisible =
+        registerPassword.type === "text";
+
+      registerPassword.type =
+        passwordIsVisible
+          ? "password"
+          : "text";
+
+      toggleRegisterPassword.textContent =
+        passwordIsVisible
+          ? "Show"
+          : "Hide";
+
+      toggleRegisterPassword.setAttribute(
+        "aria-label",
+        passwordIsVisible
+          ? "Show password"
+          : "Hide password"
+      );
+
+      toggleRegisterPassword.setAttribute(
+        "aria-pressed",
+        String(!passwordIsVisible)
+      );
+    }
+  );
+}
+
+if (
+  registerForm &&
+  confirmPassword &&
+  toggleConfirmPassword
+) {
+  toggleConfirmPassword.addEventListener(
+    "click",
+    function () {
+      const passwordIsVisible =
+        confirmPassword.type === "text";
+
+      confirmPassword.type =
+        passwordIsVisible
+          ? "password"
+          : "text";
+
+      toggleConfirmPassword.textContent =
+        passwordIsVisible
+          ? "Show"
+          : "Hide";
+
+      toggleConfirmPassword.setAttribute(
+        "aria-label",
+        passwordIsVisible
+          ? "Show confirm password"
+          : "Hide confirm password"
+      );
+
+      toggleConfirmPassword.setAttribute(
         "aria-pressed",
         String(!passwordIsVisible)
       );
