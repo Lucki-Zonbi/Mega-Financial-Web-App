@@ -222,6 +222,29 @@ router.post(
       const frontendOrigin =
         getFrontendOrigin();
 
+
+      const stripePrice =
+        await stripe.prices.retrieve(stripePriceId);
+
+      if (
+        !stripePrice.active ||
+        stripePrice.type !== "one_time" ||
+        stripePrice.currency !== "usd" ||
+        !Number.isSafeInteger(stripePrice.unit_amount) ||
+        stripePrice.unit_amount <= 0
+      ) {
+        return res.status(503).json({
+          success: false,
+          message:
+            "The configured service price is not available for checkout."
+        });
+      }
+
+      const expectedAmountTotal =
+        stripePrice.unit_amount;
+
+      const expectedCurrency = "usd";
+
       payment =
         await Payment.create({
           user:
@@ -233,11 +256,15 @@ router.post(
             serviceOption
               .serviceName,
 
-          status:
-            "pending",
 
-          checkoutCreatedAt:
-            new Date()
+              status: "pending",
+
+              amountTotal: expectedAmountTotal,
+
+              currency: expectedCurrency,
+
+              checkoutCreatedAt: new Date()
+
         });
 
       const metadata = {
@@ -319,10 +346,17 @@ router.post(
     } catch (error) {
       if (payment) {
         try {
-          payment.status =
-            "failed";
-
-          await payment.save();
+          await Payment.updateOne(
+            {
+              _id: payment._id,
+              status: "pending"
+            },
+            {
+              $set: {
+                status: "failed"
+              }
+            }
+          );
         } catch (saveError) {
           console.error(
             "Failed checkout record update error:",
@@ -454,81 +488,245 @@ async function handleStripeWebhook(
         });
     }
 
-    const payment =
-      await Payment
-        .findOne({
-          _id:
-            paymentId,
+    const paymentFilter = {
+      _id: paymentId,
+      user: userId,
+      stripeCheckoutSessionId: session.id
+    };
 
-          user:
-            userId,
-
-          stripeCheckoutSessionId:
-            session.id
-        })
-        .select(
-          "+stripeCheckoutSessionId +stripePaymentIntentId"
-        );
-
-    if (!payment) {
-      return res
-        .status(200)
-        .json({
-          received: true
-        });
-    }
-
-    payment.amountTotal =
-      Number.isInteger(
-        session.amount_total
-      )
-        ? session.amount_total
-        : payment.amountTotal;
-
-    payment.currency =
-      typeof session.currency ===
-      "string"
-        ? session.currency
-        : payment.currency;
-
-    payment
-      .stripePaymentIntentId =
-      getPaymentIntentId(
-        session
-          .payment_intent
-      );
-
-    if (
+    const isSuccessfulPayment =
       event.type ===
         "checkout.session.async_payment_succeeded" ||
       (
         event.type ===
           "checkout.session.completed" &&
-        session.payment_status ===
-          "paid"
-      )
-    ) {
-      payment.status =
-        "paid";
+        session.payment_status === "paid"
+      );
 
-      payment.paidAt =
-        payment.paidAt ||
-        new Date();
-    } else if (
+    const isFailedPayment =
       event.type ===
-      "checkout.session.async_payment_failed"
-    ) {
-      payment.status =
-        "failed";
-    } else if (
+      "checkout.session.async_payment_failed";
+
+    const isExpiredPayment =
       event.type ===
-      "checkout.session.expired"
-    ) {
-      payment.status =
-        "expired";
+      "checkout.session.expired";
+
+    const isPendingCompletion =
+      event.type ===
+        "checkout.session.completed" &&
+      session.payment_status !== "paid";
+
+    const amountTotal =
+      Number.isInteger(session.amount_total) &&
+      session.amount_total >= 0
+        ? session.amount_total
+        : undefined;
+
+    const currency =
+      typeof session.currency === "string"
+        ? session.currency.trim().toLowerCase()
+        : undefined;
+
+    const paymentIntentId =
+      getPaymentIntentId(
+        session.payment_intent
+      );
+
+
+    const expectedPayment =
+      await Payment.findOne(paymentFilter)
+        .select("status amountTotal currency paidAt")
+        .lean();
+
+    if (!expectedPayment) {
+      console.error(
+        "Stripe webhook payment record not found:",
+        {
+          eventId: event.id,
+          sessionId: session.id
+        }
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Payment reconciliation is pending."
+      });
     }
 
-    await payment.save();
+    if (
+      !Number.isSafeInteger(expectedPayment.amountTotal) ||
+      expectedPayment.amountTotal <= 0 ||
+      expectedPayment.currency !== "usd" ||
+      amountTotal !== expectedPayment.amountTotal ||
+      currency !== expectedPayment.currency
+    ) {
+      console.error(
+        "Stripe webhook payment amount or currency mismatch:",
+        {
+          eventId: event.id,
+          paymentId,
+          sessionId: session.id
+        }
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Payment reconciliation requires review."
+      });
+    }
+
+    if (
+      isSuccessfulPayment &&
+      expectedPayment.status !== "pending" &&
+      expectedPayment.status !== "paid"
+    ) {
+      console.error(
+        "Stripe webhook unexpected successful payment transition:",
+        {
+          eventId: event.id,
+          paymentId,
+          currentStatus: expectedPayment.status
+        }
+      );
+
+      return res.status(500).json({
+        success: false,
+        message: "Payment state requires reconciliation."
+      });
+    }
+
+
+    const paymentDetails = {};
+
+    if (paymentIntentId) {
+      paymentDetails.stripePaymentIntentId =
+        paymentIntentId;
+    }
+
+
+    let updatedPayment = null;
+
+    if (isSuccessfulPayment) {
+      updatedPayment =
+        await Payment.findOneAndUpdate(
+          {
+            ...paymentFilter,
+
+            status: "pending"
+
+          },
+          {
+            $set: {
+              ...paymentDetails,
+              status: "paid",
+              paidAt: new Date()
+            }
+          },
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+    } else if (isFailedPayment) {
+      updatedPayment =
+        await Payment.findOneAndUpdate(
+          {
+            ...paymentFilter,
+            status: "pending"
+          },
+          {
+            $set: {
+              ...paymentDetails,
+              status: "failed"
+            }
+          },
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+    } else if (isExpiredPayment) {
+      updatedPayment =
+        await Payment.findOneAndUpdate(
+          {
+            ...paymentFilter,
+            status: "pending"
+          },
+          {
+            $set: {
+              ...paymentDetails,
+              status: "expired"
+            }
+          },
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+    } else if (isPendingCompletion) {
+      updatedPayment =
+        await Payment.findOneAndUpdate(
+          {
+            ...paymentFilter,
+            status: "pending"
+          },
+          {
+            $set: paymentDetails
+          },
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+    }
+
+    if (!updatedPayment) {
+      const existingPayment =
+        await Payment.findOne(
+          paymentFilter
+        )
+          .select("status paidAt")
+          .lean();
+
+      if (!existingPayment) {
+        console.error(
+          "Stripe webhook payment record not found:",
+          {
+            eventId: event.id,
+            eventType: event.type,
+            sessionId: session.id
+          }
+        );
+
+        return res
+          .status(500)
+          .json({
+            success: false,
+            message:
+              "Payment record reconciliation is pending."
+          });
+      }
+
+      console.info(
+        "Stripe webhook event required no payment state change:",
+        {
+          eventId: event.id,
+          eventType: event.type,
+          paymentId,
+          currentStatus: existingPayment.status
+        }
+      );
+    } else {
+      console.info(
+        "Stripe webhook payment state updated:",
+        {
+          eventId: event.id,
+          eventType: event.type,
+          paymentId,
+          status: updatedPayment.status
+        }
+      );
+    }
 
     return res
       .status(200)

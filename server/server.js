@@ -44,6 +44,12 @@ const {
   "./routes/paymentRoutes"
 );
 
+
+const invoiceRoutes = require(
+  "./routes/invoiceRoutes"
+);
+
+
 app.use(
   helmet({
     contentSecurityPolicy: false
@@ -136,6 +142,11 @@ app.use(
 app.use(
   "/api/payments",
   paymentRoutes
+);
+
+app.use(
+  "/api/invoices",
+  invoiceRoutes
 );
 
 app.use(
