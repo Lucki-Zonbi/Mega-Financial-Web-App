@@ -144,6 +144,7 @@ function serializeInvoice(invoice) {
     issuedAt: invoice.issuedAt,
     dueAt: invoice.dueAt,
     paidAt: invoice.paidAt,
+    voidedAt: invoice.voidedAt,
     createdAt: invoice.createdAt,
     updatedAt: invoice.updatedAt
   };
@@ -294,6 +295,236 @@ router.get(
     }
   }
 );
+
+// ==================================================
+// PHASE 2 — ADMINISTRATOR INVOICE LIFECYCLE
+// ==================================================
+
+// PATCH /api/invoices/admin/:invoiceId/draft
+// Update line items only while the invoice is a draft.
+router.patch(
+  "/admin/:invoiceId/draft",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { invoiceId } = req.params;
+
+      if (!isValidObjectId(invoiceId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid invoice ID."
+        });
+      }
+
+      if (
+        !isPlainObject(req.body) ||
+        !hasOnlyFields(req.body, ["lineItems"]) ||
+        !Object.prototype.hasOwnProperty.call(
+          req.body,
+          "lineItems"
+        )
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Only draft line items may be updated."
+        });
+      }
+
+      const parsed = parseLineItems(req.body.lineItems);
+
+      if (!parsed) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid invoice line items or total."
+        });
+      }
+
+      const invoice = await Invoice.findOneAndUpdate(
+        {
+          _id: invoiceId,
+          status: "draft"
+        },
+        {
+          $set: {
+            lineItems: parsed.lineItems,
+            amountTotalCents: parsed.amountTotalCents
+          }
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+      if (!invoice) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Invoice not found or is no longer editable."
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Draft invoice updated.",
+        invoice: serializeInvoice(invoice)
+      });
+    } catch (error) {
+      console.error("Draft invoice update failed:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to update the draft invoice."
+      });
+    }
+  }
+);
+
+// POST /api/invoices/admin/:invoiceId/issue
+// Issue a finalized draft invoice.
+router.post(
+  "/admin/:invoiceId/issue",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { invoiceId } = req.params;
+
+      if (!isValidObjectId(invoiceId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid invoice ID."
+        });
+      }
+
+      if (
+        req.body == null ||
+        !isPlainObject(req.body) ||
+        Object.keys(req.body).length !== 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invoice issuance does not accept request fields."
+        });
+      }
+
+      const issuedAt = new Date();
+
+      const invoice = await Invoice.findOneAndUpdate(
+        {
+          _id: invoiceId,
+          status: "draft",
+          amountTotalCents: { $gt: 0 }
+        },
+        {
+          $set: {
+            status: "issued",
+            issuedAt
+          }
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+      if (!invoice) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Invoice not found or cannot be issued."
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Invoice issued successfully.",
+        invoice: serializeInvoice(invoice)
+      });
+    } catch (error) {
+      console.error("Invoice issuance failed:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to issue the invoice."
+      });
+    }
+  }
+);
+
+// POST /api/invoices/admin/:invoiceId/void
+// Void a draft or issued invoice that has not been paid.
+router.post(
+  "/admin/:invoiceId/void",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { invoiceId } = req.params;
+
+      if (!isValidObjectId(invoiceId)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid invoice ID."
+        });
+      }
+
+      if (
+        req.body == null ||
+        !isPlainObject(req.body) ||
+        Object.keys(req.body).length !== 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invoice voiding does not accept request fields."
+        });
+      }
+
+      const invoice = await Invoice.findOneAndUpdate(
+        {
+          _id: invoiceId,
+          status: { $in: ["draft", "issued"] },
+          paidAt: null
+        },
+        {
+          $set: {
+            status: "void",
+            voidedAt: new Date()
+          }
+        },
+        {
+          new: true,
+          runValidators: true
+        }
+      );
+
+      if (!invoice) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Invoice not found or cannot be voided."
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Invoice voided successfully.",
+        invoice: serializeInvoice(invoice)
+      });
+    } catch (error) {
+      console.error("Invoice void operation failed:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Unable to void the invoice."
+      });
+    }
+  }
+);
+
+// ==================================================
+// END PHASE 2 ADMINISTRATOR INVOICE LIFECYCLE
+// ==================================================
 
 // GET /api/invoices/mine
 // Clients can see only their own non-draft invoices.

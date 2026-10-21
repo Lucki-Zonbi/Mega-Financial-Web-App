@@ -112,6 +112,12 @@ const invoiceSchema = new mongoose.Schema(
       default: null
     },
 
+    // Phase 2 — Records when an invoice is voided.
+    voidedAt: {
+      type: Date,
+      default: null
+    },
+
     stripeCheckoutSessionId: {
       type: String,
       trim: true,
@@ -203,7 +209,88 @@ invoiceSchema.pre("validate", function () {
   }
 });
 
+// Phase 2 — Invoice lifecycle consistency validation.
+//
+// This validates the relationship between invoice
+// status and lifecycle timestamps.
+//
+// API routes must separately enforce authorized
+// status transitions and conditional updates.
 
+invoiceSchema.pre("validate", function () {
+  const status = this.status;
+
+  if (
+  status === "void" &&
+  !this.voidedAt
+) {
+  this.invalidate(
+    "voidedAt",
+    "Voided invoices require a void timestamp."
+  );
+}
+
+if (
+  status !== "void" &&
+  this.voidedAt
+) {
+  this.invalidate(
+    "voidedAt",
+    "Only voided invoices may have a void timestamp."
+  );
+}
+
+  if (
+    status === "draft" &&
+    (this.issuedAt || this.paidAt)
+  ) {
+    this.invalidate(
+      "status",
+      "Draft invoices cannot have issuance or payment timestamps."
+    );
+  }
+
+  if (
+    status === "issued" &&
+    !this.issuedAt
+  ) {
+    this.invalidate(
+      "issuedAt",
+      "Issued invoices require an issuance timestamp."
+    );
+  }
+
+  if (
+    status === "paid" &&
+    (!this.issuedAt || !this.paidAt)
+  ) {
+    this.invalidate(
+      "status",
+      "Paid invoices require issuance and payment timestamps."
+    );
+  }
+
+  if (
+    status === "void" &&
+    this.paidAt
+  ) {
+    this.invalidate(
+      "status",
+      "Paid invoices cannot be voided."
+    );
+  }
+
+  if (
+    this.dueAt &&
+    this.issuedAt &&
+    this.dueAt < this.issuedAt
+  ) {
+    this.invalidate(
+      "dueAt",
+      "The due date cannot precede invoice issuance."
+    );
+  }
+});
 
 module.exports = mongoose.model(
   "Invoice",
