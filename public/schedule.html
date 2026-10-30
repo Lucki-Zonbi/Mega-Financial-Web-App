@@ -9,13 +9,17 @@
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="./css/style.css" />
 </head>
+
 <body>
 
   <header id="site-header" class="site-header">
     <nav class="navbar">
       <a href="./index.html" class="logo">Mega Financial</a>
 
-      <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu">
+      <button
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Open navigation menu">
         <span></span>
         <span></span>
         <span></span>
@@ -27,297 +31,244 @@
         <li><a href="./about.html">About</a></li>
         <li><a href="./services.html">Services</a></li>
         <li><a href="./dashboard.html">Dashboard</a></li>
-        <li><a href="./login.html" class="mobile-login-link">Client Login</a>
+        <li>
+          <a href="./login.html" class="mobile-login-link">
+            Client Login
+          </a>
         </li>
       </ul>
 
-      <a href="./login.html" class="nav-btn desktop-login-btn">Client Login</a>
+      <a href="./login.html" class="nav-btn desktop-login-btn">
+        Client Login
+      </a>
     </nav>
   </header>
 
   <main>
 
-    <section class="schedule-hero">
+    <!-- Scheduling introduction -->
+    <section class="schedule-hero schedule-external-hero">
+
       <div class="schedule-hero-content">
-        <span class="section-tag">Protected Scheduling</span>
-        <h1>Request your Mega Financial appointment.</h1>
+        <span class="section-tag">Appointment Scheduling</span>
+
+        <h1>Schedule your Mega Financial appointment.</h1>
+
         <p>
-          Choose an approved service, consultation platform, future weekday,
-          and available hourly appointment time through your protected client
-          account.
+          Choose the appointment option that best fits your needs.
+          Mega Financial provides convenient virtual consultations,
+          in-person appointments, and business tax consultations.
         </p>
 
         <div class="portal-features dashboard-status-tags">
-          <span>JWT Protected</span>
-          <span>MongoDB Appointment Records</span>
-          <span>Verified Client Ownership</span>
+          <span>Virtual Appointments</span>
+          <span>In-Person Appointments</span>
+          <span>Business Consultations</span>
         </div>
       </div>
 
       <div class="schedule-summary-card">
-        <span class="section-tag">Appointment Summary</span>
-        <h3 id="scheduleSummaryHeading">New Request</h3>
+        <span class="section-tag">Simple Scheduling</span>
+
+        <h3>Book with Mega Financial</h3>
 
         <p>
-          Service:
-          <span id="scheduleSummaryService">Not selected</span>
+          Select an appointment type below to continue to
+          Mega Financial's official booking website.
         </p>
 
         <p>
-          Platform:
-          <span id="scheduleSummaryPlatform">Not selected</span>
-        </p>
-
-        <p>
-          Date:
-          <span id="scheduleSummaryDate">Not selected</span>
-        </p>
-
-        <p>
-          Time:
-          <span id="scheduleSummaryTime">Not selected</span>
+          Available dates, times, and any applicable payment
+          requirements are displayed during the external
+          booking process.
         </p>
       </div>
+
     </section>
 
-    <section class="schedule-form-section">
+    <!-- Appointment selection -->
+    <section
+      class="schedule-form-section"
+      aria-labelledby="appointmentOptionsHeading">
+
       <div class="section-heading">
-        <span class="section-tag">Appointment Request</span>
-          <h2>Select your service and requested appointment time.</h2>
-          <p>
-            Requests must be submitted at least 24 hours in advance and no more
-            than 180 days ahead. Current scheduling hours are weekdays from
-            9:00 AM through 4:00 PM.
-          </p>
-      </div>
+        <span class="section-tag">Our Appointment Options</span>
 
-      <div class="schedule-layout">
-        <form id="appointmentForm" class="schedule-form-card" novalidate>
-          <h3>Request an Appointment</h3>
-
-          <label for="serviceType">Service Selection</label>
-
-          <select id="serviceType" name="serviceType" required>
-            <option value="">Select a service</option>
-
-            <option value="Individual Tax Filing">
-              Individual Tax Filing
-            </option>
-
-            <option value="Business Tax Filing">
-              Business Tax Filing
-            </option>
-
-            <option value="Bookkeeping">
-              Bookkeeping
-            </option>
-
-            <option value="Payroll Support">
-              Payroll Support
-            </option>
-
-            <option value="Tax Planning">
-              Tax Planning
-            </option>
-          </select>
-
-          <label for="platformType">
-            Consultation Platform
-          </label>
-
-          <select
-            id="platformType"
-            name="platformType"
-            required
-          >
-            <option value="">Select a platform</option>
-
-            <option value="Microsoft Teams">
-              Microsoft Teams
-            </option>
-
-            <option value="Google Meet">
-              Google Meet
-            </option>
-
-            <option value="Zoom">
-              Zoom
-            </option>
-
-            <option value="Calendly">
-              Calendly
-            </option>
-          </select>
-
-          <label for="appointmentDate">
-            Appointment Date
-          </label>
-
-          <input
-            type="date"
-            id="appointmentDate"
-            name="appointmentDate"
-            required/>
-
-          <label for="appointmentTime">
-            Appointment Time
-          </label>
-          <input type="time" id="appointmentTime" name="appointmentTime" required />
-
-          <label for="clientNotes">
-            Client Notes
-          </label>
-
-          <textarea
-            id="clientNotes"
-            name="clientNotes"
-            rows="5"
-            maxlength="1000"
-            placeholder="Add optional information Mega Financial should know about your appointment request.">
-          </textarea>
-
-          <button
-            type="submit"
-            id="appointmentSubmitButton"
-            class="btn primary-btn schedule-btn">
-            Submit Appointment Request
-          </button>
-
-          <p
-            id="appointmentMessage"
-            class="auth-message"
-            role="status"
-            aria-live="polite">
-          </p>
-
-          <p class="auth-note">
-            Submitting this form creates an appointment request. It does not
-            generate a meeting link or guarantee confirmation yet.
-          </p>
-        </form>
-          <article class="future-card">
-            <h3>Request Status</h3>
-
-            <p>
-              New appointments begin with a requested status until an authorized
-              confirmation workflow is added in a later sprint.
-            </p>
-
-            <span class="dashboard-note">
-              Protected MongoDB appointment record
-            </span>
-          </article>
-
-          <article class="future-card">
-            <h3>Consultation Platform</h3>
-
-            <p>
-              Your selected platform is stored with the appointment request.
-              External provider connections and meeting-link generation remain
-              deferred.
-            </p>
-
-            <span class="dashboard-note">
-              No provider credentials exposed
-            </span>
-          </article>
-
-          <article class="future-card">
-            <h3>Verified Client Ownership</h3>
-
-            <p>
-              Appointment ownership is assigned by the server from the
-              authenticated client account rather than submitted by the browser.
-            </p>
-
-            <span class="dashboard-note">
-              Ownership derived from JWT identity
-            </span>
-          </article>
-        </aside>
-      </div>
-    </section>
-
-    <section class="quick-actions-section">
-      <div class="section-heading">
-        <span class="section-tag">Your Appointments</span>
-        <h2>Protected appointment records.</h2>
-
-        <p>
-          Review your appointment requests and cancel eligible future
-          appointments. Only records assigned to your authenticated client
-          account are returned by the server.
-        </p>
-      </div>
-
-      <p
-        id="appointmentListMessage"
-        class="auth-message schedule-list-message"
-        role="status"
-        aria-live="polite">
-        Loading your protected appointment records...
-      </p>
-
-      <div
-        id="appointmentList"
-        class="schedule-appointment-list">
-      </div>
-    </section>
-
-    <section class="virtual-section">
-      <div>
-        <span class="section-tag light-tag">
-          Protected Scheduling Foundation
-        </span>
-
-        <h2>
-          Appointment requests are now connected to protected client records.
+        <h2 id="appointmentOptionsHeading">
+          How would you like to meet with us?
         </h2>
 
         <p>
-          Sprint 024 adds authenticated appointment requests, client-owned
-          records, scheduling-window validation, protected retrieval, and
-          narrowly scoped cancellation. Provider API connections, meeting
-          links, and automatic confirmations remain deferred.
+          Select one of the following appointment options.
+          Your booking will be completed through Mega Financial's
+          existing scheduling service.
+        </p>
+      </div>
+
+      <div class="external-schedule-grid">
+
+        <!-- Virtual appointment -->
+        <article class="external-schedule-card">
+
+          <span class="section-tag">Online Consultation</span>
+
+          <h3>Virtual Appointment</h3>
+
+          <p>
+            Schedule an online tax preparation consultation
+            with Mega Financial from a convenient location.
+          </p>
+
+          <p class="external-schedule-detail">
+            Review available appointment times and complete
+            your booking through our official scheduling website.
+          </p>
+
+          <a
+            class="btn primary-btn external-schedule-button"
+            href="https://megafinancial.godaddysites.com/appointments/ola/services/business-income-taxes"
+            target="_blank"
+            rel="noopener noreferrer">
+            Schedule Virtual Appointment
+          </a>
+
+        </article>
+
+        <!-- In-person appointment -->
+        <article class="external-schedule-card">
+
+          <span class="section-tag">Office Consultation</span>
+
+          <h3>In-Person Appointment</h3>
+
+          <p>
+            Meet with Mega Financial in person to discuss
+            your tax preparation and related service needs.
+          </p>
+
+          <p class="external-schedule-detail">
+            Select an available appointment time and review
+            the meeting details during the booking process.
+          </p>
+
+          <a
+            class="btn primary-btn external-schedule-button"
+            href="https://megafinancial.godaddysites.com/appointments/ola/services/tax-services"
+            target="_blank"
+            rel="noopener noreferrer">
+            Schedule In-Person Appointment
+          </a>
+
+        </article>
+
+        <!-- Business Q&A -->
+        <article class="external-schedule-card">
+
+          <span class="section-tag">Business Consultation</span>
+
+          <h3>Business Q&amp;A</h3>
+
+          <p>
+            Schedule a consultation to discuss business-related
+            tax questions and financial service concerns.
+          </p>
+
+          <p class="external-schedule-detail">
+            Choose an available time to speak with Mega Financial
+            about your business questions.
+          </p>
+
+          <a
+            class="btn primary-btn external-schedule-button"
+            href="https://megafinancial.godaddysites.com/appointments/ola/services/business-q-a"
+            target="_blank"
+            rel="noopener noreferrer">
+            Schedule Business Q&amp;A
+          </a>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <!-- External booking information -->
+    <section class="virtual-section">
+
+      <div>
+        <span class="section-tag light-tag">
+          Official Mega Financial Scheduling
+        </span>
+
+        <h2>
+          Convenient appointment booking.
+        </h2>
+
+        <p>
+          Mega Financial uses its existing external booking
+          service to manage appointment availability,
+          scheduling, and applicable payments.
+        </p>
+
+        <p>
+          Selecting an appointment option opens the official
+          booking website in a new browser tab.
         </p>
 
         <div class="portal-features">
-          <span>Appointment Model</span>
-          <span>MongoDB Records</span>
-          <span>Protected Client Routes</span>
-          <span>Ownership Isolation</span>
-          <span>Controlled Cancellation</span>
+          <span>Official Booking Website</span>
+          <span>Available Appointment Times</span>
+          <span>External Booking Confirmation</span>
         </div>
+
+        <p class="external-schedule-footer-action">
+          <a
+            class="btn secondary-btn"
+            href="https://megafinancial.godaddysites.com/appointments"
+            target="_blank"
+            rel="noopener noreferrer">
+            View All Appointment Services
+          </a>
+        </p>
+
       </div>
+
     </section>
 
   </main>
 
   <footer class="footer">
+
     <div class="footer-top-link">
-      <a href="#top" id="backToTop">↑ Return To Top</a>
+      <a href="#top" id="backToTop">
+        ↑ Return To Top
+      </a>
     </div>
 
     <div class="footer-policy-links">
+
       <a href="./privacy-policy.html">
         Privacy Policy
       </a>
 
-      <span aria-hidden="true">
-        |
-      </span>
+      <span aria-hidden="true">|</span>
 
       <a href="./cookie-data-notice.html">
-        Cookie & Data Collection Notice
+        Cookie &amp; Data Collection Notice
       </a>
+
     </div>
-    <p>&copy; 2026 Mega Financial. All rights reserved.</p>
+
+    <p>
+      &copy; 2026 Mega Financial. All rights reserved.
+    </p>
+
   </footer>
 
   <script src="./js/apiConfig.js"></script>
   <script src="./js/clientGuard.js"></script>
   <script src="./js/policyGuard.js"></script>
-  <script src="./js/schedule.js"></script>
   <script src="./js/main.js"></script>
+
 </body>
 </html>

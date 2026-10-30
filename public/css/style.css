@@ -2405,3 +2405,132 @@ section {
   color: inherit;
   text-decoration: underline;
 }
+
+/* ==========================================
+   Mega Financial External Scheduling
+   Checkpoint 2 - GoDaddy Booking Integration
+========================================== */
+
+.schedule-external-hero {
+  grid-template-columns: 1.5fr 1fr;
+}
+
+/* Appointment card layout */
+
+.external-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Individual appointment cards */
+
+.external-schedule-card {
+  background: var(--white);
+  border: 2px solid var(--mint-green);
+  border-radius: 24px;
+  padding: 2rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  box-shadow: var(--shadow);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.external-schedule-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Appointment headings */
+
+.external-schedule-card h3 {
+  color: var(--deep-blue);
+  font-size: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Appointment descriptions */
+
+.external-schedule-card p {
+  color: var(--gray-text);
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.external-schedule-detail {
+  flex-grow: 1;
+}
+
+/* Appointment booking buttons */
+
+.external-schedule-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 52px;
+
+  margin-top: auto;
+  padding: 0.85rem 1rem;
+
+  text-align: center;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+/* Keyboard accessibility */
+
+.external-schedule-button:focus-visible {
+  outline: 3px solid var(--money-blue);
+  outline-offset: 4px;
+}
+
+/* Footer booking link */
+
+.external-schedule-footer-action {
+  margin-top: 2rem;
+}
+
+/* Tablet layout */
+
+@media (max-width: 1000px) {
+
+  .external-schedule-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+/* Mobile layout */
+
+@media (max-width: 700px) {
+
+  .schedule-external-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .external-schedule-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .external-schedule-card {
+    padding: 1.5rem;
+  }
+
+  .external-schedule-card h3 {
+    font-size: 1.35rem;
+  }
+
+  .external-schedule-button {
+    width: 100%;
+  }
+
+}

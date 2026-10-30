@@ -88,11 +88,11 @@
         </h1>
 
         <p>
-          This protected administration portal provides a narrowly scoped
-          client directory, limited workflow summaries, authorized document
-          review, and controlled appointment-status management without
-          exposing detailed tax answers, private storage paths, payments,
-          or private security credentials.
+            This protected administration portal provides a narrowly scoped
+            client directory, limited workflow summaries, authorized document
+            review, and secure client communication. New appointments are
+            booked through Mega Financial's external scheduling service.
+            Historical internal appointment records remain preserved.
         </p>
 
         <div class="portal-features dashboard-status-tags">
@@ -342,24 +342,29 @@
             <section
               class="admin-summary-group"
               id="adminAppointmentManagement">
-              <h4>Appointment Management</h4>
+
+              <h4>External Appointment Scheduling</h4>
 
               <p class="admin-summary-privacy-note">
-                Review this client's appointments and apply only
-                authorized appointment-status transitions.
+                Mega Financial clients now book appointments through the
+                official external scheduling service.
               </p>
 
-              <p
-                id="adminAppointmentMessage"
-                class="admin-directory-message"
-                role="status"
-                aria-live="polite">
-                Select a client to load appointment management.
+              <p class="admin-summary-privacy-note">
+                New booking confirmations, availability, cancellations,
+                and rescheduling are managed through that service.
+                Historical appointments created through the previous
+                internal system remain preserved separately.
               </p>
 
-              <div
-                id="adminAppointmentList"
-                class="admin-summary-list">
+              <div class="dashboard-intake-action">
+                <a
+                  href="./schedule.html"
+                  class="btn primary-btn"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  View Appointment Options
+                </a>
               </div>
             </section>
 
@@ -459,10 +464,12 @@
         </h2>
 
         <p>
-          Authorized administrators can perform narrowly scoped document
-          review and appointment-status management for the currently
-          selected client. Client-record editing, payments, audit activity,
-          impersonation, deletion, and role changes remain unavailable.
+          Authorized administrators can access protected client
+          information and supported document workflows.
+          New appointments are managed through the external
+          scheduling service. Client-record editing, payments,
+          audit activity, impersonation, deletion, and role
+          changes remain subject to their existing restrictions.
         </p>
       </div>
 
@@ -486,7 +493,7 @@
         <a
           href="#adminAppointmentManagement"
           class="quick-action-card active-action-card">
-          Manage Appointments
+          Appointment Scheduling Information
         </a>
 
         <button
