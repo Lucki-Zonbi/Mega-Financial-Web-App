@@ -923,139 +923,24 @@ router.get(
   }
 );
 
+// Historical internal scheduling:
+// Administrator appointment-status modifications are retired.
+// Historical appointment records remain available for authorized viewing.
+
 router.patch(
   "/clients/:clientId/appointments/:appointmentId/status",
   protect,
   requireAdmin,
-  async (req, res) => {
-    try {
-      const {
-        clientId,
-        appointmentId
-      } = req.params;
-
-      if (
-        !mongoose.isValidObjectId(clientId) ||
-        !mongoose.isValidObjectId(
-          appointmentId
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Valid client and appointment identifiers are required."
-        });
-      }
-
-      const requestedStatus =
-        typeof req.body.status === "string"
-          ? req.body.status.trim()
-          : "";
-
-      const appointment =
-        await Appointment.findOne({
-          _id: appointmentId,
-          user: clientId
-        });
-
-      if (!appointment) {
-        return res.status(404).json({
-          success: false,
-          message:
-            "The requested appointment was not found."
-        });
-      }
-
-      const previousAppointmentStatus =
-        appointment.status;
-
-      const allowedNextStatuses =
-        APPOINTMENT_STATUS_TRANSITIONS[
-          previousAppointmentStatus
-        ] || [];
-
-      if (
-        !allowedNextStatuses.includes(
-          requestedStatus
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "The requested appointment status transition is not permitted."
-        });
-      }
-
-      const statusChangedAt =
-        new Date();
-
-      appointment.status =
-        requestedStatus;
-
-      if (
-        requestedStatus === "confirmed"
-      ) {
-        appointment.confirmedAt =
-          statusChangedAt;
-      }
-
-      if (
-        requestedStatus === "completed"
-      ) {
-        appointment.completedAt =
-          statusChangedAt;
-      }
-
-      if (
-        requestedStatus === "cancelled"
-      ) {
-        appointment.cancelledAt =
-          statusChangedAt;
-      }
-
-      await appointment.save();
-
-      await recordAdminAuditEvent({
-        administratorId:
-          req.user.id,
-
-        administratorRole:
-          req.user.role,
-
-        clientId,
-
-        action:
-          "appointment_status_changed",
-
-        resourceType:
-          "appointment",
-
-        resourceId:
-          appointment._id,
-
-        previousStatus:
-          previousAppointmentStatus,
-
-        newStatus:
-          requestedStatus
-      });
-
-      return res.status(200).json({
-        success: true,
-        message:
-          "Appointment status updated.",
-        appointment:
-          buildSafeAdminAppointmentRecord(
-            appointment
-          )
-      });
-    } catch (error) {
-        return res.status(500).json({
-        success: false,
-        message:
-          "The appointment status could not be updated."
-      });
-    }
+  (req, res) => {
+    return res.status(410).json({
+      success: false,
+      code: "INTERNAL_SCHEDULING_RETIRED",
+      message:
+        "Internal appointment-status management has been retired. " +
+        "New bookings and scheduling changes are managed through " +
+        "Mega Financial's external scheduling service.",
+      schedulingPath: "/schedule.html"
+    });
   }
 );
 

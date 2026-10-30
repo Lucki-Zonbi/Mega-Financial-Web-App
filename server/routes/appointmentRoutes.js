@@ -216,218 +216,23 @@ function getFriendlyValidationMessage(error) {
   return null;
 }
 
+// Historical internal scheduling:
+// New appointment creation has been retired.
+// Clients must use Mega Financial's external booking service.
+
 router.post(
   "/",
   protect,
   requireClient,
-  async (req, res) => {
-    try {
-      const forbiddenClientFields = [
-        "user",
-        "userId",
-        "clientId",
-        "owner",
-        "ownerId",
-        "status",
-        "durationMinutes",
-        "meetingLink",
-        "cancelledAt",
-        "confirmedAt",
-        "completedAt"
-      ].filter((field) => {
-        return hasOwnProperty(
-          req.body,
-          field
-        );
-      });
-
-      if (
-        forbiddenClientFields.length > 0
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Ownership, status, duration, meeting-link, and administrative appointment fields cannot be supplied by the client."
-        });
-      }
-
-      const serviceType =
-        cleanString(
-          req.body.serviceType
-        );
-
-      const platformType =
-        cleanString(
-          req.body.platformType
-        );
-
-      const clientNotes =
-        cleanString(
-          req.body.clientNotes
-        );
-
-      if (
-        !APPOINTMENT_SERVICE_OPTIONS.includes(
-          serviceType
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Please select a valid Mega Financial service."
-        });
-      }
-
-      if (
-        !APPOINTMENT_PLATFORM_OPTIONS.includes(
-          platformType
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Please select a valid consultation platform."
-        });
-      }
-
-      if (clientNotes.length > 1000) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Appointment notes cannot exceed 1,000 characters."
-        });
-      }
-
-      const appointmentStart =
-        parseAppointmentStart({
-          appointmentDate:
-            req.body.appointmentDate,
-          appointmentTime:
-            req.body.appointmentTime
-        });
-
-      if (!appointmentStart) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Please provide a valid appointment date and time."
-        });
-      }
-
-      if (
-        appointmentStart <
-        getMinimumAppointmentDate()
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Appointments must be requested at least 24 hours in advance."
-        });
-      }
-
-      if (
-        appointmentStart >
-        getMaximumAppointmentDate()
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Appointments cannot be requested more than 180 days in advance."
-        });
-      }
-
-      if (
-        !isAllowedAppointmentTime(
-          appointmentStart
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Appointments must begin on a weekday at a whole-hour time between 9:00 AM and 4:00 PM."
-        });
-      }
-
-      const existingClientAppointment =
-        await Appointment.findOne({
-          user: req.user.id,
-          status: {
-            $in: ACTIVE_APPOINTMENT_STATUSES
-          },
-          appointmentStart
-        })
-          .select("_id")
-          .lean();
-
-      if (existingClientAppointment) {
-        return res.status(409).json({
-          success: false,
-          message:
-            "You already have an active appointment request for that date and time."
-        });
-      }
-
-      const occupiedAppointment =
-        await Appointment.findOne({
-          status: {
-            $in: ACTIVE_APPOINTMENT_STATUSES
-          },
-          appointmentStart
-        })
-          .select("_id")
-          .lean();
-
-      if (occupiedAppointment) {
-        return res.status(409).json({
-          success: false,
-          message:
-            "That appointment time is no longer available. Please choose another time."
-        });
-      }
-
-      const appointment =
-        await Appointment.create({
-          user: req.user.id,
-          serviceType,
-          platformType,
-          appointmentStart,
-          durationMinutes:
-            APPOINTMENT_DURATION_MINUTES,
-          clientNotes,
-          status: "requested"
-        });
-
-      return res.status(201).json({
-        success: true,
-        message:
-          "Your appointment request was submitted securely and is awaiting confirmation.",
-        appointment:
-          buildSafeAppointmentResponse(
-            appointment
-          )
-      });
-    } catch (error) {
-      console.error(
-        "Appointment request error:",
-        error.message
-      );
-
-      const validationMessage =
-        getFriendlyValidationMessage(error);
-
-      if (validationMessage) {
-        return res.status(400).json({
-          success: false,
-          message: validationMessage
-        });
-      }
-
-      return res.status(500).json({
-        success: false,
-        message:
-          "The appointment request could not be submitted."
-      });
-    }
+  (req, res) => {
+    return res.status(410).json({
+      success: false,
+      code: "INTERNAL_SCHEDULING_RETIRED",
+      message:
+        "Internal appointment requests are no longer available. " +
+        "Please use Mega Financial's official scheduling page.",
+      schedulingPath: "/schedule.html"
+    });
   }
 );
 
@@ -525,153 +330,24 @@ router.get(
   }
 );
 
+// Historical internal scheduling:
+// Internal appointment cancellation has been retired.
+// External booking changes are managed through GoDaddy.
+
 router.patch(
   "/:appointmentId/cancel",
   protect,
   requireClient,
-  async (req, res) => {
-    try {
-      const {
-        appointmentId
-      } = req.params;
-
-      if (
-        !mongoose.isValidObjectId(
-          appointmentId
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "A valid appointment identifier is required."
-        });
-      }
-
-      const forbiddenCancellationFields = [
-        "user",
-        "userId",
-        "clientId",
-        "status",
-        "appointmentStart",
-        "serviceType",
-        "platformType",
-        "durationMinutes",
-        "meetingLink",
-        "cancelledAt",
-        "confirmedAt",
-        "completedAt"
-      ].filter((field) => {
-        return hasOwnProperty(
-          req.body,
-          field
-        );
-      });
-
-      if (
-        forbiddenCancellationFields.length >
-        0
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Only an optional cancellation reason may be supplied."
-        });
-      }
-
-      const cancellationReason =
-        cleanString(
-          req.body.cancellationReason
-        );
-
-      if (
-        cancellationReason.length > 500
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "The cancellation reason cannot exceed 500 characters."
-        });
-      }
-
-      const appointment =
-        await Appointment.findOne({
-          _id: appointmentId,
-          user: req.user.id
-        });
-
-      if (!appointment) {
-        return res.status(404).json({
-          success: false,
-          message:
-            "The requested appointment was not found."
-        });
-      }
-
-      if (
-        !CLIENT_CANCELLABLE_APPOINTMENT_STATUSES.includes(
-          appointment.status
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "This appointment can no longer be cancelled through the client portal."
-        });
-      }
-
-      if (
-        appointment.appointmentStart <=
-        new Date()
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Past appointments cannot be cancelled through the client portal."
-        });
-      }
-
-      appointment.status =
-        "cancelled";
-
-      appointment.cancellationReason =
-        cancellationReason;
-
-      appointment.cancelledAt =
-        new Date();
-
-      await appointment.save();
-
-      return res.status(200).json({
-        success: true,
-        message:
-          "Your appointment was cancelled.",
-        appointment:
-          buildSafeAppointmentResponse(
-            appointment
-          )
-      });
-    } catch (error) {
-      console.error(
-        "Appointment cancellation error:",
-        error.message
-      );
-
-      const validationMessage =
-        getFriendlyValidationMessage(error);
-
-      if (validationMessage) {
-        return res.status(400).json({
-          success: false,
-          message: validationMessage
-        });
-      }
-
-      return res.status(500).json({
-        success: false,
-        message:
-          "The appointment could not be cancelled."
-      });
-    }
+  (req, res) => {
+    return res.status(410).json({
+      success: false,
+      code: "INTERNAL_SCHEDULING_RETIRED",
+      message:
+        "Internal appointment cancellation is no longer available. " +
+        "Please manage new bookings through Mega Financial's " +
+        "official scheduling service.",
+      schedulingPath: "/schedule.html"
+    });
   }
 );
 
