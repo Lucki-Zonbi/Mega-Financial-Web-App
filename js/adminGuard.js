@@ -2018,10 +2018,6 @@ async function loadAdminClientSummary(clientId) {
 
         displayAdminClientSummary(data);
 
-    await loadAdminClientAppointments(
-      clientId
-    );
-
     await loadAdminClientMessages(
       clientId
     );
