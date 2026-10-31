@@ -272,6 +272,49 @@ section {
   box-shadow: var(--shadow);
 }
 
+
+/* IRS Tax Updates — clickable card */
+.irs-updates-card {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.irs-updates-card:visited {
+  color: inherit;
+}
+
+.irs-updates-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.irs-updates-card:focus-visible {
+  outline: 3px solid var(--money-blue);
+  outline-offset: 4px;
+}
+
+.irs-updates-card .specials-content p {
+  color: var(--gray-text);
+}
+
+.irs-updates-card .flyer-placeholder {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .irs-updates-card {
+    transition: none;
+  }
+
+  .irs-updates-card:hover {
+    transform: none;
+  }
+}
+
+
 .specials-content h3 {
   color: var(--deep-blue);
   font-size: 1.6rem;
