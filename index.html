@@ -13,7 +13,17 @@
 
   <header id="site-header" class="site-header">
     <nav class="navbar">
-      <a href="#home" class="logo">Mega Financial</a>
+
+
+      <a href="#home" class="logo" aria-label="Mega Financial — Home">
+        <img
+          src="./assets/images/mega-financial-logo.png"
+          alt="Mega Financial"
+          class="nav-logo-image"
+        />
+      </a>
+
+
 
       <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu">
         <span></span>
@@ -23,7 +33,7 @@
 
       <ul class="nav-links" id="navLinks">
         <li><a href="#home">Home</a></li>
-        <li><a href="#specials">Specials</a></li>
+        <li><a href="#tax-updates">Tax Updates</a></li>
         <li><a href="./about.html">About</a></li>
         <li><a href="./services.html">Services</a></li>
         <li><a href="./portal.html">Portal</a></li>
@@ -65,31 +75,40 @@
       </div>
     </section>
 
-    <section id="specials" class="specials-section">
-      <div class="section-heading">
-        <span class="section-tag">Seasonal Updates</span>
-        <h2>Special Services & Announcements</h2>
-        <p>
-          Tax-season flyers, refund advance updates, deadlines, and special services
-          will appear in this section.
-        </p>
-      </div>
 
-      <div class="specials-card">
-        <div class="flyer-placeholder">
-          <span>Flyer Upload Area</span>
-        </div>
+<section id="tax-updates" class="specials-section">
+  <div class="section-heading">
+    <span class="section-tag">Federal Tax Information</span>
+    <h2>IRS Tax Updates</h2>
+    <p>
+      Stay informed with the latest federal tax information,
+      filing deadlines, and important announcements.
+    </p>
+  </div>
 
-        <div class="specials-content">
-          <h3>No current promotion posted</h3>
-          <p>
-            When Mega Financial has a special service, seasonal offer, or tax update,
-            the flyer or image will appear here without changing the homepage layout.
-          </p>
-          <a href="./portal.html" class="text-link">Check availability →</a>
-        </div>
-      </div>
-    </section>
+  <a
+    href="https://www.irs.gov/"
+    class="specials-card irs-updates-card"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit the official IRS website for tax updates"
+  >
+    <div class="flyer-placeholder">
+      <span>IRS Image Coming Soon</span>
+    </div>
+
+    <div class="specials-content">
+      <h3>Official IRS Tax Information</h3>
+      <p>
+        Click this card to visit the official Internal Revenue
+        Service website for federal tax news, filing information,
+        deadlines, and important tax updates.
+      </p>
+      <span class="text-link">Visit IRS.gov →</span>
+    </div>
+  </a>
+</section>
+
 
     <section id="about" class="about-section">
       <div class="about-image-placeholder">

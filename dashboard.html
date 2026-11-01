@@ -13,7 +13,15 @@
 
   <header id="site-header" class="site-header">
     <nav class="navbar">
-      <a href="./index.html" class="logo">Mega Financial</a>
+
+      <a href="./index.html" class="logo" aria-label="Mega Financial — Home">
+        <img
+          src="./assets/images/mega-financial-logo.png"
+          alt="Mega Financial"
+          class="nav-logo-image"
+        />
+      </a>
+
 
       <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation menu">
         <span></span>
@@ -23,7 +31,7 @@
 
       <ul class="nav-links" id="navLinks">
         <li><a href="./index.html">Home</a></li>
-        <li><a href="./index.html#specials">Specials</a></li>
+        <li><a href="./index.html#tax-updates">Tax Updates</a></li>
         <li><a href="./about.html">About</a></li>
         <li><a href="./services.html">Services</a></li>
         <li><a href="./login.html" class="mobile-login-link">Client Login</a>
@@ -38,7 +46,7 @@
 
     <section class="dashboard-hero">
       <div class="dashboard-hero-content">
-        <span class="section-tag">Client Dashboard Preview</span>
+        <span class="section-tag">Client Dashboard</span>
         <h1>Welcome back, <span id="dashboardClientName">future Mega Financial client</span>.</h1>
       <p>
         Review your protected account information, tax intake status,
@@ -114,28 +122,6 @@
           <div class="dashboard-intake-action">
             <a href="./documents.html" class="btn primary-btn">
               View Checklist
-            </a>
-          </div>
-        </article>
-
-        <article class="future-card dashboard-card">
-          <h3>Payment Status</h3>
-
-          <p>
-            Start secure Stripe Checkout or
-            review your server-confirmed
-            payment history.
-          </p>
-
-          <span class="dashboard-note">
-            Protected Stripe payment workflow
-          </span>
-
-          <div class="dashboard-intake-action">
-            <a
-              href="./payment.html"
-              class="btn primary-btn">
-              View Payments
             </a>
           </div>
         </article>
@@ -273,22 +259,17 @@
       <div class="section-heading">
         <span class="section-tag">Quick Actions</span>
         <h2>Client actions.</h2>
-          <p>
-            Continue your protected intake, book an appointment through
-            Mega Financial's official scheduling website, manage required
-            documents, review payment status, or send a secure portal message.
-          </p>
+        <p>
+          Continue your protected intake, book an appointment through
+          Mega Financial's official scheduling website, manage required
+          documents, or send a secure portal message.
+        </p>
       </div>
 
       <div class="quick-actions-grid">
         <a href="./schedule.html" class="quick-action-card">Schedule Appointment</a>
         <a href="./documents.html" class="quick-action-card">Upload Documents</a>
         <a href="./intake.html" id="dashboardQuickIntakeLink" class="quick-action-card">Complete Tax Intake</a>
-        <a
-          href="./payment.html"
-          class="quick-action-card active-action-card">
-          View Payment Status
-        </a>
 
         <a
           href="#clientMessageCenter"
