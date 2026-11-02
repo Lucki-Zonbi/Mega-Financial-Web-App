@@ -81,6 +81,7 @@ a {
 }
 
 
+
 .site-header {
   position: sticky;
   top: 0;
@@ -93,24 +94,14 @@ a {
     #008b67 100%
   );
   box-shadow: var(--shadow);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
-
-.site-header.scrolling {
-  background: transparent;
-  box-shadow: none;
+.site-header.nav-hidden {
+  transform: translateY(-100%);
+  pointer-events: none;
 }
 
-.site-header.scrolling .logo,
-.site-header.scrolling .nav-links a,
-.site-header.scrolling .hamburger span {
-  opacity: 0.30;
-}
-
-.site-header.scrolling .nav-btn {
-  opacity: 0.50;
-}
 
 .navbar {
   max-width: 1200px;
@@ -576,14 +567,6 @@ section {
 
   .nav-links a:hover {
     background: var(--soft-green);
-  }
-
-  .site-header.scrolling .nav-links {
-    background: rgba(255, 255, 255, 0.92);
-  }
-
-  .site-header.scrolling .nav-links a {
-    opacity: 1;
   }
 
   .hero,
