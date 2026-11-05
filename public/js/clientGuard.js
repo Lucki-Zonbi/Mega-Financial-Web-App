@@ -1,10 +1,11 @@
+
 const protectedPreviewPages = [
   "dashboard.html",
-  "schedule.html",
   "intake.html",
   "documents.html",
   "payment.html"
 ];
+
 
 function getStoredUser() {
   const storedUser = localStorage.getItem("megaFinancialUser");
