@@ -4,13 +4,17 @@ const header = document.getElementById("site-header");
 const hamburgerBtn = document.getElementById("hamburgerBtn");
 const navLinks = document.getElementById("navLinks");
 
+
 window.addEventListener("scroll", () => {
+  if (!header) return;
+
   if (window.scrollY > 20) {
-    header.classList.add("scrolling");
+    header.classList.add("nav-hidden");
   } else {
-    header.classList.remove("scrolling");
+    header.classList.remove("nav-hidden");
   }
 });
+
 
 hamburgerBtn.addEventListener("click", () => {
   hamburgerBtn.classList.toggle("active");
