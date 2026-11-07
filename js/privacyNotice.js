@@ -1,6 +1,6 @@
 (function () {
   const NOTICE_VERSION =
-    "2026-09-16";
+    "2026-11-07";
 
   const STORAGE_KEY =
     "megaFinancialCookieDataNotice";
