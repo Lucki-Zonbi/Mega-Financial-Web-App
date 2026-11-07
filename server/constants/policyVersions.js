@@ -1,11 +1,12 @@
+
 const POLICY_VERSIONS = Object.freeze({
   privacy_policy: {
-    version: "2026-09-16",
+    version: "2026-11-07",
     title: "Mega Financial Privacy Policy"
   },
 
   cookie_data_notice: {
-    version: "2026-09-16",
+    version: "2026-11-07",
     title:
       "Mega Financial Cookie & Data Collection Notice"
   }
