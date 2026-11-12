@@ -56,9 +56,18 @@ app.use(
   })
 );
 
+
+const additionalOrigins = String(
+  process.env.CORS_ORIGINS || ""
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 const allowedOrigins = new Set(
   [
     process.env.FRONTEND_ORIGIN,
+    ...additionalOrigins,
     "http://localhost:3000",
     "http://127.0.0.1:3000"
   ].filter(Boolean)
