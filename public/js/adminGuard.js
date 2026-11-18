@@ -2588,6 +2588,43 @@ async function verifyAdminSession() {
   await loadAdminNotifications();
 }
 
+
+/* Sprint 2O — Review Documents navigation */
+document
+  .getElementById("adminReviewDocumentsButton")
+  ?.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    const reviewSection = document.getElementById(
+      "adminDocumentReviewSection"
+    );
+
+    const selectedClientContent = document.getElementById(
+      "adminClientSummaryContent"
+    );
+
+    if (
+      !reviewSection ||
+      !selectedClientContent ||
+      selectedClientContent.hidden
+    ) {
+      document
+        .getElementById("adminClientSummaryMessage")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
+      return;
+    }
+
+    reviewSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+
+
 setupAdminLogoutButton();
 setupAdminDirectoryControls();
 setupAdminMessageControls();

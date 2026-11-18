@@ -287,8 +287,23 @@ function buildPrivateObjectKey(
       storedFileName
     );
 
-  return `documents/${safeStoredFileName}`;
+  const configuredPrefix =
+    typeof process.env.DOCUMENT_S3_PREFIX === "string"
+      ? process.env.DOCUMENT_S3_PREFIX.trim()
+      : "";
+
+  const prefix =
+    configuredPrefix || "documents";
+
+  if (!/^[a-zA-Z0-9_-]+$/.test(prefix)) {
+    throw new Error(
+      "DOCUMENT_S3_PREFIX contains invalid characters."
+    );
+  }
+
+  return `${prefix}/${safeStoredFileName}`;
 }
+
 
 function validatePolicyStorageSegment(
   value

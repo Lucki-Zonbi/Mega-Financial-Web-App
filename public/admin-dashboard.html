@@ -432,8 +432,10 @@
               </form>
             </section>
 
-            <section class="admin-summary-group">
-              <h4>Authorized Document Review</h4>
+              <section
+                class="admin-summary-group"
+                id="adminDocumentReviewSection">
+                <h4>Authorized Document Review</h4>
 
               <p class="admin-summary-privacy-note">
                 Stored document details are shown only after an
@@ -480,21 +482,22 @@
       </div>
 
       <div class="quick-actions-grid">
-        <button
-          type="button"
-          class="quick-action-card"
-          disabled
+
+        <a
+          href="#adminDocumentReviewSection"
+          class="quick-action-card active-action-card"
+          id="adminReviewDocumentsButton"
         >
           Review Documents
-        </button>
+        </a>
 
-        <button
-          type="button"
-          class="quick-action-card"
-          disabled
+        <a
+          href="#adminClientDirectory"
+          class="quick-action-card active-action-card"
+          id="adminEditClientRecordsButton"
         >
           Edit Client Records
-        </button>
+        </a>
 
         <a
           href="#adminAppointmentManagement"
