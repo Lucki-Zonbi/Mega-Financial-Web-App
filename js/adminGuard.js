@@ -2067,28 +2067,81 @@ function setupAdminDirectoryControls() {
     "adminNextPage"
   );
 
-  if (searchForm && searchInput) {
+    if (searchForm && searchInput) {
     searchForm.addEventListener("submit", function (event) {
       event.preventDefault();
 
-      adminDirectoryState.search =
+      const searchTerm =
         searchInput.value.trim().slice(0, 100);
 
+      if (!searchTerm) {
+        adminDirectoryState.search = "";
+        adminDirectoryState.selectedClientId = null;
+
+        const directoryTarget = getAdminElement(
+          "adminClientDirectory"
+        );
+
+        clearAdminChildren(directoryTarget);
+        updateAdminPagination(null);
+
+        showAdminDirectoryMessage(
+          "Please enter a client's first name, last name, or email address."
+        );
+
+        searchInput.focus();
+        return;
+      }
+
+      adminDirectoryState.search = searchTerm;
       adminDirectoryState.selectedClientId = null;
 
       loadAdminClientDirectory(1);
     });
   }
 
-  if (clearButton && searchInput) {
+    if (clearButton && searchInput) {
     clearButton.addEventListener("click", function () {
       searchInput.value = "";
+
       adminDirectoryState.search = "";
       adminDirectoryState.selectedClientId = null;
+      // Sprint 2Q.S4D - Clear the previously selected client summary.
+  const summaryContent = getAdminElement(
+    "adminClientSummaryContent"
+  );
 
-      loadAdminClientDirectory(1);
-    });
+  if (summaryContent) {
+    summaryContent.hidden = true;
   }
+
+  clearAdminChildren(
+    getAdminElement("adminIntakeSummary")
+  );
+
+  clearAdminChildren(
+    getAdminElement("adminDocumentSummary")
+  );
+
+  showAdminSummaryMessage(
+    "No client selected. Search for a client to view their protected workflow."
+  );
+        adminDirectoryState.page = 1;
+
+        const directoryTarget = getAdminElement(
+          "adminClientDirectory"
+        );
+
+        clearAdminChildren(directoryTarget);
+        updateAdminPagination(null);
+
+        showAdminDirectoryMessage(
+          "Search for a client using their first name, last name, or email address."
+        );
+
+        searchInput.focus();
+      });
+    }
 
   if (previousButton) {
     previousButton.addEventListener("click", function () {
@@ -2583,7 +2636,18 @@ async function verifyAdminSession() {
     "success"
   );
 
-  await loadAdminClientDirectory(1);
+    // Sprint 2Q.S2 - Search-first administrator client directory.
+  // Do not automatically retrieve all clients on dashboard login.
+  const directoryTarget = getAdminElement(
+    "adminClientDirectory"
+  );
+
+  clearAdminChildren(directoryTarget);
+  updateAdminPagination(null);
+
+  showAdminDirectoryMessage(
+    "Search for a client using their first name, last name, or email address."
+  );
 
   await loadAdminNotifications();
 }
