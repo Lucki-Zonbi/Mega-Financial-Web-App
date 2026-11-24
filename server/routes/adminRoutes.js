@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const PDFDocument = require("pdfkit");
 const protect = require("../middleware/authMiddleware");
 
 const {
@@ -434,6 +435,360 @@ router.get("/clients", protect, requireAdmin, async (req, res) => {
     });
   }
 });
+
+/**
+ * Sprint 2R.1
+ * Executive Administrator-only full Tax Intake retrieval.
+ *
+ * Read-only.
+ * No AWS S3 access.
+ * No modifications to client submissions.
+ */
+router.get(
+  "/clients/:clientId/tax-intakes",
+  protect,
+  requireExecutiveAdmin,
+  async (req, res) => {
+    res.setHeader(
+      "Cache-Control",
+      "private, no-store, max-age=0"
+    );
+
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader(
+      "X-Content-Type-Options",
+      "nosniff"
+    );
+
+    try {
+      const { clientId } = req.params;
+
+      if (!mongoose.isValidObjectId(clientId)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "A valid client identifier is required."
+        });
+      }
+
+      const client = await User.findOne({
+        _id: clientId,
+        role: "client"
+      })
+        .select("_id fullName")
+        .lean();
+
+      if (!client) {
+        return res.status(404).json({
+          success: false,
+          message:
+            "The requested client record was not found."
+        });
+      }
+
+      const intakeRecords = await TaxIntake.find({
+        user: client._id
+      })
+        .select(
+          "_id taxYear clientInformation " +
+          "employmentTypes incomeSources " +
+          "familyInformation businessInformation " +
+          "servicesNeeded additionalNotes " +
+          "status submittedAt createdAt updatedAt"
+        )
+        .sort({
+          taxYear: -1,
+          updatedAt: -1
+        })
+        .lean();
+
+      const safeIntakes = intakeRecords.map(
+        (intake) => ({
+          id: intake._id,
+          taxYear: intake.taxYear,
+          clientInformation:
+            intake.clientInformation,
+          employmentTypes:
+            intake.employmentTypes || [],
+          incomeSources:
+            intake.incomeSources || [],
+          familyInformation:
+            intake.familyInformation || [],
+          businessInformation:
+            intake.businessInformation || [],
+          servicesNeeded:
+            intake.servicesNeeded || [],
+          additionalNotes:
+            intake.additionalNotes || "",
+          status: intake.status,
+          submittedAt: intake.submittedAt,
+          createdAt: intake.createdAt,
+          updatedAt: intake.updatedAt
+        })
+      );
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Authorized client Tax Intake records retrieved.",
+        client: {
+          id: client._id,
+          fullName: client.fullName
+        },
+        intakeCount: safeIntakes.length,
+        intakes: safeIntakes
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message:
+          "The client Tax Intake records could not be retrieved."
+      });
+    }
+  }
+);
+
+/**
+ * Sprint 2R.4B
+ * Executive Administrator-only Tax Intake PDF download.
+ * PDF generated directly from MongoDB without S3 storage.
+ */
+router.get(
+  "/clients/:clientId/tax-intakes/:intakeId/pdf",
+  protect,
+  requireExecutiveAdmin,
+  async (req, res) => {
+    res.setHeader(
+      "Cache-Control",
+      "private, no-store, max-age=0"
+    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+
+    try {
+      const { clientId, intakeId } = req.params;
+
+      if (
+        !mongoose.isValidObjectId(clientId) ||
+        !mongoose.isValidObjectId(intakeId)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "A valid client and intake identifier is required."
+        });
+      }
+
+      const client = await User.findOne({
+        _id: clientId,
+        role: "client"
+      })
+        .select("_id fullName")
+        .lean();
+
+      if (!client) {
+        return res.status(404).json({
+          success: false,
+          message: "The requested client was not found."
+        });
+      }
+
+      // Verify the intake belongs to the selected client.
+      const intake = await TaxIntake.findOne({
+        _id: intakeId,
+        user: client._id
+      }).lean();
+
+      if (!intake) {
+        return res.status(404).json({
+          success: false,
+          message: "The requested Tax Intake was not found."
+        });
+      }
+
+      const pdf = new PDFDocument({
+        size: "LETTER",
+        margin: 50,
+        bufferPages: false,
+        info: {
+          Title: "Mega Financial - Tax Intake",
+          Author: "Mega Financial Tax Consulting",
+          Subject: "Confidential Client Tax Intake"
+        }
+      });
+
+      const formatValue = (value) => {
+        if (Array.isArray(value)) {
+          return value.length
+            ? value.map(String).join(", ")
+            : "None selected";
+        }
+
+        if (value === null || value === undefined) {
+          return "Not provided";
+        }
+
+        if (typeof value === "object") {
+          return JSON.stringify(value);
+        }
+
+        const result = String(value).trim();
+        return result || "Not provided";
+      };
+
+      const formatDate = (value) => {
+        if (!value) return "Not provided";
+
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+          ? "Not provided"
+          : date.toISOString().slice(0, 10);
+      };
+
+      const addHeading = (heading) => {
+        pdf.moveDown(0.8);
+        pdf
+          .font("Helvetica-Bold")
+          .fontSize(12)
+          .fillColor("#176B80")
+          .text(heading, {
+            keepTogether: true
+          });
+
+        pdf.moveDown(0.35);
+      };
+
+      const addField = (label, value) => {
+        pdf
+          .font("Helvetica-Bold")
+          .fontSize(9)
+          .fillColor("#333333")
+          .text(`${label}:`, {
+            continued: true
+          });
+
+        pdf
+          .font("Helvetica")
+          .fontSize(9)
+          .fillColor("#333333")
+          .text(` ${formatValue(value)}`);
+
+        pdf.moveDown(0.25);
+      };
+
+      const info = intake.clientInformation || {};
+
+      // PDF header
+      pdf
+        .font("Helvetica-Bold")
+        .fontSize(18)
+        .fillColor("#176B80")
+        .text("MEGA FINANCIAL");
+
+      pdf
+        .font("Helvetica")
+        .fontSize(11)
+        .fillColor("#333333")
+        .text("Confidential Client Tax Intake");
+
+      pdf.moveDown(0.5);
+
+      pdf
+        .fontSize(8)
+        .fillColor("#666666")
+        .text(
+          "Authorized Executive Administrator Use Only"
+        );
+
+      pdf.moveDown(0.5);
+
+      addHeading("Intake Tracking");
+      addField("Tax Year", intake.taxYear);
+      addField("Status", intake.status);
+      addField("Submitted", formatDate(intake.submittedAt));
+      addField("Last Updated", formatDate(intake.updatedAt));
+
+      addHeading("Client Information");
+      addField("First Name", info.firstName);
+      addField("Last Name", info.lastName);
+      addField("Email", info.email);
+      addField("Phone", info.phone);
+      addField("Filing Status", info.filingStatus);
+
+      addHeading("Employment Information");
+      addField("Employment Types", intake.employmentTypes);
+
+      addHeading("Income Information");
+      addField("Income Sources", intake.incomeSources);
+
+      addHeading("Family Information");
+      addField("Family Details", intake.familyInformation);
+
+      addHeading("Business Information");
+      addField("Business Details", intake.businessInformation);
+
+      addHeading("Requested Tax Services");
+      addField("Services Needed", intake.servicesNeeded);
+
+      addHeading("Additional Client Notes");
+      addField("Notes", intake.additionalNotes);
+
+      pdf.moveDown(1);
+
+      pdf
+        .font("Helvetica")
+        .fontSize(8)
+        .fillColor("#666666")
+        .text(
+          "Confidential tax information. Store and handle securely.",
+          { align: "center" }
+        );
+
+      // Use a filename based on validated numeric tax year
+      // and the database intake identifier.
+      const year = Number.isInteger(intake.taxYear)
+        ? intake.taxYear
+        : "unknown";
+
+      const filename =
+        `MegaFinancial_TaxIntake_${year}_${intake._id}.pdf`;
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+      res.setHeader(
+        "X-Content-Type-Options",
+        "nosniff"
+      );
+
+      // Stream directly to the authenticated response.
+      // No file is saved locally or uploaded to S3.
+      pdf.on("error", () => {
+        if (!res.headersSent) {
+          res.status(500).json({
+            success: false,
+            message: "PDF generation failed."
+          });
+        } else {
+          res.destroy();
+        }
+      });
+
+      pdf.pipe(res);
+      pdf.end();
+    } catch (error) {
+      if (!res.headersSent) {
+        return res.status(500).json({
+          success: false,
+          message: "The Tax Intake PDF could not be generated."
+        });
+      }
+
+      res.destroy();
+    }
+  }
+);
 
 router.get(
   "/clients/:clientId/summary",

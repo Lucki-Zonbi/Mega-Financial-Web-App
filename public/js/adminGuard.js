@@ -937,6 +937,345 @@ function renderAdminIntakeSummary(intakeSummary) {
       )
     );
 
+    // Sprint 2R.3A — Executive Administrator intake shortcut.
+    if (adminAuditState.accessEnabled) {
+      const viewIntakeButton =
+        document.createElement("button");
+
+      viewIntakeButton.type = "button";
+      viewIntakeButton.className =
+        "admin-action-button";
+
+      viewIntakeButton.textContent =
+        "View Complete Intake";
+
+      viewIntakeButton.addEventListener(
+        "click",
+        function () {
+          const fullIntakeSection =
+            getAdminElement(
+              "adminFullTaxIntakeSection"
+            );
+
+          if (
+            !fullIntakeSection ||
+            fullIntakeSection.hidden
+          ) {
+            return;
+          }
+
+          fullIntakeSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+          fullIntakeSection.setAttribute(
+            "tabindex",
+            "-1"
+          );
+
+          fullIntakeSection.focus({
+            preventScroll: true
+          });
+        }
+      );
+
+      card.appendChild(viewIntakeButton);
+    }
+
+    target.appendChild(card);
+  });
+}
+
+/**
+ * Sprint 2R.4D
+ * Download one selected client's Tax Intake PDF.
+ * Executive Administrator only.
+ * No AWS or permanent server-side storage.
+ */
+async function downloadAdminTaxIntakePdf(
+  clientId,
+  intakeId,
+  taxYear
+) {
+  if (
+    !adminAuditState.accessEnabled ||
+    !clientId ||
+    !intakeId ||
+    adminDirectoryState.selectedClientId !== clientId
+  ) {
+    throw new Error(
+      "An authorized client intake must be selected."
+    );
+  }
+
+  const token = getStoredAdminToken();
+
+  if (!token) {
+    throw new Error(
+      "Administrator authentication is required."
+    );
+  }
+
+  const url =
+    `/api/admin/clients/${encodeURIComponent(clientId)}` +
+    `/tax-intakes/${encodeURIComponent(intakeId)}/pdf`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "The Tax Intake PDF could not be downloaded."
+    );
+  }
+
+  const blob = await response.blob();
+
+  if (
+    !blob.type.includes("application/pdf") ||
+    (await blob.slice(0, 5).text()) !== "%PDF-"
+  ) {
+    throw new Error(
+      "The server did not return a valid PDF response."
+    );
+  }
+
+  // Do not download a previous client's response
+  // if the selected client changed during the request.
+  if (
+    !adminAuditState.accessEnabled ||
+    adminDirectoryState.selectedClientId !== clientId
+  ) {
+    throw new Error(
+      "The selected client changed. Download cancelled."
+    );
+  }
+
+  const safeYear = String(taxYear || "unknown")
+    .replace(/[^0-9]/g, "");
+
+  const filename =
+    `MegaFinancial_TaxIntake_${safeYear || "unknown"}_${intakeId}.pdf`;
+
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = objectUrl;
+  link.download = filename;
+  link.hidden = true;
+
+  document.body.appendChild(link);
+
+  try {
+    link.click();
+  } finally {
+    link.remove();
+
+    // Allow the browser to begin the download
+    // before releasing the temporary object URL.
+    setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
+    }, 60000);
+  }
+}
+
+/**
+ * Sprint 2R.2C
+ * Render complete Tax Intake records for the
+ * Executive Administrator's selected client.
+ */
+function renderAdminFullTaxIntakes(intakes) {
+  const section = getAdminElement(
+    "adminFullTaxIntakeSection"
+  );
+
+  const target = getAdminElement(
+    "adminFullTaxIntakeContent"
+  );
+
+  const message = getAdminElement(
+    "adminFullTaxIntakeMessage"
+  );
+
+  if (!section || !target || !message) {
+    return;
+  }
+
+  clearAdminChildren(target);
+  section.hidden = false;
+
+  if (!Array.isArray(intakes) || intakes.length === 0) {
+    message.textContent =
+      "No submitted Tax Intake records are available.";
+    return;
+  }
+
+  message.textContent =
+    `${intakes.length} Tax Intake record(s) available.`;
+
+  function addField(parent, label, value) {
+    const line = document.createElement("p");
+    const labelElement = document.createElement("strong");
+    const valueElement = document.createElement("span");
+
+    labelElement.textContent = `${label}: `;
+
+    let displayValue = "Not provided";
+
+    if (Array.isArray(value)) {
+      displayValue = value.length
+        ? value.join(", ")
+        : "None selected";
+    } else if (
+      value !== null &&
+      value !== undefined &&
+      String(value).trim() !== ""
+    ) {
+      displayValue = String(value);
+    }
+
+    valueElement.textContent = displayValue;
+
+    line.appendChild(labelElement);
+    line.appendChild(valueElement);
+    parent.appendChild(line);
+  }
+
+  function addGroup(card, title, fields) {
+    const group = document.createElement("div");
+    const heading = document.createElement("h6");
+
+    heading.textContent = title;
+    group.appendChild(heading);
+
+    fields.forEach(([label, value]) => {
+      addField(group, label, value);
+    });
+
+    card.appendChild(group);
+  }
+
+  intakes.forEach((intake) => {
+    const card = document.createElement("article");
+    const heading = document.createElement("h5");
+    const client = intake.clientInformation || {};
+
+    card.className = "admin-summary-status-card";
+    heading.textContent =
+      `Complete Tax Intake — ${intake.taxYear}`;
+
+    card.appendChild(heading);
+
+    addGroup(card, "Intake Tracking", [
+      ["Tax Year", intake.taxYear],
+      ["Status", formatAdminStatus(intake.status)],
+      ["Submitted", formatAdminDate(intake.submittedAt)],
+      ["Last Updated", formatAdminDate(intake.updatedAt)]
+    ]);
+
+    addGroup(card, "Client Information", [
+      ["First Name", client.firstName],
+      ["Last Name", client.lastName],
+      ["Email", client.email],
+      ["Phone", client.phone],
+      ["Filing Status", client.filingStatus]
+    ]);
+
+    addGroup(card, "Employment Information", [
+      ["Employment Types", intake.employmentTypes]
+    ]);
+
+    addGroup(card, "Income Information", [
+      ["Income Sources", intake.incomeSources]
+    ]);
+
+    addGroup(card, "Family Information", [
+      ["Family Information", intake.familyInformation]
+    ]);
+
+    addGroup(card, "Business Information", [
+      ["Business Information", intake.businessInformation]
+    ]);
+
+    addGroup(card, "Tax Services", [
+      ["Services Needed", intake.servicesNeeded]
+    ]);
+
+    addGroup(card, "Additional Notes", [
+      ["Client Notes", intake.additionalNotes]
+    ]);
+
+    // Sprint 2R.4D — Secure Tax Intake PDF download.
+    if (intake.id && adminAuditState.accessEnabled) {
+      const downloadButton =
+        document.createElement("button");
+
+      downloadButton.type = "button";
+      downloadButton.className =
+        "admin-action-button";
+
+      downloadButton.textContent =
+        "Download Tax Intake PDF";
+
+      downloadButton.addEventListener(
+        "click",
+        async function () {
+          const clientId =
+            adminDirectoryState.selectedClientId;
+
+          if (!clientId || downloadButton.disabled) {
+            return;
+          }
+
+          downloadButton.disabled = true;
+          downloadButton.textContent =
+            "Preparing PDF...";
+
+          try {
+            await downloadAdminTaxIntakePdf(
+              clientId,
+              intake.id,
+              intake.taxYear
+            );
+
+            downloadButton.textContent =
+              "Download Tax Intake PDF";
+          } catch (error) {
+            console.error(
+              "Tax Intake PDF download failed."
+            );
+
+            const message = getAdminElement(
+              "adminFullTaxIntakeMessage"
+            );
+
+            if (
+              message &&
+              adminDirectoryState.selectedClientId ===
+                clientId
+            ) {
+              message.textContent =
+                error.message ||
+                "The Tax Intake PDF could not be downloaded.";
+            }
+
+            downloadButton.textContent =
+              "Download Tax Intake PDF";
+          } finally {
+            downloadButton.disabled = false;
+          }
+        }
+      );
+
+      card.appendChild(downloadButton);
+    }
+
     target.appendChild(card);
   });
 }
@@ -1998,12 +2337,99 @@ function displayAdminClientSummary(data) {
   );
 }
 
+/**
+ * Sprint 2R.2D
+ * Load complete Tax Intake information for the
+ * selected client, Executive Administrator only.
+ */
+async function loadAdminFullTaxIntakes(clientId) {
+  const section = getAdminElement(
+    "adminFullTaxIntakeSection"
+  );
+
+  const content = getAdminElement(
+    "adminFullTaxIntakeContent"
+  );
+
+  const message = getAdminElement(
+    "adminFullTaxIntakeMessage"
+  );
+
+  if (!section || !content || !message) {
+    return;
+  }
+
+  // Clear confidential data from any previous selection.
+  clearAdminChildren(content);
+  section.hidden = true;
+
+  // The server independently enforces this restriction.
+  if (!adminAuditState.accessEnabled || !clientId) {
+    return;
+  }
+
+  section.hidden = false;
+  message.textContent =
+    "Loading complete Tax Intake information...";
+
+  try {
+    const result = await fetchProtectedAdminJson(
+      `/api/admin/clients/${
+        encodeURIComponent(clientId)
+      }/tax-intakes`
+    );
+
+    // Ignore responses from an outdated client selection.
+    if (
+      adminDirectoryState.selectedClientId !== clientId ||
+      !adminAuditState.accessEnabled
+    ) {
+      return;
+    }
+
+    if (!result.success) {
+      throw new Error(
+        "Tax Intake retrieval was unsuccessful."
+      );
+    }
+
+    renderAdminFullTaxIntakes(result.intakes);
+  } catch (error) {
+    // Do not show errors from an outdated selection.
+    if (
+      adminDirectoryState.selectedClientId !== clientId
+    ) {
+      return;
+    }
+
+    clearAdminChildren(content);
+
+    message.textContent =
+      error.message ||
+      "Complete Tax Intake information could not be loaded.";
+  }
+}
+
 async function loadAdminClientSummary(clientId) {
   if (!clientId) {
     return;
   }
 
   adminDirectoryState.selectedClientId = clientId;
+
+  // Sprint 2R.2D — Clear previously selected intake data.
+  const fullIntakeSection = getAdminElement(
+    "adminFullTaxIntakeSection"
+  );
+
+  clearAdminChildren(
+    getAdminElement("adminFullTaxIntakeContent")
+  );
+
+  if (fullIntakeSection) {
+    fullIntakeSection.hidden = true;
+  }
+
 
   showAdminSummaryMessage(
     "Loading the selected client summary..."
@@ -2016,11 +2442,23 @@ async function loadAdminClientSummary(clientId) {
       }/summary`
     );
 
-        displayAdminClientSummary(data);
+    // Ignore a response if the selected client changed
+    // while the summary request was pending.
+    if (adminDirectoryState.selectedClientId !== clientId) {
+      return;
+    }
+
+    displayAdminClientSummary(data);
+
+    // Sprint 2R.2D — Load complete Tax Intake details.
+    if (adminDirectoryState.selectedClientId === clientId) {
+      await loadAdminFullTaxIntakes(clientId);
+    }
 
     await loadAdminClientMessages(
       clientId
     );
+
 
     await loadAdminClientDocuments(
       clientId
@@ -2044,6 +2482,50 @@ async function loadAdminClientSummary(clientId) {
       "error"
     );
   }
+}
+
+/**
+ * Sprint 2R.3B
+ * Clear confidential intake details and the selected
+ * client's protected workflow when search is reset.
+ */
+function clearAdminSelectedClientWorkflow() {
+  const summaryContent = getAdminElement(
+    "adminClientSummaryContent"
+  );
+
+  const fullIntakeSection = getAdminElement(
+    "adminFullTaxIntakeSection"
+  );
+
+  if (summaryContent) {
+    summaryContent.hidden = true;
+  }
+
+  if (fullIntakeSection) {
+    fullIntakeSection.hidden = true;
+  }
+
+  clearAdminChildren(
+    getAdminElement("adminIntakeSummary")
+  );
+
+  clearAdminChildren(
+    getAdminElement("adminDocumentSummary")
+  );
+
+  clearAdminChildren(
+    getAdminElement("adminFullTaxIntakeContent")
+  );
+
+  setAdminText(
+    "adminFullTaxIntakeMessage",
+    "Select a client to load their Tax Intake information."
+  );
+
+  showAdminSummaryMessage(
+    "No client selected. Search for a client to view their protected workflow."
+  );
 }
 
 function setupAdminDirectoryControls() {
@@ -2078,6 +2560,8 @@ function setupAdminDirectoryControls() {
         adminDirectoryState.search = "";
         adminDirectoryState.selectedClientId = null;
 
+        clearAdminSelectedClientWorkflow();
+
         const directoryTarget = getAdminElement(
           "adminClientDirectory"
         );
@@ -2095,6 +2579,8 @@ function setupAdminDirectoryControls() {
 
       adminDirectoryState.search = searchTerm;
       adminDirectoryState.selectedClientId = null;
+      // Sprint 2R.3B — Clear previous client information.
+      clearAdminSelectedClientWorkflow();
 
       loadAdminClientDirectory(1);
     });
@@ -2106,26 +2592,10 @@ function setupAdminDirectoryControls() {
 
       adminDirectoryState.search = "";
       adminDirectoryState.selectedClientId = null;
-      // Sprint 2Q.S4D - Clear the previously selected client summary.
-  const summaryContent = getAdminElement(
-    "adminClientSummaryContent"
-  );
 
-  if (summaryContent) {
-    summaryContent.hidden = true;
-  }
+      // Sprint 2R.3B — Clear all selected client information.
+      clearAdminSelectedClientWorkflow();
 
-  clearAdminChildren(
-    getAdminElement("adminIntakeSummary")
-  );
-
-  clearAdminChildren(
-    getAdminElement("adminDocumentSummary")
-  );
-
-  showAdminSummaryMessage(
-    "No client selected. Search for a client to view their protected workflow."
-  );
         adminDirectoryState.page = 1;
 
         const directoryTarget = getAdminElement(
