@@ -117,6 +117,27 @@ router.get(
   requireClient,
   async (req, res) => {
     try {
+
+        // BEGIN TEMPORARY DEVELOPMENT POLICY BYPASS
+        const allowDevelopmentBypass =
+          process.env.NODE_ENV === "development" &&
+          mongoose.connection.readyState === 1 &&
+          mongoose.connection.name === "mega_financial_dev" &&
+          process.env.DEV_POLICY_BYPASS_ENABLED === "true" &&
+          Boolean(process.env.DEV_POLICY_BYPASS_CLIENT_ID) &&
+          String(req.user.id) ===
+            process.env.DEV_POLICY_BYPASS_CLIENT_ID;
+
+        if (allowDevelopmentBypass) {
+          return res.status(200).json({
+            success: true,
+            policies: [],
+            allCurrentPoliciesAcknowledged: true,
+            developmentBypass: true
+          });
+        }
+        // END TEMPORARY DEVELOPMENT POLICY BYPASS
+
       const acknowledgements =
         await PolicyAcknowledgement
           .find({

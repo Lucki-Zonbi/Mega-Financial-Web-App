@@ -48,6 +48,25 @@ const TAX_SERVICE_OPTIONS = [
   "Tax Planning"
 ];
 
+const US_STATE_CODES = [
+  "AL", "AK", "AZ", "AR", "CA",
+  "CO", "CT", "DE", "DC", "FL",
+  "GA", "HI", "ID", "IL", "IN",
+  "IA", "KS", "KY", "LA", "ME",
+  "MD", "MA", "MI", "MN", "MS",
+  "MO", "MT", "NE", "NV", "NH",
+  "NJ", "NM", "NY", "NC", "ND",
+  "OH", "OK", "OR", "PA", "RI",
+  "SC", "SD", "TN", "TX", "UT",
+  "VT", "VA", "WA", "WV", "WI",
+  "WY"
+];
+
+const IDENTIFICATION_TYPES = [
+  "drivers_license",
+  "state_id"
+];
+
 const clientInformationSchema = new mongoose.Schema(
   {
     firstName: {
@@ -90,6 +109,177 @@ const clientInformationSchema = new mongoose.Schema(
   }
 );
 
+const mailingAddressSchema = new mongoose.Schema(
+  {
+    addressLine1: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 150
+    },
+
+    addressLine2: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: ""
+    },
+
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100
+    },
+
+    state: {
+      type: String,
+      required: true,
+      enum: US_STATE_CODES
+    },
+
+    zipCode: {
+      type: String,
+      required: true,
+      trim: true,
+      match: /^[0-9]{5}(-[0-9]{4})?$/
+    }
+  },
+  {
+    _id: false,
+    strict: "throw"
+  }
+);
+
+
+function isCanonicalBase64(
+  value,
+  expectedLength,
+  maximumLength
+) {
+  if (
+    typeof value !== "string" ||
+    !value.length
+  ) {
+    return false;
+  }
+
+  const decoded = Buffer.from(value, "base64");
+
+  if (
+    decoded.toString("base64") !== value
+  ) {
+    return false;
+  }
+
+  if (
+    expectedLength !== undefined &&
+    decoded.length !== expectedLength
+  ) {
+    return false;
+  }
+
+  if (
+    maximumLength !== undefined &&
+    decoded.length > maximumLength
+  ) {
+    return false;
+  }
+
+  return decoded.length > 0;
+}
+
+const encryptedIntakeValueSchema =
+  new mongoose.Schema(
+    {
+      version: {
+        type: Number,
+        required: true,
+        enum: [1]
+      },
+
+      keyId: {
+        type: String,
+        required: true,
+        match: /^[a-zA-Z0-9_-]{1,64}$/
+      },
+
+      iv: {
+        type: String,
+        required: true,
+        maxlength: 16,
+        validate: {
+          validator: (value) =>
+            isCanonicalBase64(value, 12),
+          message: "Invalid encryption IV."
+        }
+      },
+
+      authTag: {
+        type: String,
+        required: true,
+        maxlength: 24,
+        validate: {
+          validator: (value) =>
+            isCanonicalBase64(value, 16),
+          message: "Invalid authentication tag."
+        }
+      },
+
+      ciphertext: {
+        type: String,
+        required: true,
+        maxlength: 344,
+        validate: {
+          validator: (value) =>
+            isCanonicalBase64(
+              value,
+              undefined,
+              256
+            ),
+          message: "Invalid encrypted value."
+        }
+      }
+    },
+    {
+      _id: false,
+      strict: "throw"
+    }
+  );
+
+const identityInformationSchema =
+  new mongoose.Schema(
+    {
+      identificationType: {
+        type: String,
+        required: true,
+        enum: IDENTIFICATION_TYPES
+      },
+
+      issuingState: {
+        type: String,
+        required: true,
+        enum: US_STATE_CODES
+      },
+
+      encryptedIdentificationNumber: {
+        type: encryptedIntakeValueSchema,
+        required: true,
+        select: false
+      },
+
+      encryptedSsn: {
+        type: encryptedIntakeValueSchema,
+        required: true,
+        select: false
+      }
+    },
+    {
+      _id: false,
+      strict: "throw"
+    }
+  );
+
 const taxIntakeSchema = new mongoose.Schema(
   {
     user: {
@@ -107,12 +297,24 @@ const taxIntakeSchema = new mongoose.Schema(
       max: 2100
     },
 
+
     clientInformation: {
       type: clientInformationSchema,
       required: true
     },
 
+    mailingAddress: {
+      type: mailingAddressSchema,
+      default: undefined
+    },
+
+    identityInformation: {
+      type: identityInformationSchema,
+      default: undefined
+    },
+
     employmentTypes: [
+
       {
         type: String,
         enum: EMPLOYMENT_TYPES

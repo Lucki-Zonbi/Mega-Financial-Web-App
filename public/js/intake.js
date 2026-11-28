@@ -2,6 +2,131 @@ const taxIntakeForm = document.getElementById("taxIntakeForm");
 const intakeMessage = document.getElementById("intakeMessage");
 const intakeSubmitButton = document.getElementById("intakeSubmitButton");
 
+// Sprint 2S.2C - Segmented SSN input navigation
+function initializeSsnInputs() {
+  const ssnInputs = Array.from(
+    document.querySelectorAll(
+      "#ssnInputGroup .intake-ssn-digit"
+    )
+  );
+
+  if (ssnInputs.length !== 9) return;
+
+  // Sprint 2S.2D.2 - SSN visibility toggle
+    const toggleSsnVisibility = document.getElementById(
+      "toggleSsnVisibility"
+    );
+
+    if (toggleSsnVisibility) {
+      let ssnVisible = false;
+
+      toggleSsnVisibility.addEventListener("click", () => {
+        ssnVisible = !ssnVisible;
+
+        ssnInputs.forEach((input) => {
+          input.type = ssnVisible ? "text" : "password";
+        });
+
+        toggleSsnVisibility.textContent =
+          ssnVisible ? "Hide SSN" : "Show SSN";
+
+        toggleSsnVisibility.setAttribute(
+          "aria-pressed",
+          String(ssnVisible)
+        );
+      });
+    }
+
+  ssnInputs.forEach((input, index) => {
+
+    // Handle complete SSN paste operations.
+    input.addEventListener("paste", (event) => {
+      event.preventDefault();
+
+      const pastedValue = (
+        event.clipboardData?.getData("text") || ""
+      ).trim();
+
+      // Accept nine digits with or without standard dashes.
+      const validSsnFormat =
+        /^(?:[0-9]{9}|[0-9]{3}-[0-9]{2}-[0-9]{4})$/;
+
+      if (!validSsnFormat.test(pastedValue)) {
+        return;
+      }
+
+      const digits = pastedValue.replace(/-/g, "");
+
+      // Distribute the digits across all nine input boxes.
+      ssnInputs.forEach((ssnInput, digitIndex) => {
+        ssnInput.value = digits[digitIndex];
+      });
+
+      // Move the cursor to the final input box.
+      ssnInputs[ssnInputs.length - 1].focus();
+    });
+
+    // Accept only numeric digits.
+    input.addEventListener("input", () => {
+      input.value = input.value
+        .replace(/[^0-9]/g, "")
+        .slice(0, 1);
+
+      // Automatically advance after entering a digit.
+      if (
+        input.value.length === 1 &&
+        index < ssnInputs.length - 1
+      ) {
+        ssnInputs[index + 1].focus();
+        ssnInputs[index + 1].select();
+      }
+    });
+
+    // Handle keyboard navigation.
+    input.addEventListener("keydown", (event) => {
+      if (
+        event.key === "Backspace" &&
+        input.value === "" &&
+        index > 0
+      ) {
+        event.preventDefault();
+
+        ssnInputs[index - 1].focus();
+        ssnInputs[index - 1].select();
+
+        return;
+      }
+
+      if (
+        event.key === "ArrowLeft" &&
+        index > 0
+      ) {
+        event.preventDefault();
+
+        ssnInputs[index - 1].focus();
+        ssnInputs[index - 1].select();
+
+        return;
+      }
+
+      if (
+        event.key === "ArrowRight" &&
+        index < ssnInputs.length - 1
+      ) {
+        event.preventDefault();
+
+        ssnInputs[index + 1].focus();
+        ssnInputs[index + 1].select();
+      }
+    });
+
+    // Allow easy replacement of an existing digit.
+    input.addEventListener("focus", () => {
+      input.select();
+    });
+  });
+}
+
 function showIntakeMessage(message, type = "info") {
   if (!intakeMessage) return;
 
@@ -315,6 +440,7 @@ if (
     "info"
   );
 } else if (taxIntakeForm) {
+  initializeSsnInputs();
   taxIntakeForm.addEventListener(
     "submit",
     submitTaxIntake

@@ -7,11 +7,45 @@ const {
 
 const TaxIntake = require("../models/TaxIntake");
 
+const {
+  buildSafeIntakeResponse
+} = require("../utils/intakePrivacyUtils");
+
+const {
+  IntakeValidationError,
+  validateMailingAddress,
+  validateIdentitySubmission
+} = require("../utils/intakeValidationUtils");
+
+const {
+  encryptIntakeValue,
+  decryptIntakeValue
+} = require("../utils/intakeEncryptionUtils");
+
 const buildRequiredDocumentChecklist = require(
   "../utils/buildRequiredDocumentChecklist"
 );
 
 const router = express.Router();
+
+// Prevent storage of private tax intake API responses.
+router.use((req, res, next) => {
+  res.setHeader(
+    "Cache-Control",
+    "private, no-store, max-age=0"
+  );
+
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+
+  res.setHeader(
+    "X-Content-Type-Options",
+    "nosniff"
+  );
+
+  next();
+});
+
 
 const ALLOWED_EMPLOYMENT_TYPES = [
   "W-2 Employee",
@@ -52,6 +86,86 @@ const ALLOWED_SERVICES = [
   "Payroll Support",
   "Tax Planning"
 ];
+// Convert Mongoose encrypted subdocuments into plain envelopes.
+function toEncryptedEnvelope(value) {
+  if (
+    value &&
+    typeof value.toObject === "function"
+  ) {
+    return value.toObject();
+  }
+
+  return value;
+}
+
+// Prepare encrypted identity information before database persistence.
+function prepareEncryptedIdentity(
+  validatedIdentity,
+  existingIdentity,
+  context
+) {
+  let encryptedIdentificationNumber;
+  let encryptedSsn;
+
+  const identificationContext = {
+    ...context,
+    field: "identificationNumber"
+  };
+
+  const ssnContext = {
+    ...context,
+    field: "ssn"
+  };
+
+  if (
+    validatedIdentity.replaceIdentificationNumber
+  ) {
+    encryptedIdentificationNumber =
+      encryptIntakeValue(
+        validatedIdentity.identificationNumber,
+        identificationContext
+      );
+  } else {
+    encryptedIdentificationNumber =
+      toEncryptedEnvelope(
+        existingIdentity?.encryptedIdentificationNumber
+      );
+
+    // Authenticate the preserved envelope.
+    decryptIntakeValue(
+      encryptedIdentificationNumber,
+      identificationContext
+    );
+  }
+
+  if (validatedIdentity.replaceSsn) {
+    encryptedSsn = encryptIntakeValue(
+      validatedIdentity.ssn,
+      ssnContext
+    );
+  } else {
+    encryptedSsn = toEncryptedEnvelope(
+      existingIdentity?.encryptedSsn
+    );
+
+    // Authenticate the preserved envelope.
+    decryptIntakeValue(
+      encryptedSsn,
+      ssnContext
+    );
+  }
+
+  return {
+    identificationType:
+      validatedIdentity.identificationType,
+
+    issuingState:
+      validatedIdentity.issuingState,
+
+    encryptedIdentificationNumber,
+    encryptedSsn
+  };
+}
 
 function cleanString(value) {
   return String(value || "").trim();
@@ -101,10 +215,10 @@ router.get("/me", protect, requireClient, async (req, res) => {  try {
     return res.status(200).json({
       success: true,
       message: "Tax intake retrieved successfully.",
-      intake
+      intake: buildSafeIntakeResponse(intake)
     });
   } catch (error) {
-    console.error("Tax intake retrieval error:", error.message);
+    console.error("Tax intake retrieval failed.");
 
     return res.status(500).json({
       success: false,
@@ -151,7 +265,7 @@ router.get("/checklist", protect, requireClient, async (req, res) => {
       checklist
     });
   } catch (error) {
-    console.error("Document checklist generation error:", error.message);
+    console.error("Document checklist generation failed.");
 
     return res.status(500).json({
       success: false,
@@ -166,6 +280,8 @@ router.post("/", protect, requireClient, async (req, res) => {
     const {
       taxYear,
       clientInformation,
+      mailingAddress,
+      identityInformation,
       employmentTypes,
       incomeSources,
       familyInformation,
@@ -216,9 +332,54 @@ router.post("/", protect, requireClient, async (req, res) => {
         message: "Please complete all required client information fields."
       });
     }
+    // Validate the expanded mailing address.
+    const validatedMailingAddress =
+      validateMailingAddress(mailingAddress);
+
+    // Retrieve existing identity information for the
+    // authenticated client and selected tax year only.
+    const existingIntake = await TaxIntake.findOne({
+      user: req.user.id,
+      taxYear: parsedTaxYear
+    })
+      .select(
+        "_id updatedAt identityInformation " +
+        "+identityInformation.encryptedIdentificationNumber " +
+        "+identityInformation.encryptedSsn"
+      )
+      .lean();
+
+    const existingIdentity =
+      existingIntake?.identityInformation || null;
+
+    // Validate explicit preservation and replacement decisions.
+    const validatedIdentity =
+      validateIdentitySubmission(
+        identityInformation,
+        existingIdentity
+      );
+
+    // Derive encryption context from authenticated information.
+    const encryptionContext = {
+      clientId: String(req.user.id),
+      taxYear: parsedTaxYear
+    };
+
+    // Complete encryption and preserved-envelope authentication
+    // before attempting a database update.
+    const encryptedIdentity =
+      prepareEncryptedIdentity(
+        validatedIdentity,
+        existingIdentity,
+        encryptionContext
+      );
 
     const intakeData = {
       clientInformation: sanitizedClientInformation,
+
+      mailingAddress: validatedMailingAddress,
+
+      identityInformation: encryptedIdentity,
 
       employmentTypes: filterAllowedSelections(
         employmentTypes,
@@ -250,38 +411,87 @@ router.post("/", protect, requireClient, async (req, res) => {
       submittedAt: new Date()
     };
 
-    const intake = await TaxIntake.findOneAndUpdate(
-      {
+    let intake;
+
+    if (existingIntake) {
+      // Update only if the record still matches the
+      // identity information retrieved for this submission.
+      const updateFilter = {
+        _id: existingIntake._id,
         user: req.user.id,
-        taxYear: parsedTaxYear
-      },
-      {
-        $set: intakeData,
-        $setOnInsert: {
-          user: req.user.id,
-          taxYear: parsedTaxYear
-        }
-      },
-      {
-        new: true,
-        upsert: true,
-        runValidators: true,
-        setDefaultsOnInsert: true
+        taxYear: parsedTaxYear,
+        updatedAt: existingIntake.updatedAt
+      };
+
+      // Compare the previous identity snapshot as well,
+      // rather than relying on timestamps alone.
+      if (existingIdentity) {
+        updateFilter.identityInformation =
+          existingIdentity;
+      } else {
+        updateFilter.identityInformation = {
+          $exists: false
+        };
       }
-    );
+
+      intake = await TaxIntake.findOneAndUpdate(
+        updateFilter,
+        {
+          $set: intakeData
+        },
+        {
+          new: true,
+          upsert: false,
+          runValidators: true
+        }
+      );
+
+      if (!intake) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Your tax intake has changed. Please reload the form and try again."
+        });
+      }
+    } else {
+      // Create a new intake only after validation
+      // and encryption operations have succeeded.
+      intake = await TaxIntake.create({
+        user: req.user.id,
+        taxYear: parsedTaxYear,
+        ...intakeData
+      });
+    }
 
     return res.status(200).json({
       success: true,
       message: "Tax intake saved successfully.",
-      intake
+      intake: buildSafeIntakeResponse(intake)
     });
   } catch (error) {
-    console.error("Tax intake submission error:", error.message);
+    console.error("Tax intake submission failed.");
 
-    if (error.name === "ValidationError") {
+        if (error instanceof IntakeValidationError) {
       return res.status(400).json({
         success: false,
-        message: "One or more tax intake fields contain invalid information."
+        message: error.message,
+        field: error.field
+      });
+    }
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "A tax intake already exists for this tax year. Please reload the form and try again."
+      });
+    }
+
+        if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "The submitted tax intake contains invalid information."
       });
     }
 

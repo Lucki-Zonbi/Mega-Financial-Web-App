@@ -2709,3 +2709,134 @@ section {
     margin-bottom: 24px;
   }
 }
+
+
+/* =========================================
+   Sprint 2S.2 - Segmented SSN Input
+   ========================================= */
+
+.intake-ssn-group {
+  width: 100%;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.intake-field-grid .intake-ssn-inputs {
+  display: flex;
+  align-items: center;
+  gap: clamp(2px, 0.8vw, 6px);
+  width: 100%;
+  max-width: 460px;
+  min-width: 0;
+}
+
+.intake-form-card input.intake-ssn-digit {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  max-width: 44px;
+  height: 48px;
+  padding: 0;
+  border: 2px solid var(--mint-green);
+  border-radius: 8px;
+  background: var(--light-gray);
+  color: var(--gray-text);
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.intake-form-card input.intake-ssn-digit:focus {
+  border-color: var(--money-blue);
+  box-shadow: var(--shadow);
+}
+
+.intake-ssn-separator {
+  flex: 0 0 auto;
+  color: var(--deep-blue);
+  font-size: 1.1rem;
+  font-weight: 800;
+  user-select: none;
+}
+
+.intake-ssn-help {
+  color: var(--gray-text);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Segmented SSN - Mobile responsiveness */
+
+@media (max-width: 480px) {
+  .intake-field-grid .intake-ssn-inputs {
+    gap: 3px;
+  }
+
+  .intake-form-card input.intake-ssn-digit {
+    height: 42px;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  .intake-ssn-separator {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .intake-field-grid .intake-ssn-inputs {
+    gap: 2px;
+  }
+
+  .intake-form-card input.intake-ssn-digit {
+    height: 38px;
+    border-width: 1px;
+    border-radius: 4px;
+  }
+}
+
+
+/* Sprint 2S.2D.2 - SSN visibility controls */
+
+.intake-ssn-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+
+.intake-form-card button.intake-ssn-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 0;
+  max-width: 120px;
+  min-height: 36px;
+  padding: 6px 12px;
+  margin: 0;
+  border: 1px solid var(--money-blue);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--money-blue);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease,
+              color 0.2s ease;
+}
+
+.intake-form-card button.intake-ssn-toggle:hover {
+  background: var(--money-blue);
+  color: #ffffff;
+}
+
+.intake-form-card button.intake-ssn-toggle:focus-visible {
+  outline: 2px solid var(--money-blue);
+  outline-offset: 3px;
+}

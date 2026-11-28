@@ -596,7 +596,15 @@ router.get(
       const intake = await TaxIntake.findOne({
         _id: intakeId,
         user: client._id
-      }).lean();
+      })
+        .select(
+          "_id user taxYear clientInformation " +
+          "employmentTypes incomeSources " +
+          "familyInformation businessInformation " +
+          "servicesNeeded additionalNotes " +
+          "status submittedAt createdAt updatedAt"
+        )
+        .lean();
 
       if (!intake) {
         return res.status(404).json({
